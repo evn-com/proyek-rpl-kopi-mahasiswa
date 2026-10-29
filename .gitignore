@@ -38,3 +38,6 @@ npm_log.txt
 # SQLite DB
 prisma/*.db
 prisma/*.db-journal
+
+# scratch
+scratch/

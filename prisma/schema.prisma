@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -27,6 +27,8 @@ model User {
   branch               Branch?                @relation(fields: [branchId], references: [id])
   isGuest              Boolean                @default(false)
   profile              CustomerProfile?
+  membership           Membership?            @relation("UserMembership")
+  approvedMemberships  Membership[]           @relation("AdminApprovedMemberships")
   orders               Order[]
   favorites            Favorite[]
   reviews              Review[]
@@ -43,6 +45,40 @@ model CustomerProfile {
   points           Int      @default(0)
   birthDate        DateTime?
   favoriteBranchId String?
+}
+
+model Membership {
+  id                         String    @id @default(uuid())
+  userId                     String    @unique
+  user                       User      @relation("UserMembership", fields: [userId], references: [id], onDelete: Cascade)
+  campus                     String?
+  status                     String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason            String?   @db.Text
+  approvedAt                 DateTime?
+  approvedById               String?
+  approvedBy                 User?     @relation("AdminApprovedMemberships", fields: [approvedById], references: [id])
+  rejectedAt                 DateTime?
+  whatsappConsent            Boolean   @default(true)
+  promoConsent               Boolean   @default(true)
+  whatsappNotificationStatus String    @default("PENDING") // PENDING, SENT, FAILED, OPT_OUT, SKIPPED
+  whatsappNotificationError  String?   @db.Text
+  whatsappNotifiedAt         DateTime?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+}
+
+model PromoBroadcastLog {
+  id           String   @id @default(uuid())
+  broadcastDate String  // YYYY-MM-DD
+  targetPhone  String
+  userId       String?
+  promotionId  String?
+  status       String   // SENT, FAILED, SKIPPED
+  errorMessage String?  @db.Text
+  messageText  String   @db.Text
+  createdAt    DateTime @default(now())
+
+  @@unique([broadcastDate, targetPhone])
 }
 
 model Branch {
@@ -330,3 +366,11 @@ model AuditLog {
   ipAddress String?
   createdAt DateTime @default(now())
 }
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+

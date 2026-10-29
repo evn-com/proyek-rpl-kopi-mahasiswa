@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Bell, CheckCheck, ExternalLink, Coffee, AlertCircle, Sparkles, X } from 'lucide-react';
+import { Bell, CheckCheck, ExternalLink, Coffee, AlertCircle, Sparkles } from 'lucide-react';
 
 export interface NotificationItem {
   id: string;
@@ -20,7 +20,6 @@ export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = async () => {
@@ -98,14 +97,14 @@ export default function NotificationCenter() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'ORDER':
-        return <Coffee className="w-4 h-4 text-amber-600" />;
+        return <Coffee className="w-4 h-4 text-amber-600 dark:text-amber-400" />;
       case 'INVENTORY':
-        return <AlertCircle className="w-4 h-4 text-rose-600" />;
+        return <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />;
       case 'AI':
       case 'PROMO':
-        return <Sparkles className="w-4 h-4 text-purple-600" />;
+        return <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />;
       default:
-        return <Bell className="w-4 h-4 text-coffee-600" />;
+        return <Bell className="w-4 h-4 text-coffee-600 dark:text-amber-300" />;
     }
   };
 
@@ -113,7 +112,7 @@ export default function NotificationCenter() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl text-coffee-800 hover:bg-coffee-100/80 transition-colors focus:outline-none"
+        className="relative p-2 rounded-xl text-coffee-800 dark:text-amber-200 hover:bg-coffee-100/80 dark:hover:bg-espresso-card transition-colors focus:outline-none"
         title="Pusat Notifikasi"
       >
         <Bell className="w-5 h-5" />
@@ -125,8 +124,8 @@ export default function NotificationCenter() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl bg-white border border-coffee-200/80 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <div className="p-4 bg-gradient-to-r from-coffee-900 to-coffee-950 text-white flex items-center justify-between">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl bg-white dark:bg-espresso-card border border-coffee-200/80 dark:border-espresso-border shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="p-4 bg-gradient-to-r from-coffee-900 to-coffee-950 dark:from-black dark:to-espresso-dark text-white flex items-center justify-between border-b border-coffee-800 dark:border-espresso-border">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-amber-300" />
               <h3 className="font-bold text-sm">Pusat Notifikasi</h3>
@@ -141,47 +140,47 @@ export default function NotificationCenter() {
                 onClick={markAllAsRead}
                 className="text-[11px] font-semibold text-amber-200 hover:text-white flex items-center gap-1 transition-colors"
               >
-                <CheckCheck className="w-3.5 h-3.5" /> Tandai Semua Dibaca
+                <CheckCheck className="w-3.5 h-3.5" /> Tandai Dibaca
               </button>
             )}
           </div>
 
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-coffee-100">
+          <div className="max-h-[380px] overflow-y-auto divide-y divide-coffee-100 dark:divide-espresso-border">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-coffee-600">
-                <Bell className="w-8 h-8 text-coffee-300 mx-auto mb-2 opacity-50" />
+              <div className="p-8 text-center text-coffee-600 dark:text-coffee-300">
+                <Bell className="w-8 h-8 text-coffee-300 dark:text-coffee-600 mx-auto mb-2 opacity-50" />
                 <p className="text-xs font-semibold">Belum ada notifikasi baru.</p>
-                <p className="text-[11px] text-coffee-400 mt-1">Status pesanan dan kabar promo akan muncul di sini.</p>
+                <p className="text-[11px] text-coffee-400 dark:text-coffee-400 mt-1">Status pesanan dan kabar promo akan muncul di sini.</p>
               </div>
             ) : (
               notifications.map((n) => (
                 <div
                   key={n.id}
                   onClick={() => !n.isRead && markAsRead(n.id)}
-                  className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 hover:bg-coffee-50/80 ${
-                    n.isRead ? 'bg-white opacity-85' : 'bg-amber-50/50'
+                  className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 hover:bg-coffee-50/80 dark:hover:bg-espresso-deep ${
+                    n.isRead ? 'bg-white dark:bg-espresso-card opacity-85' : 'bg-amber-50/50 dark:bg-amber-950/20'
                   }`}
                 >
-                  <div className="p-2 rounded-xl bg-coffee-100/70 shrink-0 mt-0.5">
+                  <div className="p-2 rounded-xl bg-coffee-100/70 dark:bg-espresso-deep shrink-0 mt-0.5">
                     {getTypeIcon(n.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
-                      <h4 className={`text-xs font-bold truncate ${n.isRead ? 'text-coffee-900' : 'text-coffee-950'}`}>
+                      <h4 className={`text-xs font-bold truncate ${n.isRead ? 'text-coffee-900 dark:text-cream' : 'text-coffee-950 dark:text-white'}`}>
                         {n.title}
                       </h4>
-                      <span className="text-[10px] text-coffee-400 shrink-0">
+                      <span className="text-[10px] text-coffee-400 dark:text-coffee-400 shrink-0">
                         {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <p className="text-xs text-coffee-700 mt-1 leading-snug break-words">
+                    <p className="text-xs text-coffee-700 dark:text-coffee-300 mt-1 leading-snug break-words">
                       {n.message}
                     </p>
                     {n.link && (
                       <Link
                         href={n.link}
                         onClick={() => setIsOpen(false)}
-                        className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-coffee-800 hover:text-coffee-950 hover:underline"
+                        className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-coffee-800 dark:text-amber-400 hover:text-coffee-950 dark:hover:text-amber-300 hover:underline"
                       >
                         <span>Buka Halaman</span>
                         <ExternalLink className="w-3 h-3" />

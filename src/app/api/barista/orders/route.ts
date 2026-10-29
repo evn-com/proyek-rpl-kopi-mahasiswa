@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromRequest, createAuditLog } from '@/lib/auth';
+import { notifyOrderReadyWA } from '@/lib/whatsapp/fonnteClient';
 
 export async function GET(req: Request) {
   try {
@@ -73,6 +74,16 @@ export async function POST(req: Request) {
       resource: 'ORDER',
       details: `Barista ${userPayload.name} updated Order ${order.orderNumber} to ${targetStatus}`,
     });
+
+    // Kirim Notifikasi WhatsApp saat pesanan READY
+    if (targetStatus === 'READY' && order.customerPhone) {
+      notifyOrderReadyWA({
+        orderNumber: order.orderNumber,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        tableNumber: order.tableNumber,
+      }).catch((err) => console.error('[WhatsApp Notification] Gagal mengirim notif pesanan ready:', err));
+    }
 
     return NextResponse.json({ message: 'Status barista berhasil diperbarui.', order: updatedOrder });
   } catch (error) {

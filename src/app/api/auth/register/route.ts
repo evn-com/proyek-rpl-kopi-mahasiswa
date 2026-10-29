@@ -4,19 +4,36 @@ import { hashPassword, signToken, createAuditLog } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
-    const { email, password, name, phone } = await req.json();
+    const body = await req.json();
+    const { name, phone, campus, email, password } = body;
 
-    if (!email || !password || !name) {
-      return NextResponse.json({ error: 'Nama, email, dan password wajib diisi.' }, { status: 400 });
+    if (!name || !phone) {
+      return NextResponse.json({ error: 'Nama Lengkap dan Nomor Telepon/WhatsApp wajib diisi.' }, { status: 400 });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+    const cleanPhone = String(phone).replace(/[^0-9]/g, '');
+    if (cleanPhone.length < 9) {
+      return NextResponse.json({ error: 'Nomor WhatsApp tidak valid (minimal 9 digit angka).' }, { status: 400 });
+    }
+
+    // Auto-generate identifier email jika pelanggan tidak mengisi email
+    const generatedEmail = email
+      ? email.toLowerCase().trim()
+      : `${cleanPhone}@mahasiswa.kopimahasiswa.local`;
+
+    const generatedPassword = password || `kopimhs-${cleanPhone}`;
+
+    // Cek apakah nomor atau email sudah terdaftar
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: generatedEmail },
+          { phone: cleanPhone },
+          { phone: phone.trim() },
+        ],
+      },
+      include: { role: true, profile: true, membership: true },
     });
-
-    if (existingUser) {
-      return NextResponse.json({ error: 'Email sudah terdaftar. Silakan login.' }, { status: 400 });
-    }
 
     const customerRole = await prisma.role.findUnique({
       where: { name: 'Customer' },
@@ -26,24 +43,66 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Role Customer tidak ditemukan.' }, { status: 500 });
     }
 
-    const hashedPassword = await hashPassword(password);
+    let user = existingUser;
 
-    const user = await prisma.user.create({
-      data: {
-        email: email.toLowerCase().trim(),
-        passwordHash: hashedPassword,
-        name,
-        phone,
-        roleId: customerRole.id,
-        isGuest: false,
-        profile: {
-          create: {
-            points: 50, // Welcome points!
+    if (!user) {
+      const hashedPassword = await hashPassword(generatedPassword);
+
+      const whatsappConsent = body.whatsappConsent !== false;
+      const promoConsent = body.promoConsent !== false;
+
+      user = await prisma.user.create({
+        data: {
+          email: generatedEmail,
+          passwordHash: hashedPassword,
+          name: name.trim(),
+          phone: cleanPhone,
+          roleId: customerRole.id,
+          isGuest: false,
+          profile: {
+            create: {
+              points: 0, // Bonus 50 Poin akan aktif setelah disetujui Admin
+            },
+          },
+          membership: {
+            create: {
+              campus: campus ? String(campus).trim() : null,
+              status: 'PENDING',
+              whatsappConsent,
+              promoConsent,
+              whatsappNotificationStatus: 'PENDING',
+            },
           },
         },
-      },
-      include: { role: true },
-    });
+        include: { role: true, profile: true, membership: true },
+      });
+
+      // Buat / pastikan voucher diskon 10% member aktif di database
+      try {
+        await prisma.voucher.upsert({
+          where: { code: 'MEMBER10' },
+          update: { isActive: true },
+          create: {
+            code: 'MEMBER10',
+            discountType: 'PERCENTAGE',
+            discountAmount: 10,
+            minSpend: 0,
+            quota: 99999,
+            expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            isActive: true,
+          },
+        });
+      } catch (e) {
+        console.warn('Voucher initialization note:', e);
+      }
+
+      await createAuditLog({
+        userId: user.id,
+        action: 'REGISTER_MEMBERSHIP_PENDING',
+        resource: 'MEMBERSHIP',
+        details: `Pendaftaran membership diajukan (PENDING): ${user.name} (${user.phone}) - Kampus: ${campus || '-'}`,
+      });
+    }
 
     const tokenPayload = {
       userId: user.id,
@@ -54,20 +113,17 @@ export async function POST(req: Request) {
 
     const token = signToken(tokenPayload);
 
-    await createAuditLog({
-      userId: user.id,
-      action: 'REGISTER_SUCCESS',
-      resource: 'USER',
-      details: `New customer registered: ${user.email}`,
-    });
-
     const response = NextResponse.json({
-      message: 'Pendaftaran berhasil. Selamat datang di Kopi Mahasiswa!',
+      success: true,
+      message: 'Pendaftaran membership berhasil diajukan dan sedang menunggu persetujuan Admin.',
       user: {
         id: user.id,
         name: user.name,
+        phone: user.phone,
         email: user.email,
         role: user.role.name,
+        points: user.profile?.points || 0,
+        membershipStatus: user.membership?.status || 'PENDING',
       },
       token,
     });
@@ -84,6 +140,6 @@ export async function POST(req: Request) {
     return response;
   } catch (error) {
     console.error('Register error:', error);
-    return NextResponse.json({ error: 'Terjadi kesalahan saat pendaftaran.' }, { status: 500 });
+    return NextResponse.json({ error: 'Terjadi kesalahan saat pendaftaran member.' }, { status: 500 });
   }
 }

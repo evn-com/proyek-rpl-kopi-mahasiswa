@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { defaultPaymentGateway, MockPaymentGateway } from '@/lib/payment/MockPaymentGateway';
 import { createAuditLog } from '@/lib/auth';
 import { globalEventBus } from '@/lib/events';
+import { notifyPaymentSuccessWA } from '@/lib/whatsapp/fonnteClient';
 
 export async function POST(req: Request) {
   try {
@@ -78,6 +79,16 @@ export async function POST(req: Request) {
       orderNumber,
       paymentStatus: newOrderPaymentStatus,
     });
+
+    // 4. Kirim notifikasi WhatsApp ke pelanggan (non-blocking, tidak menggagalkan transaksi jika WA down)
+    if (isPaid && existingPayment.order?.customerPhone) {
+      notifyPaymentSuccessWA({
+        orderNumber,
+        customerName: existingPayment.order.customerName,
+        customerPhone: existingPayment.order.customerPhone,
+        finalAmount: existingPayment.amount,
+      }).catch((err) => console.warn('[Payment Webhook] Gagal kirim WA pembayaran:', err));
+    }
 
     return NextResponse.json({
       success: true,

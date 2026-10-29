@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
 import {
   TrendingUp,
   DollarSign,
@@ -74,10 +73,8 @@ export default function OwnerDashboardPage() {
   const maxHourlyOrders = Math.max(...salesByHour.map((h: any) => h.orders), 1);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans pb-16">
-      <Header title="Owner Executive Dashboard (Read-Only)" showCart={false} />
-
-      <main className="max-w-7xl mx-auto px-4 py-6 w-full flex-1 space-y-6">
+    <div className="w-full pb-16">
+      <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
         {/* Top Header & Range Filters */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
           <div>
@@ -123,7 +120,7 @@ export default function OwnerDashboardPage() {
         </div>
 
         {/* 1. Core Financial Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="overview" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 scroll-mt-24">
           <div className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800 relative overflow-hidden shadow-xl">
             <div className="flex items-center justify-between text-amber-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pendapatan</span>
@@ -180,7 +177,7 @@ export default function OwnerDashboardPage() {
         </div>
 
         {/* 2. Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div id="tren-penjualan" className="grid grid-cols-1 lg:grid-cols-3 gap-6 scroll-mt-24">
           {/* Daily Sales Chart */}
           <div className="lg:col-span-2 p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4 shadow-xl">
             <div className="flex items-center justify-between">
@@ -309,7 +306,7 @@ export default function OwnerDashboardPage() {
         </div>
 
         {/* 4. Best-Selling vs Low-Performing Products & Inventory Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div id="stok-bahan" className="grid grid-cols-1 lg:grid-cols-2 gap-6 scroll-mt-24">
           {/* Best Selling */}
           <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4 shadow-xl">
             <h3 className="font-extrabold text-base text-white flex items-center gap-2">
@@ -383,7 +380,7 @@ export default function OwnerDashboardPage() {
         </div>
 
         {/* 5. ✨ AI BUSINESS INSIGHTS & FORECASTING */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-purple-950/40 via-slate-900 to-amber-950/30 border border-purple-500/40 shadow-2xl space-y-6">
+        <div id="ai-insights" className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-purple-950/40 via-slate-900 to-amber-950/30 border border-purple-500/40 shadow-2xl space-y-6 scroll-mt-24">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-purple-500/20 pb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold border border-purple-500/30">

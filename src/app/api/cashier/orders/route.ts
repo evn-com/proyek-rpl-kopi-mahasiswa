@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromRequest, createAuditLog } from '@/lib/auth';
+import { notifyPaymentSuccessWA } from '@/lib/whatsapp/fonnteClient';
 
 export async function GET(req: Request) {
   try {
@@ -92,6 +93,16 @@ export async function POST(req: Request) {
       resource: 'ORDER',
       details: `Cashier ${userPayload.name} updated Order ${order.orderNumber} to status ${newStatus}`,
     });
+
+    // Kirim notifikasi WhatsApp jika pembayaran dikonfirmasi kasir
+    if (action === 'CONFIRM_AND_PAY' && order.customerPhone) {
+      notifyPaymentSuccessWA({
+        orderNumber: order.orderNumber,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        finalAmount: order.finalAmount,
+      }).catch((err) => console.error('[WhatsApp Notification] Gagal mengirim notif konfirmasi bayar kasir:', err));
+    }
 
     return NextResponse.json({ message: 'Status pesanan berhasil diperbarui.', order: updatedOrder });
   } catch (error) {

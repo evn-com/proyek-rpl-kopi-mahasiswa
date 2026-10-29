@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
+import AdminNavbar from '@/components/AdminNavbar';
 import {
   Package,
   Layers,
@@ -28,13 +28,32 @@ import {
   Sparkles,
   Calendar,
   ShieldCheck,
+  Send,
 } from 'lucide-react';
 import { Product, Category, Ingredient, InventoryTransaction } from '@/types';
+import AdminSidebar from '@/components/AdminSidebar';
+import AdminUserManagement from '@/components/AdminUserManagement';
+import AdminAIChat from '@/components/AdminAIChat';
+import AdminWhatsAppInbox from '@/components/AdminWhatsAppInbox';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'products' | 'categories' | 'toppings' | 'ingredients' | 'recipes' | 'inventory' | 'promotions' | 'vouchers'
+    'overview' | 'products' | 'categories' | 'toppings' | 'ingredients' | 'recipes' | 'inventory' | 'promotions' | 'vouchers' | 'users' | 'memberships' | 'inbox'
   >('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingMembersCount, setPendingMembersCount] = useState<number>(0);
+  const [broadcastingPromo, setBroadcastingPromo] = useState<boolean>(false);
+
+  // Sync tab with URL search parameter if navigated from another page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam) {
+        setActiveTab(tabParam as any);
+      }
+    }
+  }, []);
 
   // Stats
   const [stats, setStats] = useState<any>(null);
@@ -201,11 +220,39 @@ export default function AdminPage() {
       if (historyRes.ok) {
         setInventoryLogs(await historyRes.json());
       }
+
+      // Fetch pending memberships count
+      try {
+        const memRes = await fetch('/api/admin/memberships?status=PENDING');
+        if (memRes.ok) {
+          const memData = await memRes.json();
+          setPendingMembersCount(memData.counts?.pending || 0);
+        }
+      } catch {
+        // ignore
+      }
     } catch (err) {
       console.error('Error fetching admin dashboard data:', err);
       showToast('Gagal memuat data admin dashboard', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBroadcastDailyPromo = async () => {
+    if (!confirm('Kirim notifikasi info promo aktif hari ini ke nomor WhatsApp semua pelanggan yang telah menyetujui (opt-in)?')) {
+      return;
+    }
+    setBroadcastingPromo(true);
+    try {
+      const res = await fetch('/api/cron/daily-promo', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Gagal mengirim broadcast');
+      showToast(data.message || `Broadcast selesai: ${data.sentCount || 0} terkirim`);
+    } catch (err: any) {
+      showToast(err.message, 'error');
+    } finally {
+      setBroadcastingPromo(false);
     }
   };
 
@@ -592,77 +639,61 @@ export default function AdminPage() {
     }
   };
 
+  // Tab title mapping for navbar header display
+  const tabTitles: Record<string, string> = {
+    overview: 'Dashboard Overview',
+    products: 'Product Management',
+    categories: 'Kategori Produk',
+    toppings: 'Toppings Management',
+    ingredients: 'Bahan Baku (Stock)',
+    recipes: 'Recipe / Bill of Materials (BOM)',
+    inventory: 'Riwayat & Mutasi Inventaris',
+    promotions: 'Promosi & Banner',
+    vouchers: 'Manajemen Voucher Diskon',
+    users: 'Manajemen Pengguna & Membership',
+    memberships: 'Manajemen Pengguna & Membership',
+    inbox: 'WhatsApp Live Chat & Human Handover',
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      <Header title="Admin Dashboard & Inventory" showCart={false} />
+      {/* Left Sidebar Navigation */}
+      <AdminSidebar
+        activeTab={activeTab === 'memberships' ? 'users' : activeTab}
+        setActiveTab={(tab) => setActiveTab(tab as any)}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        lowStockCount={lowStockList.length}
+        pendingMembersCount={pendingMembersCount}
+      />
 
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border transition-all animate-bounce ${
-            toastMessage.type === 'success'
-              ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
-              : 'bg-rose-950/90 border-rose-500/50 text-rose-200'
-          }`}
-        >
-          {toastMessage.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          ) : (
-            <AlertTriangle className="w-5 h-5 text-rose-400" />
-          )}
-          <span className="font-medium text-sm">{toastMessage.text}</span>
-        </div>
-      )}
+      {/* Right Content Area (offset by sidebar width on desktop) */}
+      <div className="flex-1 flex flex-col lg:pl-[260px] min-w-0 transition-[padding] duration-300">
+        <AdminNavbar
+          onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+          pageTitle={tabTitles[activeTab] || 'Admin Dashboard'}
+        />
 
-      {/* Navigation Tabs */}
-      <div className="bg-slate-900/80 border-b border-slate-800 backdrop-blur-md sticky top-16 z-30 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto py-3 no-scrollbar">
-          {[
-            { id: 'overview', label: 'Dashboard Overview', icon: TrendingUp },
-            { id: 'products', label: 'Product Management', icon: Package },
-            { id: 'categories', label: 'Categories', icon: Layers },
-            { id: 'toppings', label: 'Toppings', icon: Sparkles },
-            { id: 'ingredients', label: 'Bahan Baku (Stock)', icon: FlaskConical },
-            { id: 'recipes', label: 'Recipe (BOM)', icon: BookOpen },
-            { id: 'inventory', label: 'Inventory & History', icon: Boxes },
-            { id: 'promotions', label: 'Promosi', icon: Tag },
-            { id: 'vouchers', label: 'Vouchers', icon: Ticket },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
-                  active
-                    ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 scale-[1.02]'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-                {tab.id === 'ingredients' && lowStockList.length > 0 && (
-                  <span className="px-2 py-0.5 text-xs bg-rose-500 text-white rounded-full font-bold">
-                    {lowStockList.length}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-
-          <button
-            onClick={fetchData}
-            className="ml-auto p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
-            title="Refresh Data"
+        {/* Toast Notification (Top Right to avoid FAB collision) */}
+        {toastMessage && (
+          <div
+            className={`fixed top-20 right-6 z-50 px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border transition-all animate-bounce ${
+              toastMessage.type === 'success'
+                ? 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200'
+                : 'bg-rose-950/95 border-rose-500/50 text-rose-200'
+            }`}
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-      </div>
+            {toastMessage.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+            ) : (
+              <AlertTriangle className="w-5 h-5 text-rose-400" />
+            )}
+            <span className="font-medium text-sm">{toastMessage.text}</span>
+          </div>
+        )}
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-8">
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-8">
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
@@ -1365,29 +1396,40 @@ export default function AdminPage() {
                   Buat promo diskon persentase, nominal tetap, produk/kategori khusus, dan batas kuota
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setPromoForm({
-                    title: '',
-                    description: '',
-                    discountType: 'PERCENTAGE',
-                    discountValue: 15,
-                    minPurchase: 20000,
-                    maxDiscount: 10000,
-                    productId: '',
-                    categoryId: '',
-                    targetCustomerId: '',
-                    startDate: new Date().toISOString().slice(0, 10),
-                    endDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
-                    usageLimit: 100,
-                    isActive: true,
-                  });
-                  setShowPromoModal(true);
-                }}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
-              >
-                <Plus className="w-4 h-4" /> Buat Promosi Baru
-              </button>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                  onClick={handleBroadcastDailyPromo}
+                  disabled={broadcastingPromo}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition"
+                  title="Kirim info promo harian via WhatsApp ke pelanggan yang telah opt-in"
+                >
+                  <Send className={`w-4 h-4 ${broadcastingPromo ? 'animate-pulse' : ''}`} />
+                  <span>{broadcastingPromo ? 'Mengirim...' : 'Broadcast Promo WhatsApp'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setPromoForm({
+                      title: '',
+                      description: '',
+                      discountType: 'PERCENTAGE',
+                      discountValue: 15,
+                      minPurchase: 20000,
+                      maxDiscount: 10000,
+                      productId: '',
+                      categoryId: '',
+                      targetCustomerId: '',
+                      startDate: new Date().toISOString().slice(0, 10),
+                      endDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+                      usageLimit: 100,
+                      isActive: true,
+                    });
+                    setShowPromoModal(true);
+                  }}
+                  className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
+                >
+                  <Plus className="w-4 h-4" /> Buat Promosi Baru
+                </button>
+              </div>
             </div>
 
             {/* Promotions Table */}
@@ -1696,7 +1738,21 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* USERS & MEMBERSHIP MANAGEMENT TAB */}
+        {(activeTab === 'users' || activeTab === 'memberships') && (
+          <AdminUserManagement
+            onShowToast={showToast}
+            onRefreshPendingCount={(count) => setPendingMembersCount(count)}
+          />
+        )}
+
+        {/* WHATSAPP LIVE CHAT & HUMAN HANDOVER TAB */}
+        {activeTab === 'inbox' && (
+          <AdminWhatsAppInbox onShowToast={showToast} />
+        )}
       </main>
+      </div>
 
       {/* PRODUCT MODAL */}
       {showProductModal && (
@@ -2552,6 +2608,9 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* Floating Action Button (FAB) Admin AI Assistant */}
+      <AdminAIChat />
     </div>
   );
 }

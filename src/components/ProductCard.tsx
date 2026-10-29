@@ -50,11 +50,11 @@ export default function ProductCard({ product, onSelect, onFavoriteChange }: Pro
   return (
     <div
       onClick={() => onSelect(product)}
-      className="group relative rounded-3xl bg-white border border-coffee-200/70 p-3.5 flex flex-col justify-between shadow-xs hover:shadow-card-hover hover:border-coffee-400 transition-all duration-300 cursor-pointer overflow-hidden"
+      className="group relative rounded-3xl bg-white dark:bg-espresso-card border border-coffee-200/70 dark:border-espresso-border p-3.5 flex flex-col justify-between shadow-xs hover:shadow-card-hover dark:hover:shadow-dark-card hover:border-coffee-400 dark:hover:border-amber-500/50 transition-all duration-300 cursor-pointer overflow-hidden"
     >
       <div>
         {/* Product Image & Badges */}
-        <div className="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-coffee-100/50">
+        <div className="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-coffee-100/50 dark:bg-espresso-deep">
           <Image
             src={product.image}
             alt={product.name}
@@ -88,14 +88,14 @@ export default function ProductCard({ product, onSelect, onFavoriteChange }: Pro
             disabled={isFavLoading}
             className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-md z-10 ${
               isFavorited
-                ? 'bg-rose-50 text-rose-600 scale-105'
+                ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/80 dark:text-rose-400 scale-105'
                 : 'bg-black/30 hover:bg-black/50 text-white'
             }`}
             title={isFavorited ? 'Hapus dari Favorit' : 'Simpan ke Favorit'}
           >
             <Heart
               className={`w-4 h-4 transition-transform ${
-                isFavorited ? 'fill-rose-600 scale-110' : ''
+                isFavorited ? 'fill-rose-600 dark:fill-rose-400 scale-110' : ''
               }`}
             />
           </button>
@@ -103,30 +103,30 @@ export default function ProductCard({ product, onSelect, onFavoriteChange }: Pro
 
         {/* Product Info */}
         <div className="mb-2">
-          <div className="flex items-center gap-1 text-amber-600 text-xs font-bold mb-1">
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+          <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-xs font-bold mb-1">
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500 dark:text-amber-400" />
             <span>{rating}</span>
-            <span className="text-[11px] text-coffee-400 font-normal">
+            <span className="text-[11px] text-coffee-400 dark:text-coffee-300 font-normal">
               ({reviewCount > 0 ? reviewCount : 'Baru'})
             </span>
           </div>
 
-          <h3 className="font-extrabold text-coffee-950 text-sm sm:text-base leading-tight group-hover:text-coffee-700 transition-colors line-clamp-1">
+          <h3 className="font-extrabold text-coffee-950 dark:text-cream text-sm sm:text-base leading-tight group-hover:text-coffee-700 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
             {product.name}
           </h3>
-          <p className="text-xs text-coffee-700/80 line-clamp-2 mt-1 leading-relaxed">
+          <p className="text-xs text-coffee-700/80 dark:text-coffee-300 line-clamp-2 mt-1 leading-relaxed">
             {product.description}
           </p>
         </div>
       </div>
 
       {/* Footer Price & Action */}
-      <div className="pt-2.5 flex items-center justify-between border-t border-coffee-100 mt-2">
+      <div className="pt-2.5 flex items-center justify-between border-t border-coffee-100 dark:border-espresso-border mt-2">
         <div>
-          <span className="text-[10px] text-coffee-500 font-medium block uppercase tracking-wider">
+          <span className="text-[10px] text-coffee-500 dark:text-coffee-400 font-medium block uppercase tracking-wider">
             Mulai Dari
           </span>
-          <span className="font-extrabold text-sm sm:text-base text-coffee-950">
+          <span className="font-extrabold text-sm sm:text-base text-coffee-950 dark:text-amber-300">
             Rp {product.basePrice.toLocaleString('id-ID')}
           </span>
         </div>
@@ -139,8 +139,8 @@ export default function ProductCard({ product, onSelect, onFavoriteChange }: Pro
           }}
           className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all shadow-xs ${
             product.isAvailable
-              ? 'bg-coffee-900 text-amber-200 group-hover:bg-coffee-700 group-hover:scale-105'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              ? 'bg-coffee-900 text-amber-200 dark:bg-amber-500 dark:text-coffee-950 group-hover:bg-coffee-700 dark:group-hover:bg-amber-400 group-hover:scale-105'
+              : 'bg-gray-200 dark:bg-coffee-950 text-gray-400 dark:text-gray-600 cursor-not-allowed'
           }`}
           title={product.isAvailable ? 'Tambah ke Pesanan' : 'Stok Habis'}
         >

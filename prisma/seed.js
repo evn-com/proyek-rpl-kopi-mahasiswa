@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -99,11 +100,28 @@ async function main() {
             branchId: branch.id,
             phone: '08444444444',
         },
+        {
+            email: 'customer@kopimahasiswa.id',
+            name: 'Pelanggan Setia',
+            passwordHash: defaultPassword,
+            roleId: createdRoles['Customer'],
+            branchId: branch.id,
+            phone: '08555555555',
+        },
     ];
     for (const u of staffUsers) {
-        await prisma.user.create({ data: u });
+        const createdUser = await prisma.user.create({ data: u });
+        if (u.roleId === createdRoles['Customer']) {
+            await prisma.customerProfile.create({
+                data: {
+                    userId: createdUser.id,
+                    points: 150,
+                    favoriteBranchId: branch.id,
+                },
+            });
+        }
     }
-    console.log('✅ Created staff accounts (password: password123)');
+    console.log('✅ Created staff and customer accounts (password: password123)');
     // 6. Create Toppings
     const toppingsData = [
         { name: 'Extra Shot Espresso', price: 5000 },

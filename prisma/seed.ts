@@ -103,12 +103,29 @@ async function main() {
       branchId: branch.id,
       phone: '08444444444',
     },
+    {
+      email: 'customer@kopimahasiswa.id',
+      name: 'Pelanggan Setia',
+      passwordHash: defaultPassword,
+      roleId: createdRoles['Customer'],
+      branchId: branch.id,
+      phone: '08555555555',
+    },
   ];
 
   for (const u of staffUsers) {
-    await prisma.user.create({ data: u });
+    const createdUser = await prisma.user.create({ data: u });
+    if (u.roleId === createdRoles['Customer']) {
+      await prisma.customerProfile.create({
+        data: {
+          userId: createdUser.id,
+          points: 150,
+          favoriteBranchId: branch.id,
+        },
+      });
+    }
   }
-  console.log('✅ Created staff accounts (password: password123)');
+  console.log('✅ Created staff and customer accounts (password: password123)');
 
   // 6. Create Toppings
   const toppingsData = [
@@ -317,7 +334,43 @@ async function main() {
   }
   console.log('✅ Created products & variants');
 
-  // 8. Create Vouchers
+  // 8. Create Promotions
+  const promotions = [
+    {
+      title: 'Special Mahasiswa Promo 2026',
+      description: 'Diskon 20% untuk semua menu kopi dengan KTM atau order via website Kopi Mahasiswa.',
+      discountType: 'PERCENTAGE',
+      discountPercent: 20,
+      discountValue: 0,
+      minPurchase: 15000,
+      maxDiscount: 15000,
+      startDate: new Date('2026-01-01'),
+      endDate: new Date('2026-12-31'),
+      usageLimit: 1000,
+      usedCount: 42,
+      isActive: true,
+    },
+    {
+      title: 'Happy Hour Nugas Sore',
+      description: 'Diskon Rp 4.000 untuk pembelian varian kopi susu jam 14:00 - 17:00.',
+      discountType: 'FIXED',
+      discountPercent: 0,
+      discountValue: 4000,
+      minPurchase: 20000,
+      maxDiscount: 4000,
+      startDate: new Date('2026-01-01'),
+      endDate: new Date('2026-12-31'),
+      usageLimit: 500,
+      usedCount: 15,
+      isActive: true,
+    },
+  ];
+  for (const pr of promotions) {
+    await prisma.promotion.create({ data: pr });
+  }
+  console.log('✅ Created promotions');
+
+  // 9. Create Vouchers
   const vouchers = [
     {
       code: 'MAHASISWAHEMAT',

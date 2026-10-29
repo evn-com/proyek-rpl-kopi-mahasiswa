@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromRequest, createAuditLog } from '@/lib/auth';
 import { defaultPaymentGateway } from '@/lib/payment/MockPaymentGateway';
 import { globalEventBus } from '@/lib/events';
+import { notifyOrderCreatedWA } from '@/lib/whatsapp/fonnteClient';
 
 export async function GET(req: Request) {
   try {
@@ -156,6 +157,31 @@ export async function POST(req: Request) {
       }
     }
 
+    // Diskon 10% Otomatis untuk Member Mahasiswa Terdaftar (Customer)
+    let isRegisteredMember = userPayload?.role === 'Customer';
+    let customerUserId = userPayload?.userId || null;
+
+    if (!isRegisteredMember && customerPhone) {
+      const cleanPhone = String(customerPhone).replace(/[^0-9]/g, '');
+      const existingMember = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { phone: cleanPhone },
+            { phone: customerPhone.trim() },
+          ],
+        },
+        include: { role: true },
+      });
+      if (existingMember && existingMember.role?.name === 'Customer') {
+        isRegisteredMember = true;
+        customerUserId = existingMember.id;
+      }
+    }
+
+    if (!discountAmount && isRegisteredMember) {
+      discountAmount = Math.round((totalAmount * 10) / 100);
+    }
+
     const finalAmount = Math.max(0, totalAmount - discountAmount);
 
     // Generate Order Number
@@ -172,10 +198,10 @@ export async function POST(req: Request) {
         branchId: branch.id,
         tableId: table?.id || null,
         tableNumber: tableNumber,
-        customerId: userPayload?.userId || null,
+        customerId: customerUserId,
         customerName: customerName,
         customerPhone: customerPhone || null,
-        isGuest: !userPayload,
+        isGuest: !isRegisteredMember,
         totalAmount,
         discountAmount,
         voucherId: appliedVoucherId,
@@ -290,6 +316,23 @@ export async function POST(req: Request) {
         type: 'ORDER',
         link: `/order-status?id=${newOrder.id}`,
       });
+    }
+
+    // Kirim Notifikasi WhatsApp Otomatis ke Nomor Pelanggan jika tersedia
+    if (newOrder.customerPhone) {
+      notifyOrderCreatedWA({
+        orderNumber: newOrder.orderNumber,
+        customerName: newOrder.customerName,
+        customerPhone: newOrder.customerPhone,
+        tableNumber: newOrder.tableNumber,
+        finalAmount: newOrder.finalAmount,
+        paymentMethod: newOrder.paymentMethod,
+        items: newOrder.items.map((i) => ({
+          productName: i.productName,
+          quantity: i.quantity,
+          variantName: i.variantName,
+        })),
+      }).catch((err) => console.error('[WhatsApp Notification] Gagal mengirim notif pesanan baru:', err));
     }
 
     return NextResponse.json({

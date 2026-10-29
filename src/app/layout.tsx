@@ -1,6 +1,9 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import Header from '@/components/Header';
+import PublicNavbar from '@/components/PublicNavbar';
+import PublicFooter from '@/components/PublicFooter';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import AIFloatingWidget from '@/components/AIFloatingWidget';
 
 export const metadata: Metadata = {
   title: 'Kopi Mahasiswa | E-Commerce & QR Ordering Coffee Shop',
@@ -15,16 +18,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className="h-full">
-      <body className="min-h-full flex flex-col bg-cream text-coffee-950 antialiased selection:bg-coffee-200">
-        <Header />
-        <main className="flex-1 pb-20 sm:pb-12">{children}</main>
-        <footer className="py-6 border-t border-coffee-200/60 bg-coffee-100/40 text-center text-xs text-coffee-700/80">
-          <div className="max-w-6xl mx-auto px-4">
-            <p className="font-semibold text-coffee-900 mb-1">☕ Kopi Mahasiswa - Kampus Utama</p>
-            <p>© {new Date().getFullYear()} Kopi Mahasiswa Inc. QR Order & Smart Coffee Shop Platform.</p>
-          </div>
-        </footer>
+    <html lang="id" className="h-full" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('km_theme');
+                  if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-cream dark:bg-espresso-deep text-coffee-950 dark:text-cream antialiased selection:bg-coffee-200 dark:selection:bg-amber-900 transition-colors duration-200">
+        <ThemeProvider>
+          <PublicNavbar />
+          <main className="flex-1">{children}</main>
+          {/* Public Footer Pelanggan (Otomatis disembunyikan di rute admin/staff) */}
+          <PublicFooter />
+
+          {/* Global Floating AI Barista Widget */}
+          <AIFloatingWidget />
+        </ThemeProvider>
       </body>
     </html>
   );

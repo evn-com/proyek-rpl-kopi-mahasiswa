@@ -1,15 +1,20 @@
 import { NextResponse } from 'next/server';
 import { aiService } from '@/lib/ai/aiService';
+import { getUserFromRequest } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const user = getUserFromRequest(req);
+    const { messages, mode } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: 'Pesan obrolan tidak boleh kosong.' }, { status: 400 });
     }
 
-    const reply = await aiService.chat(messages);
+    const isLoggedIn = !!user;
+    const userName = user?.name || '';
+
+    const reply = await aiService.chat(messages, { isLoggedIn, userName, mode });
 
     return NextResponse.json({ reply });
   } catch (error) {
@@ -19,3 +24,4 @@ export async function POST(req: Request) {
     });
   }
 }
+

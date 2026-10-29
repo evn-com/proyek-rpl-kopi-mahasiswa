@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -29,6 +30,14 @@ module.exports = {
           light: '#3D251E',
           DEFAULT: '#261510',
           dark: '#160B08',
+          deep: '#120d0a',
+          card: '#1c1512',
+          border: '#382a22',
+        },
+        warmAmber: {
+          DEFAULT: '#f59e0b',
+          light: '#fbbf24',
+          dark: '#d97706',
         }
       },
       fontFamily: {
@@ -37,9 +46,13 @@ module.exports = {
       },
       boxShadow: {
         'coffee-glow': '0 8px 30px rgba(183, 86, 44, 0.15)',
+        'amber-glow': '0 0 25px rgba(245, 158, 11, 0.25)',
         'card-hover': '0 12px 24px -10px rgba(43, 16, 9, 0.12)',
+        'dark-card': '0 12px 24px -10px rgba(0, 0, 0, 0.5)',
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 };
