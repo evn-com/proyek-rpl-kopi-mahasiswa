@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Coffee, TrendingUp, Package, Layers, Sparkles, FlaskConical,
-  BookOpen, Boxes, Tag, Ticket, Users, X, ShieldCheck, MessageSquare, Bot,
+  BookOpen, Boxes, Tag, Ticket, Users, X, ShieldCheck, MessageSquare, Bot, LogOut,
 } from 'lucide-react';
+import { clientLogout } from '@/lib/authClient';
 
 interface AdminSidebarProps {
   activeTab: string;
@@ -210,7 +211,7 @@ export default function AdminSidebar({
         </nav>
 
         {/* Footer */}
-        <div className="p-3 border-t border-slate-800/80 shrink-0">
+        <div className="p-3 border-t border-slate-800/80 shrink-0 space-y-2">
           <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800/60">
             <ShieldCheck className="w-4 h-4 text-amber-500/70 shrink-0" />
             <div>
@@ -222,6 +223,15 @@ export default function AdminSidebar({
               </span>
             </div>
           </div>
+
+          <button
+            onClick={() => clientLogout('/login')}
+            type="button"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Keluar / Logout</span>
+          </button>
         </div>
       </aside>
     </>

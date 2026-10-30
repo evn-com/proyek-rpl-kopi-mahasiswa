@@ -7,6 +7,7 @@ import { Coffee, MapPin, ShoppingBag, User, LogOut, Tag, Clock, Info, Menu as Me
 import { useOrderStore } from '@/store/orderStore';
 import NotificationCenter from './NotificationCenter';
 import ThemeToggle from './ThemeToggle';
+import { clientLogout } from '@/lib/authClient';
 
 interface HeaderProps {
   title?: string;
@@ -22,7 +23,7 @@ export default function Header({ title, showCart = true }: HeaderProps = {}) {
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (data.user) setUser(data.user);
@@ -31,9 +32,8 @@ export default function Header({ title, showCart = true }: HeaderProps = {}) {
   }, [pathname]);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/me', { method: 'POST' });
     setUser(null);
-    window.location.href = '/login';
+    await clientLogout('/login');
   };
 
   // Sembunyikan Header pelanggan jika berada di halaman admin atau owner
