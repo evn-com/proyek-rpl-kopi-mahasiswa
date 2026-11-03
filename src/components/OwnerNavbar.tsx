@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import NotificationCenter from './NotificationCenter';
-import { clientLogout } from '@/lib/authClient';
 
 interface NavLinkItem {
   label: string;
@@ -31,7 +30,7 @@ export default function OwnerNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    fetch('/api/auth/me', { cache: 'no-store' })
+    fetch('/api/auth/me')
       .then((res) => res.json())
       .then((data) => {
         if (data.user) setUser(data.user);
@@ -40,8 +39,13 @@ export default function OwnerNavbar() {
   }, [pathname]);
 
   const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/me', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
     setUser(null);
-    await clientLogout('/login');
+    window.location.href = '/login';
   };
 
   const navLinks: NavLinkItem[] = [

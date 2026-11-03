@@ -1,5 +1,5 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import PublicNavbar from '@/components/PublicNavbar';
 import PublicFooter from '@/components/PublicFooter';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -9,7 +9,13 @@ export const metadata: Metadata = {
   title: 'Kopi Mahasiswa | E-Commerce & QR Ordering Coffee Shop',
   description:
     'Sistem pemesanan kopi digital dari meja dengan QR Code untuk kedai Kopi Mahasiswa. Nikmati racikan espresso & kopi susu kekinian harga hemat mahasiswa.',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

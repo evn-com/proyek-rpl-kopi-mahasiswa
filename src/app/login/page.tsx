@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Coffee, Lock, Mail, ArrowRight, ShieldCheck, Sparkles, UserCheck } from 'lucide-react';
@@ -14,17 +14,6 @@ function LoginForm() {
   const [password, setPassword] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // Bersihkan data session / token lokal saat halaman login dimuat
-  useEffect(() => {
-    try {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userName');
-      sessionStorage.clear();
-    } catch {}
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,29 +30,20 @@ function LoginForm() {
       const data = await res.json();
 
       if (res.ok && data.user) {
-        // Simpan token lokal untuk sinkronisasi komponen client jika diperlukan
-        if (data.token) {
-          try {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-          } catch {}
-        }
-
         const role = data.user.role;
-        const target = redirectPath || (
-          role === 'Admin'
-            ? '/admin'
-            : role === 'Cashier'
-            ? '/cashier'
-            : role === 'Barista'
-            ? '/barista'
-            : role === 'Owner'
-            ? '/owner'
-            : '/menu'
-        );
-
-        // Gunakan hard redirect agar seluruh layout dashboard dan session terinisialisasi bersih
-        window.location.href = target;
+        if (redirectPath) {
+          router.push(redirectPath);
+        } else if (role === 'Admin') {
+          router.push('/admin');
+        } else if (role === 'Cashier') {
+          router.push('/cashier');
+        } else if (role === 'Barista') {
+          router.push('/barista');
+        } else if (role === 'Owner') {
+          router.push('/owner');
+        } else {
+          router.push('/menu');
+        }
       } else {
         setErrorMessage(data.error || 'Login gagal. Periksa kembali Email atau Nomor WhatsApp Anda.');
       }
