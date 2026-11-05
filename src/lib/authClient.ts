@@ -40,3 +40,4 @@ export async function clientLogout(targetUrl: string = '/login'): Promise<void> 
     window.location.href = targetUrl;
   }
 }
+
