@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import {
   User,
   ShoppingBag,
@@ -207,7 +206,6 @@ export default function CustomerProfilePage() {
 
   return (
     <div className="min-h-screen bg-cream/40 flex flex-col font-sans pb-16">
-      <Header title="Akun Saya" />
 
       {/* Toast */}
       {toastMessage && (

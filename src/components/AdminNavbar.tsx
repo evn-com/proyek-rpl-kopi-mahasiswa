@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ShieldCheck, User, LogOut, Menu } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import NotificationCenter from './NotificationCenter';
+import { clientLogout } from '@/lib/authClient';
 
 interface AdminNavbarProps {
   onToggleSidebar?: () => void;
@@ -15,22 +16,19 @@ export default function AdminNavbar({ onToggleSidebar, pageTitle }: AdminNavbarP
   const [user, setUser] = useState<{ name: string; role: string } | null>(null);
 
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
-        if (data.user) setUser(data.user);
+        setUser(data?.user || null);
       })
-      .catch(() => {});
+      .catch(() => {
+        setUser(null);
+      });
   }, []);
 
   const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/me', { method: 'POST' });
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
     setUser(null);
-    window.location.href = '/login';
+    await clientLogout('/login');
   };
 
   const displayName = user?.name ? user.name.split(' ')[0] : 'Admin';
