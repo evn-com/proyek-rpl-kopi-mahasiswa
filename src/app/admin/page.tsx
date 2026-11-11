@@ -656,7 +656,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* Left Sidebar Navigation */}
       <AdminSidebar
         activeTab={activeTab === 'memberships' ? 'users' : activeTab}
@@ -677,11 +677,10 @@ export default function AdminPage() {
         {/* Toast Notification (Top Right to avoid FAB collision) */}
         {toastMessage && (
           <div
-            className={`fixed top-20 right-6 z-50 px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border transition-all animate-bounce ${
-              toastMessage.type === 'success'
+            className={`fixed top-20 right-6 z-50 px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border transition-all animate-bounce ${toastMessage.type === 'success'
                 ? 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200'
                 : 'bg-rose-950/95 border-rose-500/50 text-rose-200'
-            }`}
+              }`}
           >
             {toastMessage.type === 'success' ? (
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
@@ -694,506 +693,388 @@ export default function AdminPage() {
 
         {/* Main Content Area */}
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-8">
-        {/* OVERVIEW TAB */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            {/* Top Metric Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="p-6 bg-slate-900/60 border border-slate-800 rounded-2xl relative overflow-hidden group hover:border-amber-500/40 transition">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-xs uppercase font-bold tracking-wider">Total Produk</span>
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
-                    <Package className="w-5 h-5" />
+          {/* OVERVIEW TAB */}
+          {activeTab === 'overview' && (
+            <div className="space-y-8">
+              {/* Top Metric Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div className="p-6 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm relative overflow-hidden group hover:border-amber-500/40 transition">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">Total Produk</span>
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 dark:text-amber-400 flex items-center justify-center">
+                      <Package className="w-5 h-5" />
+                    </div>
                   </div>
+                  <div className="mt-4 text-3xl font-extrabold text-slate-900 dark:text-white">{stats?.totalProducts || 0}</div>
+                  <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stats?.totalCategories || 0} Kategori Aktif</div>
                 </div>
-                <div className="mt-4 text-3xl font-extrabold text-white">{stats?.totalProducts || 0}</div>
-                <div className="mt-1 text-xs text-slate-400">{stats?.totalCategories || 0} Kategori Aktif</div>
+
+                <div className="p-6 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm relative overflow-hidden group hover:border-rose-500/40 transition">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">Low Stock Warning</span>
+                    <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 dark:text-rose-400 flex items-center justify-center">
+                      <AlertTriangle className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-4 text-3xl font-extrabold text-rose-500 dark:text-rose-400">{stats?.lowStockCount || 0}</div>
+                  <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">Bahan di bawah batas minimum</div>
+                </div>
+
+                <div className="p-6 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm relative overflow-hidden group hover:border-emerald-500/40 transition">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">Omset Hari Ini</span>
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 flex items-center justify-center">
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-4 text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                    Rp {(stats?.todayRevenue || 0).toLocaleString('id-ID')}
+                  </div>
+                  <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stats?.todayOrdersCount || 0} Transaksi Masuk</div>
+                </div>
+
+                <div className="p-6 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm relative overflow-hidden group hover:border-indigo-500/40 transition">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">Bahan Baku Master</span>
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 flex items-center justify-center">
+                      <FlaskConical className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-4 text-3xl font-extrabold text-slate-900 dark:text-white">{stats?.totalIngredients || 0}</div>
+                  <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">Tersambung ke BOM Produk</div>
+                </div>
               </div>
 
-              <div className="p-6 bg-slate-900/60 border border-slate-800 rounded-2xl relative overflow-hidden group hover:border-rose-500/40 transition">
+              {/* Low Stock Warning Widget */}
+              <div className="p-6 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-xs uppercase font-bold tracking-wider">Low Stock Warning</span>
-                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
-                    <AlertTriangle className="w-5 h-5" />
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-rose-500" />
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Peringatan Stok Rendah (Low Stock Alert)</h2>
                   </div>
+                  <button
+                    onClick={() => setActiveTab('inventory')}
+                    className="text-xs text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1"
+                  >
+                    Kelola Stok <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-                <div className="mt-4 text-3xl font-extrabold text-rose-400">{stats?.lowStockCount || 0}</div>
-                <div className="mt-1 text-xs text-slate-400">Bahan di bawah batas minimum</div>
+
+                {lowStockList.length === 0 ? (
+                  <div className="p-6 text-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-200 dark:border-slate-800/80">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-500 dark:text-emerald-400 mx-auto mb-2" />
+                    <p className="font-semibold text-slate-900 dark:text-white text-sm">Semua stok bahan baku dalam batas aman.</p>
+                    <p className="text-xs text-slate-500">Tidak ada bahan baku yang berada di bawah stok minimum.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {lowStockList.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-4 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-500/30 rounded-xl flex items-center justify-between"
+                      >
+                        <div>
+                          <div className="font-bold text-slate-900 dark:text-white text-sm">{item.ingredientName}</div>
+                          <div className="text-xs text-rose-600 dark:text-rose-300">
+                            Stok: <span className="font-bold">{item.currentStock}</span> {item.unit} (Min: {item.minimumStock})
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const ing = ingredients.find((i) => i.name === item.ingredientName);
+                            if (ing) {
+                              setSelectedIngredientForStock(ing);
+                              setStockForm({ ingredientId: ing.id, amount: '', notes: 'Restok darurat' });
+                              setStockModalType('IN');
+                              setShowStockModal(true);
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-semibold shadow-md transition"
+                        >
+                          + Restok
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="p-6 bg-slate-900/60 border border-slate-800 rounded-2xl relative overflow-hidden group hover:border-emerald-500/40 transition">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-xs uppercase font-bold tracking-wider">Omset Hari Ini</span>
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                    <DollarSign className="w-5 h-5" />
+              {/* Sales Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Omzet Hari Ini</span>
+                  <div className="text-2xl font-black text-amber-600 dark:text-amber-400">
+                    Rp {(stats?.salesSummary?.todayRevenue || stats?.todayRevenue || 0).toLocaleString('id-ID')}
                   </div>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                    {stats?.salesSummary?.todayOrdersCount || stats?.todayOrdersCount || 0} order terverifikasi
+                  </span>
                 </div>
-                <div className="mt-4 text-3xl font-extrabold text-emerald-400">
-                  Rp {(stats?.todayRevenue || 0).toLocaleString('id-ID')}
+
+                <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Omzet 7 Hari Terakhir</span>
+                  <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                    Rp {(stats?.salesSummary?.weekRevenue || 0).toLocaleString('id-ID')}
+                  </div>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">Performa mingguan</span>
                 </div>
-                <div className="mt-1 text-xs text-slate-400">{stats?.todayOrdersCount || 0} Transaksi Masuk</div>
+
+                <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Omzet Bulan Ini</span>
+                  <div className="text-2xl font-black text-sky-600 dark:text-sky-400">
+                    Rp {(stats?.salesSummary?.monthRevenue || 0).toLocaleString('id-ID')}
+                  </div>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">Akumulasi bulan berjalan</span>
+                </div>
               </div>
 
-              <div className="p-6 bg-slate-900/60 border border-slate-800 rounded-2xl relative overflow-hidden group hover:border-indigo-500/40 transition">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-xs uppercase font-bold tracking-wider">Bahan Baku Master</span>
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
-                    <FlaskConical className="w-5 h-5" />
+              {/* Recent Orders & Recent Audit Activity Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Orders */}
+                <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-500 dark:text-amber-400" /> Pesanan Terbaru
+                    </h3>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">10 Order Terakhir</span>
+                  </div>
+
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-80 overflow-y-auto">
+                    {(!stats?.recentOrders || stats.recentOrders.length === 0) ? (
+                      <p className="text-xs text-slate-400 dark:text-slate-500 py-4 text-center">Belum ada pesanan.</p>
+                    ) : (
+                      stats.recentOrders.map((ord: any) => (
+                        <div key={ord.id} className="py-2.5 flex items-center justify-between text-xs">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <strong className="text-slate-900 dark:text-white">{ord.orderNumber}</strong>
+                              <span className="text-amber-600 dark:text-amber-400 font-bold">({ord.tableNumber})</span>
+                            </div>
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                              {new Date(ord.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {ord.customerName}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-bold text-slate-900 dark:text-white block">Rp {ord.finalAmount.toLocaleString('id-ID')}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ord.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400' :
+                                ord.status === 'READY' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400' :
+                                  ord.status === 'CANCELLED' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-400' :
+                                    'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                              }`}>
+                              {ord.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
-                <div className="mt-4 text-3xl font-extrabold text-white">{stats?.totalIngredients || 0}</div>
-                <div className="mt-1 text-xs text-slate-400">Tersambung ke BOM Produk</div>
+
+                {/* Recent Activity (Audit Log) */}
+                <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> Log Aktivitas Sistem (Audit Log)
+                    </h3>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Keamanan & Perubahan</span>
+                  </div>
+
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-80 overflow-y-auto">
+                    {(!stats?.recentActivity || stats.recentActivity.length === 0) ? (
+                      <p className="text-xs text-slate-400 dark:text-slate-500 py-4 text-center">Belum ada catatan aktivitas.</p>
+                    ) : (
+                      stats.recentActivity.map((log: any) => (
+                        <div key={log.id} className="py-2.5 flex items-start justify-between text-xs gap-3">
+                          <div>
+                            <strong className="text-slate-900 dark:text-slate-200 block">{log.action}</strong>
+                            <p className="text-[11px] text-slate-600 dark:text-slate-400">{log.details || '-'}</p>
+                            <span className="text-[10px] text-slate-500">Oleh: {log.user?.name || 'Sistem'}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 shrink-0 font-mono">
+                            {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Low Stock Warning Widget */}
-            <div className="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-rose-500" />
-                  <h2 className="text-lg font-bold text-white">Peringatan Stok Rendah (Low Stock Alert)</h2>
+          {/* PRODUCTS MANAGEMENT TAB */}
+          {activeTab === 'products' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Product Management</h2>
+                  <p className="text-xs text-slate-400">Kelola item produk, harga, ketersediaan, dan varian</p>
                 </div>
                 <button
-                  onClick={() => setActiveTab('inventory')}
-                  className="text-xs text-amber-400 font-semibold hover:underline flex items-center gap-1"
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setProductForm({
+                      name: '',
+                      categoryId: categories[0]?.id || '',
+                      description: '',
+                      basePrice: '',
+                      image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop&q=80',
+                      isAvailable: true,
+                      isBestSeller: false,
+                      variants: [{ name: 'Regular', priceAdjustment: 0 }],
+                    });
+                    setShowProductModal(true);
+                  }}
+                  className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
                 >
-                  Kelola Stok <ArrowUpRight className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" /> Tambah Produk
                 </button>
               </div>
 
-              {lowStockList.length === 0 ? (
-                <div className="p-6 text-center text-slate-400 bg-slate-950/40 rounded-xl border border-slate-800/80">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                  <p className="font-semibold text-white text-sm">Semua stok bahan baku dalam batas aman.</p>
-                  <p className="text-xs text-slate-500">Tidak ada bahan baku yang berada di bawah stok minimum.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {lowStockList.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="p-4 bg-rose-950/20 border border-rose-500/30 rounded-xl flex items-center justify-between"
-                    >
-                      <div>
-                        <div className="font-bold text-white text-sm">{item.ingredientName}</div>
-                        <div className="text-xs text-rose-300">
-                          Stok: <span className="font-bold">{item.currentStock}</span> {item.unit} (Min: {item.minimumStock})
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const ing = ingredients.find((i) => i.name === item.ingredientName);
-                          if (ing) {
-                            setSelectedIngredientForStock(ing);
-                            setStockForm({ ingredientId: ing.id, amount: '', notes: 'Restok darurat' });
-                            setStockModalType('IN');
-                            setShowStockModal(true);
-                          }
-                        }}
-                        className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-semibold shadow-md transition"
-                      >
-                        + Restok
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Sales Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-1">
-                <span className="text-xs font-bold text-slate-400 uppercase">Omzet Hari Ini</span>
-                <div className="text-2xl font-black text-amber-400">
-                  Rp {(stats?.salesSummary?.todayRevenue || stats?.todayRevenue || 0).toLocaleString('id-ID')}
-                </div>
-                <span className="text-[11px] text-slate-500">
-                  {stats?.salesSummary?.todayOrdersCount || stats?.todayOrdersCount || 0} order terverifikasi
-                </span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-1">
-                <span className="text-xs font-bold text-slate-400 uppercase">Omzet 7 Hari Terakhir</span>
-                <div className="text-2xl font-black text-emerald-400">
-                  Rp {(stats?.salesSummary?.weekRevenue || 0).toLocaleString('id-ID')}
-                </div>
-                <span className="text-[11px] text-slate-500">Performa mingguan</span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-1">
-                <span className="text-xs font-bold text-slate-400 uppercase">Omzet Bulan Ini</span>
-                <div className="text-2xl font-black text-sky-400">
-                  Rp {(stats?.salesSummary?.monthRevenue || 0).toLocaleString('id-ID')}
-                </div>
-                <span className="text-[11px] text-slate-500">Akumulasi bulan berjalan</span>
-              </div>
-            </div>
-
-            {/* Recent Orders & Recent Audit Activity Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Recent Orders */}
-              <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-amber-400" /> Pesanan Terbaru
-                  </h3>
-                  <span className="text-xs text-slate-400">10 Order Terakhir</span>
-                </div>
-
-                <div className="divide-y divide-slate-800/60 max-h-80 overflow-y-auto">
-                  {(!stats?.recentOrders || stats.recentOrders.length === 0) ? (
-                    <p className="text-xs text-slate-500 py-4 text-center">Belum ada pesanan.</p>
-                  ) : (
-                    stats.recentOrders.map((ord: any) => (
-                      <div key={ord.id} className="py-2.5 flex items-center justify-between text-xs">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <strong className="text-white">{ord.orderNumber}</strong>
-                            <span className="text-amber-400 font-bold">({ord.tableNumber})</span>
-                          </div>
-                          <span className="text-[11px] text-slate-400">
-                            {new Date(ord.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {ord.customerName}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <span className="font-bold text-white block">Rp {ord.finalAmount.toLocaleString('id-ID')}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            ord.status === 'COMPLETED' ? 'bg-emerald-950 text-emerald-400' :
-                            ord.status === 'READY' ? 'bg-amber-950 text-amber-400' :
-                            ord.status === 'CANCELLED' ? 'bg-rose-950 text-rose-400' :
-                            'bg-slate-800 text-slate-300'
-                          }`}>
-                            {ord.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              {/* Recent Activity (Audit Log) */}
-              <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" /> Log Aktivitas Sistem (Audit Log)
-                  </h3>
-                  <span className="text-xs text-slate-400">Keamanan & Perubahan</span>
-                </div>
-
-                <div className="divide-y divide-slate-800/60 max-h-80 overflow-y-auto">
-                  {(!stats?.recentActivity || stats.recentActivity.length === 0) ? (
-                    <p className="text-xs text-slate-500 py-4 text-center">Belum ada catatan aktivitas.</p>
-                  ) : (
-                    stats.recentActivity.map((log: any) => (
-                      <div key={log.id} className="py-2.5 flex items-start justify-between text-xs gap-3">
-                        <div>
-                          <strong className="text-slate-200 block">{log.action}</strong>
-                          <p className="text-[11px] text-slate-400">{log.details || '-'}</p>
-                          <span className="text-[10px] text-slate-500">Oleh: {log.user?.name || 'Sistem'}</span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 shrink-0 font-mono">
-                          {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {/* Products Table / Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {products.map((prod) => (
+                  <div
+                    key={prod.id}
+                    className={`bg-white dark:bg-slate-900/90 border rounded-2xl shadow-sm overflow-hidden flex flex-col transition ${prod.isAvailable ? 'border-slate-200 dark:border-slate-800 hover:border-amber-500/40' : 'border-rose-300 dark:border-rose-900/50 opacity-75'
+                      }`}
+                  >
+                    <div className="relative h-44 w-full bg-slate-100 dark:bg-slate-950">
+                      <img src={prod.image} alt={prod.name} className="w-full h-full object-cover" />
+                      <div className="absolute top-3 right-3 flex items-center gap-2">
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-xs font-bold shadow-md ${prod.isAvailable ? 'bg-emerald-500 text-slate-950' : 'bg-rose-600 text-white'
+                            }`}
+                        >
+                          {prod.isAvailable ? 'Tersedia' : 'Unavailable'}
                         </span>
                       </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* PRODUCTS MANAGEMENT TAB */}
-        {activeTab === 'products' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-white">Product Management</h2>
-                <p className="text-xs text-slate-400">Kelola item produk, harga, ketersediaan, dan varian</p>
-              </div>
-              <button
-                onClick={() => {
-                  setEditingProduct(null);
-                  setProductForm({
-                    name: '',
-                    categoryId: categories[0]?.id || '',
-                    description: '',
-                    basePrice: '',
-                    image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop&q=80',
-                    isAvailable: true,
-                    isBestSeller: false,
-                    variants: [{ name: 'Regular', priceAdjustment: 0 }],
-                  });
-                  setShowProductModal(true);
-                }}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
-              >
-                <Plus className="w-4 h-4" /> Tambah Produk
-              </button>
-            </div>
-
-            {/* Products Table / Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {products.map((prod) => (
-                <div
-                  key={prod.id}
-                  className={`bg-slate-900/60 border rounded-2xl overflow-hidden flex flex-col transition ${
-                    prod.isAvailable ? 'border-slate-800 hover:border-amber-500/30' : 'border-rose-900/50 opacity-75'
-                  }`}
-                >
-                  <div className="relative h-44 w-full bg-slate-950">
-                    <img src={prod.image} alt={prod.name} className="w-full h-full object-cover" />
-                    <div className="absolute top-3 right-3 flex items-center gap-2">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-bold shadow-md ${
-                          prod.isAvailable ? 'bg-emerald-500 text-slate-950' : 'bg-rose-600 text-white'
-                        }`}
-                      >
-                        {prod.isAvailable ? 'Tersedia' : 'Unavailable'}
-                      </span>
-                    </div>
-                    {prod.isBestSeller && (
-                      <span className="absolute bottom-3 left-3 px-2.5 py-1 bg-amber-500 text-slate-950 text-xs font-extrabold rounded-md shadow-md">
-                        Best Seller
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                      <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                        {prod.category?.name || 'Uncategorized'}
-                      </div>
-                      <h3 className="text-lg font-bold text-white mt-1">{prod.name}</h3>
-                      <p className="text-xs text-slate-400 line-clamp-2 mt-1">{prod.description}</p>
-                      <div className="mt-3 font-extrabold text-amber-400 text-lg">
-                        Rp {prod.basePrice.toLocaleString('id-ID')}
-                      </div>
+                      {prod.isBestSeller && (
+                        <span className="absolute bottom-3 left-3 px-2.5 py-1 bg-amber-500 text-slate-950 text-xs font-extrabold rounded-md shadow-md">
+                          Best Seller
+                        </span>
+                      )}
                     </div>
 
-                    <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
-                      <button
-                        onClick={() => handleToggleProductAvailability(prod)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
-                          prod.isAvailable
-                            ? 'bg-slate-800 text-slate-300 hover:bg-rose-950 hover:text-rose-300'
-                            : 'bg-emerald-950 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-900'
-                        }`}
-                      >
-                        {prod.isAvailable ? 'Set Unavailable' : 'Set Available'}
-                      </button>
+                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                          {prod.category?.name || 'Uncategorized'}
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1">{prod.name}</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">{prod.description}</p>
+                        <div className="mt-3 font-extrabold text-amber-600 dark:text-amber-400 text-lg">
+                          Rp {prod.basePrice.toLocaleString('id-ID')}
+                        </div>
+                      </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
                         <button
-                          onClick={() => {
-                            setEditingProduct(prod);
-                            setProductForm({
-                              name: prod.name,
-                              categoryId: prod.categoryId,
-                              description: prod.description,
-                              basePrice: prod.basePrice.toString(),
-                              image: prod.image,
-                              isAvailable: prod.isAvailable,
-                              isBestSeller: prod.isBestSeller,
-                              variants: prod.variants?.map((v) => ({
-                                name: v.name,
-                                priceAdjustment: v.priceAdjustment,
-                              })) || [{ name: 'Regular', priceAdjustment: 0 }],
-                            });
-                            setShowProductModal(true);
-                          }}
-                          className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
-                          title="Edit Produk"
+                          onClick={() => handleToggleProductAvailability(prod)}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${prod.isAvailable
+                              ? 'bg-slate-100 text-slate-700 hover:bg-rose-50 hover:text-rose-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-rose-950 dark:hover:text-rose-300'
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-500/40 dark:hover:bg-emerald-900'
+                            }`}
                         >
-                          <Edit2 className="w-4 h-4" />
+                          {prod.isAvailable ? 'Set Unavailable' : 'Set Available'}
                         </button>
-                        <button
-                          onClick={() => handleDeleteProduct(prod)}
-                          className="p-2 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 transition"
-                          title="Hapus Produk"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* CATEGORIES TAB */}
-        {activeTab === 'categories' && (
-          <div className="space-y-6 max-w-4xl mx-auto">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-white">Category Management</h2>
-                <p className="text-xs text-slate-400">Atur kategori menu produk kopi dan snack</p>
-              </div>
-              <button
-                onClick={() => {
-                  setCategoryForm({ id: '', name: '', icon: 'coffee', displayOrder: categories.length + 1 });
-                  setShowCategoryModal(true);
-                }}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg transition"
-              >
-                <Plus className="w-4 h-4" /> Tambah Kategori
-              </button>
-            </div>
-
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-              <table className="w-full text-left text-sm text-slate-300">
-                <thead className="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                  <tr>
-                    <th className="px-6 py-4">Urutan</th>
-                    <th className="px-6 py-4">Nama Kategori</th>
-                    <th className="px-6 py-4">Icon</th>
-                    <th className="px-6 py-4">Jumlah Produk</th>
-                    <th className="px-6 py-4 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/80">
-                  {categories.map((cat) => (
-                    <tr key={cat.id} className="hover:bg-slate-800/40">
-                      <td className="px-6 py-4 font-mono font-bold text-amber-400">{cat.displayOrder}</td>
-                      <td className="px-6 py-4 font-bold text-white">{cat.name}</td>
-                      <td className="px-6 py-4 text-xs font-mono text-slate-400">{cat.icon || '-'}</td>
-                      <td className="px-6 py-4 text-slate-300">{cat._count?.products || 0} item</td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => {
-                              setCategoryForm({
-                                id: cat.id,
-                                name: cat.name,
-                                icon: cat.icon || 'coffee',
-                                displayOrder: cat.displayOrder,
+                              setEditingProduct(prod);
+                              setProductForm({
+                                name: prod.name,
+                                categoryId: prod.categoryId,
+                                description: prod.description,
+                                basePrice: prod.basePrice.toString(),
+                                image: prod.image,
+                                isAvailable: prod.isAvailable,
+                                isBestSeller: prod.isBestSeller,
+                                variants: prod.variants?.map((v) => ({
+                                  name: v.name,
+                                  priceAdjustment: v.priceAdjustment,
+                                })) || [{ name: 'Regular', priceAdjustment: 0 }],
                               });
-                              setShowCategoryModal(true);
+                              setShowProductModal(true);
                             }}
-                            className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition"
+                            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 transition"
+                            title="Edit Produk"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDeleteCategory(cat)}
-                            className="p-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 rounded-lg transition"
+                            onClick={() => handleDeleteProduct(prod)}
+                            className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:hover:bg-rose-900 dark:text-rose-300 transition"
+                            title="Hapus Produk"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* INGREDIENTS TAB (Bahan Baku) */}
-        {activeTab === 'ingredients' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-white">Ingredient Management (Bahan Baku)</h2>
-                <p className="text-xs text-slate-400">Master data bahan baku, unit, stok fisik, supplier & expiry</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <button
-                onClick={() => {
-                  setEditingIngredient(null);
-                  setIngredientForm({
-                    id: '',
-                    name: '',
-                    unit: 'gram',
-                    minimumStock: 100,
-                    purchasePrice: 0,
-                    supplier: '',
-                    expiryDate: '',
-                    initialStock: 0,
-                  });
-                  setShowIngredientModal(true);
-                }}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
-              >
-                <Plus className="w-4 h-4" /> Tambah Bahan Baku
-              </button>
             </div>
+          )}
 
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+          {/* CATEGORIES TAB */}
+          {activeTab === 'categories' && (
+            <div className="space-y-6 max-w-4xl mx-auto">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">Category Management</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Atur kategori menu produk kopi dan snack</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setCategoryForm({ id: '', name: '', icon: 'coffee', displayOrder: categories.length + 1 });
+                    setShowCategoryModal(true);
+                  }}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg transition"
+                >
+                  <Plus className="w-4 h-4" /> Tambah Kategori
+                </button>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+                  <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="px-6 py-4">Nama Bahan</th>
-                      <th className="px-6 py-4">Stok Riil</th>
-                      <th className="px-6 py-4">Min. Stok</th>
-                      <th className="px-6 py-4">Harga Beli</th>
-                      <th className="px-6 py-4">Supplier</th>
-                      <th className="px-6 py-4">Status Stok</th>
+                      <th className="px-6 py-4">Urutan</th>
+                      <th className="px-6 py-4">Nama Kategori</th>
+                      <th className="px-6 py-4">Icon</th>
+                      <th className="px-6 py-4">Jumlah Produk</th>
                       <th className="px-6 py-4 text-right">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/80">
-                    {ingredients.map((ing) => (
-                      <tr key={ing.id} className="hover:bg-slate-800/40">
-                        <td className="px-6 py-4 font-bold text-white">{ing.name}</td>
-                        <td className="px-6 py-4 font-mono font-extrabold text-amber-400">
-                          {ing.currentStock} {ing.unit}
-                        </td>
-                        <td className="px-6 py-4 text-slate-400">
-                          {ing.minimumStock} {ing.unit}
-                        </td>
-                        <td className="px-6 py-4">Rp {(ing.purchasePrice || 0).toLocaleString('id-ID')}</td>
-                        <td className="px-6 py-4 text-xs text-slate-400">{ing.supplier || '-'}</td>
-                        <td className="px-6 py-4">
-                          {ing.isLowStock ? (
-                            <span className="px-2.5 py-1 bg-rose-950 text-rose-400 border border-rose-500/40 rounded-full text-xs font-bold flex items-center gap-1.5 w-max">
-                              <AlertTriangle className="w-3.5 h-3.5" /> Low Stock
-                            </span>
-                          ) : (
-                            <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 border border-emerald-500/40 rounded-full text-xs font-bold w-max">
-                              Aman
-                            </span>
-                          )}
-                        </td>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                    {categories.map((cat) => (
+                      <tr key={cat.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                        <td className="px-6 py-4 font-mono font-bold text-amber-600 dark:text-amber-400">{cat.displayOrder}</td>
+                        <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">{cat.name}</td>
+                        <td className="px-6 py-4 text-xs font-mono text-slate-500 dark:text-slate-400">{cat.icon || '-'}</td>
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{cat._count?.products || 0} item</td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => {
-                                setSelectedIngredientForStock(ing);
-                                setStockForm({ ingredientId: ing.id, amount: '', notes: '' });
-                                setStockModalType('IN');
-                                setShowStockModal(true);
-                              }}
-                              className="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-bold transition"
-                            >
-                              + Mutasi
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingIngredient(ing);
-                                setIngredientForm({
-                                  id: ing.id,
-                                  name: ing.name,
-                                  unit: ing.unit,
-                                  minimumStock: ing.minimumStock,
-                                  purchasePrice: ing.purchasePrice || 0,
-                                  supplier: ing.supplier || '',
-                                  expiryDate: ing.expiryDate || '',
-                                  initialStock: ing.currentStock || 0,
+                                setCategoryForm({
+                                  id: cat.id,
+                                  name: cat.name,
+                                  icon: cat.icon || 'coffee',
+                                  displayOrder: cat.displayOrder,
                                 });
-                                setShowIngredientModal(true);
+                                setShowCategoryModal(true);
                               }}
-                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition"
+                              className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 rounded-lg transition"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleDeleteIngredient(ing)}
-                              className="p-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 rounded-lg transition"
+                              onClick={() => handleDeleteCategory(cat)}
+                              className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:hover:bg-rose-900 dark:text-rose-300 rounded-lg transition"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1205,553 +1086,663 @@ export default function AdminPage() {
                 </table>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* RECIPES TAB (BOM) */}
-        {activeTab === 'recipes' && (
-          <div className="space-y-6 max-w-4xl mx-auto">
-            <div>
-              <h2 className="text-xl font-bold text-white">Recipe / BOM (Bill of Materials) Management</h2>
-              <p className="text-xs text-slate-400">
-                Tentukan kebutuhan bahan baku untuk setiap produk. Stok akan otomatis terpotong saat transaksi dikonfirmasi.
-              </p>
-            </div>
-
-            <div className="p-6 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-6 shadow-xl">
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Pilih Produk</label>
-                <select
-                  value={selectedProductForRecipe}
-                  onChange={(e) => setSelectedProductForRecipe(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-bold focus:border-amber-500 focus:outline-none"
-                >
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} (Rp {p.basePrice.toLocaleString('id-ID')})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h3 className="font-bold text-white text-sm">Daftar Bahan Baku Resep</h3>
-                  <button
-                    onClick={() => {
-                      if (ingredients.length === 0) {
-                        showToast('Buat bahan baku terlebih dahulu di tab Bahan Baku.', 'error');
-                        return;
-                      }
-                      setRecipeFormItems([...recipeFormItems, { ingredientId: ingredients[0].id, quantityRequired: 10 }]);
-                    }}
-                    className="px-3 py-1.5 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> + Bahan Baru
-                  </button>
+          {/* INGREDIENTS TAB (Bahan Baku) */}
+          {activeTab === 'ingredients' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Ingredient Management (Bahan Baku)</h2>
+                  <p className="text-xs text-slate-400">Master data bahan baku, unit, stok fisik, supplier & expiry</p>
                 </div>
-
-                {recipeFormItems.length === 0 ? (
-                  <p className="text-xs text-slate-500 italic text-center py-4">Belum ada resep bahan baku untuk produk ini.</p>
-                ) : (
-                  recipeFormItems.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                      <select
-                        value={item.ingredientId}
-                        onChange={(e) => {
-                          const updated = [...recipeFormItems];
-                          updated[idx].ingredientId = e.target.value;
-                          setRecipeFormItems(updated);
-                        }}
-                        className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none"
-                      >
-                        {ingredients.map((ing) => (
-                          <option key={ing.id} value={ing.id}>
-                            {ing.name} ({ing.unit})
-                          </option>
-                        ))}
-                      </select>
-
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          step="0.1"
-                          min="0.1"
-                          value={item.quantityRequired}
-                          onChange={(e) => {
-                            const updated = [...recipeFormItems];
-                            updated[idx].quantityRequired = parseFloat(e.target.value) || 0;
-                            setRecipeFormItems(updated);
-                          }}
-                          className="w-28 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm font-mono text-right focus:outline-none"
-                          placeholder="Jumlah"
-                        />
-                        <span className="text-xs text-slate-400 w-12 font-bold">
-                          {ingredients.find((i) => i.id === item.ingredientId)?.unit || 'unit'}
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          setRecipeFormItems(recipeFormItems.filter((_, i) => i !== idx));
-                        }}
-                        className="p-2 text-rose-400 hover:bg-rose-950 rounded-lg transition"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))
-                )}
-
-                <button
-                  onClick={handleSaveRecipeBOM}
-                  className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm shadow-lg transition mt-4"
-                >
-                  Simpan Resep Produk
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* INVENTORY & TRANSACTION HISTORY TAB */}
-        {activeTab === 'inventory' && (
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-white">Inventory Movements & Audit History</h2>
-                <p className="text-xs text-slate-400">Catatan riwayat mutasi stok (IN, ADJUSTMENT, USAGE)</p>
-              </div>
-              <button
-                onClick={() => {
-                  setSelectedIngredientForStock(ingredients[0] || null);
-                  setStockForm({ ingredientId: ingredients[0]?.id || '', amount: '', notes: '' });
-                  setStockModalType('IN');
-                  setShowStockModal(true);
-                }}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg transition"
-              >
-                <Plus className="w-4 h-4" /> Catat Mutasi Stok
-              </button>
-            </div>
-
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-              <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-                <span className="text-xs font-bold uppercase text-slate-400 tracking-wider">Histori Mutasi Terakhir</span>
-                <span className="text-xs text-slate-500">{inventoryLogs.length} transaksi tercatat</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                    <tr>
-                      <th className="px-6 py-4">Waktu</th>
-                      <th className="px-6 py-4">Bahan Baku</th>
-                      <th className="px-6 py-4">Tipe Mutasi</th>
-                      <th className="px-6 py-4">Jumlah</th>
-                      <th className="px-6 py-4">Catatan</th>
-                      <th className="px-6 py-4">Petugas</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/80">
-                    {inventoryLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-slate-800/40">
-                        <td className="px-6 py-4 text-xs font-mono text-slate-400">
-                          {new Date(log.createdAt).toLocaleString('id-ID')}
-                        </td>
-                        <td className="px-6 py-4 font-bold text-white">{log.inventory?.ingredient?.name || '-'}</td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                              log.type === 'IN'
-                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40'
-                                : log.type === 'ADJUSTMENT'
-                                ? 'bg-amber-950 text-amber-400 border border-amber-500/40'
-                                : 'bg-rose-950 text-rose-400 border border-rose-500/40'
-                            }`}
-                          >
-                            {log.type}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 font-mono font-bold text-white">
-                          {log.amount} {log.inventory?.ingredient?.unit}
-                        </td>
-                        <td className="px-6 py-4 text-xs text-slate-300">{log.notes || '-'}</td>
-                        <td className="px-6 py-4 text-xs text-slate-400">{log.createdBy?.name || 'Sistem'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* PROMOTIONS MANAGEMENT TAB */}
-        {activeTab === 'promotions' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-white">Promosi & Diskon Mahasiswa</h2>
-                <p className="text-xs text-slate-400">
-                  Buat promo diskon persentase, nominal tetap, produk/kategori khusus, dan batas kuota
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2.5">
-                <button
-                  onClick={handleBroadcastDailyPromo}
-                  disabled={broadcastingPromo}
-                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition"
-                  title="Kirim info promo harian via WhatsApp ke pelanggan yang telah opt-in"
-                >
-                  <Send className={`w-4 h-4 ${broadcastingPromo ? 'animate-pulse' : ''}`} />
-                  <span>{broadcastingPromo ? 'Mengirim...' : 'Broadcast Promo WhatsApp'}</span>
-                </button>
                 <button
                   onClick={() => {
-                    setPromoForm({
-                      title: '',
-                      description: '',
-                      discountType: 'PERCENTAGE',
-                      discountValue: 15,
-                      minPurchase: 20000,
-                      maxDiscount: 10000,
-                      productId: '',
-                      categoryId: '',
-                      targetCustomerId: '',
-                      startDate: new Date().toISOString().slice(0, 10),
-                      endDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
-                      usageLimit: 100,
-                      isActive: true,
+                    setEditingIngredient(null);
+                    setIngredientForm({
+                      id: '',
+                      name: '',
+                      unit: 'gram',
+                      minimumStock: 100,
+                      purchasePrice: 0,
+                      supplier: '',
+                      expiryDate: '',
+                      initialStock: 0,
                     });
-                    setShowPromoModal(true);
+                    setShowIngredientModal(true);
                   }}
                   className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
                 >
-                  <Plus className="w-4 h-4" /> Buat Promosi Baru
+                  <Plus className="w-4 h-4" /> Tambah Bahan Baku
                 </button>
               </div>
-            </div>
 
-            {/* Promotions Table */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                    <tr>
-                      <th className="px-6 py-4">Nama Promosi</th>
-                      <th className="px-6 py-4">Tipe Diskon</th>
-                      <th className="px-6 py-4">Target Khusus</th>
-                      <th className="px-6 py-4">Min. Belanja</th>
-                      <th className="px-6 py-4">Periode Berlaku</th>
-                      <th className="px-6 py-4">Kuota Pemakaian</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/80">
-                    {promotions.length === 0 ? (
+              <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+                    <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-800">
                       <tr>
-                        <td colSpan={8} className="px-6 py-8 text-center text-xs text-slate-500">
-                          Belum ada data promosi. Klik tombol &quot;Buat Promosi Baru&quot; di atas.
-                        </td>
+                        <th className="px-6 py-4">Nama Bahan</th>
+                        <th className="px-6 py-4">Stok Riil</th>
+                        <th className="px-6 py-4">Min. Stok</th>
+                        <th className="px-6 py-4">Harga Beli</th>
+                        <th className="px-6 py-4">Supplier</th>
+                        <th className="px-6 py-4">Status Stok</th>
+                        <th className="px-6 py-4 text-right">Aksi</th>
                       </tr>
-                    ) : (
-                      promotions.map((promo) => (
-                        <tr key={promo.id} className="hover:bg-slate-800/40">
-                          <td className="px-6 py-4">
-                            <div className="font-bold text-white text-sm">{promo.title}</div>
-                            <div className="text-xs text-slate-400">{promo.description || '-'}</div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                      {ingredients.map((ing) => (
+                        <tr key={ing.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                          <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">{ing.name}</td>
+                          <td className="px-6 py-4 font-mono font-extrabold text-amber-600 dark:text-amber-400">
+                            {ing.currentStock} {ing.unit}
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold font-mono">
-                              {promo.discountType === 'PERCENTAGE'
-                                ? `${promo.discountValue}% (Maks Rp ${promo.maxDiscount?.toLocaleString('id-ID') || '∞'})`
-                                : `Rp ${promo.discountValue.toLocaleString('id-ID')}`}
-                            </span>
+                          <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                            {ing.minimumStock} {ing.unit}
                           </td>
-                          <td className="px-6 py-4 text-xs text-slate-300">
-                            {promo.product ? (
-                              <span className="text-amber-400">Produk: {promo.product.name}</span>
-                            ) : promo.category ? (
-                              <span className="text-sky-400">Kategori: {promo.category.name}</span>
-                            ) : promo.targetCustomerId ? (
-                              <span className="text-purple-400">Pelanggan Khusus</span>
+                          <td className="px-6 py-4">Rp {(ing.purchasePrice || 0).toLocaleString('id-ID')}</td>
+                          <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">{ing.supplier || '-'}</td>
+                          <td className="px-6 py-4">
+                            {ing.isLowStock ? (
+                              <span className="px-2.5 py-1 bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950 dark:text-rose-400 dark:border-rose-500/40 rounded-full text-xs font-bold flex items-center gap-1.5 w-max">
+                                <AlertTriangle className="w-3.5 h-3.5" /> Low Stock
+                              </span>
                             ) : (
-                              <span className="text-slate-400">Semua Menu</span>
+                              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-500/40 rounded-full text-xs font-bold w-max">
+                                Aman
+                              </span>
                             )}
                           </td>
-                          <td className="px-6 py-4 text-xs font-bold text-white">
-                            Rp {(promo.minPurchase || 0).toLocaleString('id-ID')}
-                          </td>
-                          <td className="px-6 py-4 text-xs text-slate-400 font-mono">
-                            {new Date(promo.startDate).toLocaleDateString('id-ID')} - {new Date(promo.endDate).toLocaleDateString('id-ID')}
-                          </td>
-                          <td className="px-6 py-4 text-xs">
-                            <span className="font-mono text-white font-bold">{promo.usedCount || 0}</span>
-                            <span className="text-slate-500"> / {promo.usageLimit || '∞'}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <button
-                              onClick={() => handleTogglePromotionActive(promo)}
-                              className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                                promo.isActive
-                                  ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40'
-                                  : 'bg-slate-800 text-slate-400'
-                              }`}
-                            >
-                              {promo.isActive ? 'Aktif' : 'Nonaktif'}
-                            </button>
-                          </td>
                           <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => handleDeletePromotion(promo)}
-                              className="p-1.5 text-rose-400 hover:bg-rose-950 rounded-lg transition"
-                              title="Hapus Promosi"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setSelectedIngredientForStock(ing);
+                                  setStockForm({ ingredientId: ing.id, amount: '', notes: '' });
+                                  setStockModalType('IN');
+                                  setShowStockModal(true);
+                                }}
+                                className="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-bold transition"
+                              >
+                                + Mutasi
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingIngredient(ing);
+                                  setIngredientForm({
+                                    id: ing.id,
+                                    name: ing.name,
+                                    unit: ing.unit,
+                                    minimumStock: ing.minimumStock,
+                                    purchasePrice: ing.purchasePrice || 0,
+                                    supplier: ing.supplier || '',
+                                    expiryDate: ing.expiryDate || '',
+                                    initialStock: ing.currentStock || 0,
+                                  });
+                                  setShowIngredientModal(true);
+                                }}
+                                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteIngredient(ing)}
+                                className="p-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 rounded-lg transition"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* TOPPINGS MANAGEMENT TAB */}
-        {activeTab === 'toppings' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          {/* RECIPES TAB (BOM) */}
+          {activeTab === 'recipes' && (
+            <div className="space-y-6 max-w-4xl mx-auto">
               <div>
-                <h2 className="text-xl font-bold text-white">Topping Management</h2>
-                <p className="text-xs text-slate-400">
-                  Kelola daftar topping tambahan untuk minuman dan makanan (harga & ketersediaan)
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recipe / BOM (Bill of Materials) Management</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Tentukan kebutuhan bahan baku untuk setiap produk. Stok akan otomatis terpotong saat transaksi dikonfirmasi.
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setToppingForm({ id: '', name: '', price: 3000, isAvailable: true });
-                  setShowToppingModal(true);
-                }}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
-              >
-                <Plus className="w-4 h-4" /> Tambah Topping
-              </button>
-            </div>
 
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                    <tr>
-                      <th className="px-6 py-4">Nama Topping</th>
-                      <th className="px-6 py-4">Harga Tambahan</th>
-                      <th className="px-6 py-4">Status Ketersediaan</th>
-                      <th className="px-6 py-4 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/80">
-                    {toppings.length === 0 ? (
+              <div className="p-6 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-6 shadow-sm">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Pilih Produk</label>
+                  <select
+                    value={selectedProductForRecipe}
+                    onChange={(e) => setSelectedProductForRecipe(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-bold focus:border-amber-500 focus:outline-none"
+                  >
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} (Rp {p.basePrice.toLocaleString('id-ID')})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">Daftar Bahan Baku Resep</h3>
+                    <button
+                      onClick={() => {
+                        if (ingredients.length === 0) {
+                          showToast('Buat bahan baku terlebih dahulu di tab Bahan Baku.', 'error');
+                          return;
+                        }
+                        setRecipeFormItems([...recipeFormItems, { ingredientId: ingredients[0].id, quantityRequired: 10 }]);
+                      }}
+                      className="px-3 py-1.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> + Bahan Baru
+                    </button>
+                  </div>
+
+                  {recipeFormItems.length === 0 ? (
+                    <p className="text-xs text-slate-500 italic text-center py-4">Belum ada resep bahan baku untuk produk ini.</p>
+                  ) : (
+                    recipeFormItems.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <select
+                          value={item.ingredientId}
+                          onChange={(e) => {
+                            const updated = [...recipeFormItems];
+                            updated[idx].ingredientId = e.target.value;
+                            setRecipeFormItems(updated);
+                          }}
+                          className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white text-sm focus:outline-none"
+                        >
+                          {ingredients.map((ing) => (
+                            <option key={ing.id} value={ing.id}>
+                              {ing.name} ({ing.unit})
+                            </option>
+                          ))}
+                        </select>
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0.1"
+                            value={item.quantityRequired}
+                            onChange={(e) => {
+                              const updated = [...recipeFormItems];
+                              updated[idx].quantityRequired = parseFloat(e.target.value) || 0;
+                              setRecipeFormItems(updated);
+                            }}
+                            className="w-28 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm font-mono text-right focus:outline-none"
+                            placeholder="Jumlah"
+                          />
+                          <span className="text-xs text-slate-400 w-12 font-bold">
+                            {ingredients.find((i) => i.id === item.ingredientId)?.unit || 'unit'}
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setRecipeFormItems(recipeFormItems.filter((_, i) => i !== idx));
+                          }}
+                          className="p-2 text-rose-400 hover:bg-rose-950 rounded-lg transition"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+
+                  <button
+                    onClick={handleSaveRecipeBOM}
+                    className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm shadow-lg transition mt-4"
+                  >
+                    Simpan Resep Produk
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* INVENTORY & TRANSACTION HISTORY TAB */}
+          {activeTab === 'inventory' && (
+            <div className="space-y-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Inventory Movements & Audit History</h2>
+                  <p className="text-xs text-slate-400">Catatan riwayat mutasi stok (IN, ADJUSTMENT, USAGE)</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedIngredientForStock(ingredients[0] || null);
+                    setStockForm({ ingredientId: ingredients[0]?.id || '', amount: '', notes: '' });
+                    setStockModalType('IN');
+                    setShowStockModal(true);
+                  }}
+                  className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg transition"
+                >
+                  <Plus className="w-4 h-4" /> Catat Mutasi Stok
+                </button>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <div className="p-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400 tracking-wider">Histori Mutasi Terakhir</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">{inventoryLogs.length} transaksi tercatat</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+                    <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-800">
                       <tr>
-                        <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                          Belum ada topping. Klik &quot;Tambah Topping&quot; untuk menambahkan.
-                        </td>
+                        <th className="px-6 py-4">Waktu</th>
+                        <th className="px-6 py-4">Bahan Baku</th>
+                        <th className="px-6 py-4">Tipe Mutasi</th>
+                        <th className="px-6 py-4">Jumlah</th>
+                        <th className="px-6 py-4">Catatan</th>
+                        <th className="px-6 py-4">Petugas</th>
                       </tr>
-                    ) : (
-                      toppings.map((top) => (
-                        <tr key={top.id} className="hover:bg-slate-800/40 transition">
-                          <td className="px-6 py-4 font-bold text-white flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-amber-400" />
-                            <span>{top.name}</span>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                      {inventoryLogs.map((log) => (
+                        <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                          <td className="px-6 py-4 text-xs font-mono text-slate-500 dark:text-slate-400">
+                            {new Date(log.createdAt).toLocaleString('id-ID')}
                           </td>
-                          <td className="px-6 py-4 font-bold text-amber-300">
-                            Rp {top.price.toLocaleString('id-ID')}
-                          </td>
+                          <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">{log.inventory?.ingredient?.name || '-'}</td>
                           <td className="px-6 py-4">
                             <span
-                              className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                                top.isAvailable
+                              className={`px-2.5 py-1 rounded-full text-xs font-bold ${log.type === 'IN'
                                   ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40'
-                                  : 'bg-rose-950 text-rose-400 border border-rose-500/40'
-                              }`}
+                                  : log.type === 'ADJUSTMENT'
+                                    ? 'bg-amber-950 text-amber-400 border border-amber-500/40'
+                                    : 'bg-rose-950 text-rose-400 border border-rose-500/40'
+                                }`}
                             >
-                              {top.isAvailable ? 'Tersedia' : 'Habis'}
+                              {log.type}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right space-x-2">
-                            <button
-                              onClick={() => {
-                                setToppingForm({
-                                  id: top.id,
-                                  name: top.name,
-                                  price: top.price,
-                                  isAvailable: top.isAvailable,
-                                });
-                                setShowToppingModal(true);
-                              }}
-                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
-                              title="Edit Topping"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteTopping(top)}
-                              className="p-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-400 rounded-lg transition"
-                              title="Hapus Topping"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                          <td className="px-6 py-4 font-mono font-bold text-white">
+                            {log.amount} {log.inventory?.ingredient?.unit}
                           </td>
+                          <td className="px-6 py-4 text-xs text-slate-300">{log.notes || '-'}</td>
+                          <td className="px-6 py-4 text-xs text-slate-400">{log.createdBy?.name || 'Sistem'}</td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* VOUCHERS MANAGEMENT TAB */}
-        {activeTab === 'vouchers' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-white">Voucher Mahasiswa</h2>
-                <p className="text-xs text-slate-400">
-                  Buat dan kelola kode voucher yang dapat dimasukkan pelanggan saat checkout
-                </p>
+          {/* PROMOTIONS MANAGEMENT TAB */}
+          {activeTab === 'promotions' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Promosi & Diskon Mahasiswa</h2>
+                  <p className="text-xs text-slate-400">
+                    Buat promo diskon persentase, nominal tetap, produk/kategori khusus, dan batas kuota
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    onClick={handleBroadcastDailyPromo}
+                    disabled={broadcastingPromo}
+                    className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition"
+                    title="Kirim info promo harian via WhatsApp ke pelanggan yang telah opt-in"
+                  >
+                    <Send className={`w-4 h-4 ${broadcastingPromo ? 'animate-pulse' : ''}`} />
+                    <span>{broadcastingPromo ? 'Mengirim...' : 'Broadcast Promo WhatsApp'}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setPromoForm({
+                        title: '',
+                        description: '',
+                        discountType: 'PERCENTAGE',
+                        discountValue: 15,
+                        minPurchase: 20000,
+                        maxDiscount: 10000,
+                        productId: '',
+                        categoryId: '',
+                        targetCustomerId: '',
+                        startDate: new Date().toISOString().slice(0, 10),
+                        endDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+                        usageLimit: 100,
+                        isActive: true,
+                      });
+                      setShowPromoModal(true);
+                    }}
+                    className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
+                  >
+                    <Plus className="w-4 h-4" /> Buat Promosi Baru
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => {
-                  setVoucherForm({
-                    id: '',
-                    code: '',
-                    discountType: 'FIXED',
-                    discountAmount: 5000,
-                    minSpend: 20000,
-                    maxDiscount: 0,
-                    quota: 100,
-                    expiryDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
-                    isActive: true,
-                  });
-                  setShowVoucherModal(true);
-                }}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
-              >
-                <Plus className="w-4 h-4" /> Buat Voucher Baru
-              </button>
-            </div>
 
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                    <tr>
-                      <th className="px-6 py-4">Kode Voucher</th>
-                      <th className="px-6 py-4">Diskon</th>
-                      <th className="px-6 py-4">Min. Belanja</th>
-                      <th className="px-6 py-4">Kuota / Terpakai</th>
-                      <th className="px-6 py-4">Berlaku Sampai</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/80">
-                    {vouchers.length === 0 ? (
+              {/* Promotions Table */}
+              <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+                    <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-800">
                       <tr>
-                        <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
-                          Belum ada kode voucher. Klik &quot;Buat Voucher Baru&quot; untuk membuat voucher.
-                        </td>
+                        <th className="px-6 py-4">Nama Promosi</th>
+                        <th className="px-6 py-4">Tipe Diskon</th>
+                        <th className="px-6 py-4">Target Khusus</th>
+                        <th className="px-6 py-4">Min. Belanja</th>
+                        <th className="px-6 py-4">Periode Berlaku</th>
+                        <th className="px-6 py-4">Kuota Pemakaian</th>
+                        <th className="px-6 py-4">Status</th>
+                        <th className="px-6 py-4 text-right">Aksi</th>
                       </tr>
-                    ) : (
-                      vouchers.map((v) => (
-                        <tr key={v.id} className="hover:bg-slate-800/40 transition">
-                          <td className="px-6 py-4">
-                            <span className="font-mono font-extrabold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-                              {v.code}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 font-bold text-white">
-                            {v.discountType === 'PERCENTAGE'
-                              ? `${v.discountAmount}%`
-                              : `Rp ${v.discountAmount.toLocaleString('id-ID')}`}
-                          </td>
-                          <td className="px-6 py-4 text-xs text-slate-400">
-                            Rp {v.minSpend.toLocaleString('id-ID')}
-                          </td>
-                          <td className="px-6 py-4 text-xs text-slate-300">
-                            {v.usedCount} / {v.quota} dipakai ({v._count?.orders || 0} order)
-                          </td>
-                          <td className="px-6 py-4 text-xs text-slate-400 font-mono">
-                            {new Date(v.expiryDate).toLocaleDateString('id-ID')}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span
-                              className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                                v.isActive && new Date(v.expiryDate) > new Date()
-                                  ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40'
-                                  : 'bg-rose-950 text-rose-400 border border-rose-500/40'
-                              }`}
-                            >
-                              {v.isActive && new Date(v.expiryDate) > new Date() ? 'Aktif' : 'Nonaktif / Exp'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-right space-x-2">
-                            <button
-                              onClick={() => {
-                                setVoucherForm({
-                                  id: v.id,
-                                  code: v.code,
-                                  discountType: v.discountType,
-                                  discountAmount: v.discountAmount,
-                                  minSpend: v.minSpend,
-                                  maxDiscount: v.maxDiscount || 0,
-                                  quota: v.quota,
-                                  expiryDate: new Date(v.expiryDate).toISOString().slice(0, 10),
-                                  isActive: v.isActive,
-                                });
-                                setShowVoucherModal(true);
-                              }}
-                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
-                              title="Edit Voucher"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteVoucher(v)}
-                              className="p-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-400 rounded-lg transition"
-                              title="Hapus Voucher"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                      {promotions.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="px-6 py-8 text-center text-xs text-slate-400 dark:text-slate-500">
+                            Belum ada data promosi. Klik tombol &quot;Buat Promosi Baru&quot; di atas.
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        promotions.map((promo) => (
+                          <tr key={promo.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                            <td className="px-6 py-4">
+                              <div className="font-bold text-slate-900 dark:text-white text-sm">{promo.title}</div>
+                              <div className="text-xs text-slate-500 dark:text-slate-400">{promo.description || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold font-mono">
+                                {promo.discountType === 'PERCENTAGE'
+                                  ? `${promo.discountValue}% (Maks Rp ${promo.maxDiscount?.toLocaleString('id-ID') || '∞'})`
+                                  : `Rp ${promo.discountValue.toLocaleString('id-ID')}`}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-xs text-slate-300">
+                              {promo.product ? (
+                                <span className="text-amber-400">Produk: {promo.product.name}</span>
+                              ) : promo.category ? (
+                                <span className="text-sky-400">Kategori: {promo.category.name}</span>
+                              ) : promo.targetCustomerId ? (
+                                <span className="text-purple-400">Pelanggan Khusus</span>
+                              ) : (
+                                <span className="text-slate-400">Semua Menu</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-xs font-bold text-white">
+                              Rp {(promo.minPurchase || 0).toLocaleString('id-ID')}
+                            </td>
+                            <td className="px-6 py-4 text-xs text-slate-400 font-mono">
+                              {new Date(promo.startDate).toLocaleDateString('id-ID')} - {new Date(promo.endDate).toLocaleDateString('id-ID')}
+                            </td>
+                            <td className="px-6 py-4 text-xs">
+                              <span className="font-mono text-white font-bold">{promo.usedCount || 0}</span>
+                              <span className="text-slate-500"> / {promo.usageLimit || '∞'}</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button
+                                onClick={() => handleTogglePromotionActive(promo)}
+                                className={`px-2.5 py-1 rounded-full text-xs font-bold ${promo.isActive
+                                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40'
+                                    : 'bg-slate-800 text-slate-400'
+                                  }`}
+                              >
+                                {promo.isActive ? 'Aktif' : 'Nonaktif'}
+                              </button>
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <button
+                                onClick={() => handleDeletePromotion(promo)}
+                                className="p-1.5 text-rose-400 hover:bg-rose-950 rounded-lg transition"
+                                title="Hapus Promosi"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* USERS & MEMBERSHIP MANAGEMENT TAB */}
-        {(activeTab === 'users' || activeTab === 'memberships') && (
-          <AdminUserManagement
-            onShowToast={showToast}
-            onRefreshPendingCount={(count) => setPendingMembersCount(count)}
-          />
-        )}
+          {/* TOPPINGS MANAGEMENT TAB */}
+          {activeTab === 'toppings' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Topping Management</h2>
+                  <p className="text-xs text-slate-400">
+                    Kelola daftar topping tambahan untuk minuman dan makanan (harga & ketersediaan)
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setToppingForm({ id: '', name: '', price: 3000, isAvailable: true });
+                    setShowToppingModal(true);
+                  }}
+                  className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
+                >
+                  <Plus className="w-4 h-4" /> Tambah Topping
+                </button>
+              </div>
 
-        {/* WHATSAPP LIVE CHAT & HUMAN HANDOVER TAB */}
-        {activeTab === 'inbox' && (
-          <AdminWhatsAppInbox onShowToast={showToast} />
-        )}
-      </main>
+              <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+                    <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-800">
+                      <tr>
+                        <th className="px-6 py-4">Nama Topping</th>
+                        <th className="px-6 py-4">Harga Tambahan</th>
+                        <th className="px-6 py-4">Status Ketersediaan</th>
+                        <th className="px-6 py-4 text-right">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                      {toppings.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-8 text-center text-slate-400 dark:text-slate-500">
+                            Belum ada topping. Klik &quot;Tambah Topping&quot; untuk menambahkan.
+                          </td>
+                        </tr>
+                      ) : (
+                        toppings.map((top) => (
+                          <tr key={top.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                            <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                              <span>{top.name}</span>
+                            </td>
+                            <td className="px-6 py-4 font-bold text-amber-600 dark:text-amber-300">
+                              Rp {top.price.toLocaleString('id-ID')}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span
+                                className={`px-2.5 py-1 rounded-full text-xs font-bold ${top.isAvailable
+                                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40'
+                                    : 'bg-rose-950 text-rose-400 border border-rose-500/40'
+                                  }`}
+                              >
+                                {top.isAvailable ? 'Tersedia' : 'Habis'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right space-x-2">
+                              <button
+                                onClick={() => {
+                                  setToppingForm({
+                                    id: top.id,
+                                    name: top.name,
+                                    price: top.price,
+                                    isAvailable: top.isAvailable,
+                                  });
+                                  setShowToppingModal(true);
+                                }}
+                                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
+                                title="Edit Topping"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTopping(top)}
+                                className="p-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-400 rounded-lg transition"
+                                title="Hapus Topping"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VOUCHERS MANAGEMENT TAB */}
+          {activeTab === 'vouchers' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Voucher Mahasiswa</h2>
+                  <p className="text-xs text-slate-400">
+                    Buat dan kelola kode voucher yang dapat dimasukkan pelanggan saat checkout
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setVoucherForm({
+                      id: '',
+                      code: '',
+                      discountType: 'FIXED',
+                      discountAmount: 5000,
+                      minSpend: 20000,
+                      maxDiscount: 0,
+                      quota: 100,
+                      expiryDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+                      isActive: true,
+                    });
+                    setShowVoucherModal(true);
+                  }}
+                  className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
+                >
+                  <Plus className="w-4 h-4" /> Buat Voucher Baru
+                </button>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+                    <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-800">
+                      <tr>
+                        <th className="px-6 py-4">Kode Voucher</th>
+                        <th className="px-6 py-4">Diskon</th>
+                        <th className="px-6 py-4">Min. Belanja</th>
+                        <th className="px-6 py-4">Kuota / Terpakai</th>
+                        <th className="px-6 py-4">Berlaku Sampai</th>
+                        <th className="px-6 py-4">Status</th>
+                        <th className="px-6 py-4 text-right">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                      {vouchers.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="px-6 py-8 text-center text-slate-400 dark:text-slate-500">
+                            Belum ada kode voucher. Klik &quot;Buat Voucher Baru&quot; untuk membuat voucher.
+                          </td>
+                        </tr>
+                      ) : (
+                        vouchers.map((v) => (
+                          <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                            <td className="px-6 py-4">
+                              <span className="font-mono font-extrabold text-amber-600 dark:text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                                {v.code}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                              {v.discountType === 'PERCENTAGE'
+                                ? `${v.discountAmount}%`
+                                : `Rp ${v.discountAmount.toLocaleString('id-ID')}`}
+                            </td>
+                            <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
+                              Rp {v.minSpend.toLocaleString('id-ID')}
+                            </td>
+                            <td className="px-6 py-4 text-xs text-slate-300">
+                              {v.usedCount} / {v.quota} dipakai ({v._count?.orders || 0} order)
+                            </td>
+                            <td className="px-6 py-4 text-xs text-slate-400 font-mono">
+                              {new Date(v.expiryDate).toLocaleDateString('id-ID')}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span
+                                className={`px-2.5 py-1 rounded-full text-xs font-bold ${v.isActive && new Date(v.expiryDate) > new Date()
+                                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40'
+                                    : 'bg-rose-950 text-rose-400 border border-rose-500/40'
+                                  }`}
+                              >
+                                {v.isActive && new Date(v.expiryDate) > new Date() ? 'Aktif' : 'Nonaktif / Exp'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right space-x-2">
+                              <button
+                                onClick={() => {
+                                  setVoucherForm({
+                                    id: v.id,
+                                    code: v.code,
+                                    discountType: v.discountType,
+                                    discountAmount: v.discountAmount,
+                                    minSpend: v.minSpend,
+                                    maxDiscount: v.maxDiscount || 0,
+                                    quota: v.quota,
+                                    expiryDate: new Date(v.expiryDate).toISOString().slice(0, 10),
+                                    isActive: v.isActive,
+                                  });
+                                  setShowVoucherModal(true);
+                                }}
+                                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition"
+                                title="Edit Voucher"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteVoucher(v)}
+                                className="p-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-400 rounded-lg transition"
+                                title="Hapus Voucher"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* USERS & MEMBERSHIP MANAGEMENT TAB */}
+          {(activeTab === 'users' || activeTab === 'memberships') && (
+            <AdminUserManagement
+              onShowToast={showToast}
+              onRefreshPendingCount={(count) => setPendingMembersCount(count)}
+            />
+          )}
+
+          {/* WHATSAPP LIVE CHAT & HUMAN HANDOVER TAB */}
+          {activeTab === 'inbox' && (
+            <AdminWhatsAppInbox onShowToast={showToast} />
+          )}
+        </main>
       </div>
 
       {/* PRODUCT MODAL */}
@@ -2118,11 +2109,10 @@ export default function AdminPage() {
                       key={t.id}
                       type="button"
                       onClick={() => setStockModalType(t.id as any)}
-                      className={`py-2 rounded-xl text-xs font-bold border transition ${
-                        stockModalType === t.id
+                      className={`py-2 rounded-xl text-xs font-bold border transition ${stockModalType === t.id
                           ? 'bg-amber-500 text-slate-950 border-amber-500'
                           : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                      }`}
+                        }`}
                     >
                       {t.label}
                     </button>

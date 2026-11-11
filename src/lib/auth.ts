@@ -33,24 +33,37 @@ export function verifyToken(token: string): TokenPayload | null {
 }
 
 export function getTokenFromHeadersOrCookies(req: Request): string | null {
-  // Check Authorization header
+  // 1. Check Authorization header
   const authHeader = req.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    return authHeader.substring(7);
+    return authHeader.substring(7).trim();
   }
 
-  // Check Cookie header
+  // 2. Check NextRequest cookies if available
+  const nextReqCookies = (req as any).cookies;
+  if (nextReqCookies && typeof nextReqCookies.get === 'function') {
+    const val = nextReqCookies.get('token')?.value;
+    if (val) return val;
+  }
+
+  // 3. Check Cookie header using regex
   const cookieHeader = req.headers.get('cookie');
   if (cookieHeader) {
-    const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-      const [key, val] = cookie.trim().split('=');
-      if (key && val) acc[key] = val;
-      return acc;
-    }, {} as Record<string, string>);
-
-    if (cookies.token) {
-      return cookies.token;
+    const match = cookieHeader.match(/(?:^|;\s*)token=([^;]+)/);
+    if (match && match[1]) {
+      return decodeURIComponent(match[1].trim());
     }
+  }
+
+  // 4. Fallback to next/headers cookies() in Next.js Server Runtime
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { cookies } = require('next/headers');
+    const store = cookies();
+    const token = store.get('token')?.value;
+    if (token) return token;
+  } catch {
+    // Silently continue if outside Next.js request context
   }
 
   return null;

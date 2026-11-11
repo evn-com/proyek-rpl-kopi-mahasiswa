@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Header from '@/components/Header';
 import {
   Coffee,
   CheckCircle2,
@@ -110,6 +111,7 @@ function OrderTrackerContent() {
   if (error || !order) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+        <Header title="Status Pesanan" showCart={false} />
         <main className="flex-1 max-w-lg mx-auto w-full p-6 text-center flex flex-col items-center justify-center space-y-4">
           <AlertTriangle className="w-12 h-12 text-rose-500" />
           <h2 className="text-xl font-bold text-white">Pesanan Tidak Ditemukan</h2>
@@ -145,6 +147,8 @@ function OrderTrackerContent() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      <Header title="Lacak Pesanan" showCart={false} />
+
       <main className="flex-1 max-w-3xl w-full mx-auto p-4 md:p-8 space-y-6">
         <button
           onClick={() => router.push('/menu')}

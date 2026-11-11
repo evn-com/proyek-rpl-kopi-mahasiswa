@@ -100,13 +100,13 @@ export default function AdminUserManagement({
       </div>
 
       {/* Sub-tab navigation */}
-      <div className="flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 w-fit">
+      <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/80 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 w-fit">
         <button
           onClick={() => setSubTab('membership')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
             subTab === 'membership'
               ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
           }`}
         >
           <UserCheck className="w-4 h-4" />
@@ -117,7 +117,7 @@ export default function AdminUserManagement({
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
             subTab === 'all-users'
               ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
           }`}
         >
           <Users className="w-4 h-4" />
@@ -338,16 +338,16 @@ function AllUsersTab({
   return (
     <div className="space-y-4">
       {/* Search & Filters Card */}
-      <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-3">
+      <div className="p-4 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-3">
         <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama, nomor WhatsApp, atau kampus..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-amber-500 transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:border-amber-500 transition-colors"
             />
           </div>
           <button
@@ -361,7 +361,7 @@ function AllUsersTab({
             <button
               type="button"
               onClick={handleResetFilters}
-              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition-colors shrink-0"
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 font-semibold rounded-xl text-xs transition-colors shrink-0"
             >
               Reset
             </button>
@@ -369,8 +369,8 @@ function AllUsersTab({
         </form>
 
         {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-800/60 text-xs">
-          <span className="text-slate-500 text-[11px] font-semibold">Filter Role:</span>
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/60 text-xs">
+          <span className="text-slate-500 dark:text-slate-400 text-[11px] font-semibold">Filter Role:</span>
           {['', 'Customer', 'Cashier', 'Barista', 'Admin', 'Owner'].map((r) => {
             const count = r ? roleCounts[r] ?? 0 : total;
             const active = roleFilter === r;
@@ -384,7 +384,7 @@ function AllUsersTab({
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
                   active
                     ? 'bg-amber-500 text-slate-950 font-bold'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                 }`}
               >
                 {r || 'Semua Role'} ({count})
@@ -392,9 +392,9 @@ function AllUsersTab({
             );
           })}
 
-          <div className="h-4 w-px bg-slate-800 hidden sm:block mx-1" />
+          <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block mx-1" />
 
-          <span className="text-slate-500 text-[11px] font-semibold">Status Member:</span>
+          <span className="text-slate-500 dark:text-slate-400 text-[11px] font-semibold">Status Member:</span>
           {[
             { id: '', label: 'Semua' },
             { id: 'APPROVED', label: 'Disetujui' },
@@ -412,7 +412,7 @@ function AllUsersTab({
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
                   active
                     ? 'bg-amber-500 text-slate-950 font-bold'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                 }`}
               >
                 {m.label}
@@ -423,7 +423,7 @@ function AllUsersTab({
           <button
             onClick={() => fetchUsers()}
             disabled={loading}
-            className="ml-auto p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="ml-auto p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
             title="Segarkan Data"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -432,10 +432,10 @@ function AllUsersTab({
       </div>
 
       {/* Users Table Card */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
               <tr>
                 <th className="px-4 py-3.5">Nama &amp; Akun</th>
                 <th className="px-4 py-3.5">Kontak</th>
@@ -584,7 +584,7 @@ function AllUsersTab({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3 border-t border-slate-800 bg-slate-950/50">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
             <span className="text-[11px] text-slate-500">
               Menampilkan {users.length} dari {total} pengguna — Halaman {page} dari {totalPages}
             </span>
@@ -592,7 +592,7 @@ function AllUsersTab({
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page <= 1}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 transition disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -614,7 +614,7 @@ function AllUsersTab({
                     className={`min-w-[32px] h-8 rounded-lg text-xs font-bold transition-all ${
                       page === pageNum
                         ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white'
                     }`}
                   >
                     {pageNum}

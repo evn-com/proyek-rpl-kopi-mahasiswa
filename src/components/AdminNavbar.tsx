@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { ShieldCheck, User, LogOut, Menu } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import NotificationCenter from './NotificationCenter';
-import { clientLogout } from '@/lib/authClient';
 
 interface AdminNavbarProps {
   onToggleSidebar?: () => void;
@@ -16,33 +15,36 @@ export default function AdminNavbar({ onToggleSidebar, pageTitle }: AdminNavbarP
   const [user, setUser] = useState<{ name: string; role: string } | null>(null);
 
   useEffect(() => {
-    fetch('/api/auth/me', { cache: 'no-store' })
+    fetch('/api/auth/me')
       .then((res) => res.json())
       .then((data) => {
-        setUser(data?.user || null);
+        if (data.user) setUser(data.user);
       })
-      .catch(() => {
-        setUser(null);
-      });
+      .catch(() => {});
   }, []);
 
   const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/me', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
     setUser(null);
-    await clientLogout('/login');
+    window.location.href = '/login';
   };
 
   const displayName = user?.name ? user.name.split(' ')[0] : 'Admin';
   const displayRole = user?.role || 'Admin';
 
   return (
-    <header className="sticky top-0 z-30 border-b border-coffee-200/60 dark:border-slate-800 shadow-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-md transition-colors duration-200">
+    <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-[#0F172A] backdrop-blur-md transition-colors duration-200">
       <div className="w-full px-4 md:px-6 h-16 flex items-center justify-between">
         {/* Left: Mobile hamburger toggle & optional page title */}
         <div className="flex items-center gap-3">
           {onToggleSidebar && (
             <button
               onClick={onToggleSidebar}
-              className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
               aria-label="Buka Menu Navigasi"
             >
               <Menu className="w-5 h-5" />
@@ -50,14 +52,14 @@ export default function AdminNavbar({ onToggleSidebar, pageTitle }: AdminNavbarP
           )}
 
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-coffee-700 to-coffee-900 dark:from-amber-600 dark:to-amber-800 text-amber-200 dark:text-white flex items-center justify-center shadow-md">
-              <ShieldCheck className="w-4 h-4 text-amber-300" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 text-white flex items-center justify-center shadow-md">
+              <ShieldCheck className="w-4 h-4 text-white" />
             </div>
             <div>
-              <span className="font-bold text-sm sm:text-base leading-tight tracking-tight text-coffee-950 dark:text-slate-100 block">
+              <span className="font-bold text-sm sm:text-base leading-tight tracking-tight text-slate-900 dark:text-slate-100 block">
                 {pageTitle || 'Admin Dashboard & Inventory'}
               </span>
-              <span className="text-[10px] font-medium tracking-wider uppercase text-amber-800/80 dark:text-amber-400/80 block">
+              <span className="text-[10px] font-medium tracking-wider uppercase text-amber-700 dark:text-amber-400/90 block">
                 Kopi Mahasiswa Management System
               </span>
             </div>
@@ -74,7 +76,7 @@ export default function AdminNavbar({ onToggleSidebar, pageTitle }: AdminNavbarP
 
           {/* Status Akun Admin */}
           <div
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-coffee-900 text-amber-100 dark:bg-amber-500 dark:text-coffee-950 text-xs font-semibold shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold shadow-xs"
             title={`Akun: ${displayName} (${displayRole})`}
           >
             <User className="w-3.5 h-3.5" />
@@ -89,7 +91,7 @@ export default function AdminNavbar({ onToggleSidebar, pageTitle }: AdminNavbarP
           {/* Tombol Logout */}
           <button
             onClick={handleLogout}
-            className="p-2 rounded-xl text-coffee-700 hover:bg-red-50 hover:text-red-600 dark:text-slate-300 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition-colors shadow-xs"
+            className="p-2 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition-colors shadow-xs"
             title="Keluar / Logout"
             aria-label="Logout"
           >

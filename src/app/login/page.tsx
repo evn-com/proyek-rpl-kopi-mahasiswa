@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Coffee, Lock, Mail, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { Coffee, Lock, Mail, ArrowRight, ShieldCheck, Sparkles, UserCheck } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
@@ -14,17 +14,6 @@ function LoginForm() {
   const [password, setPassword] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // Bersihkan data session / token lokal saat halaman login dimuat
-  useEffect(() => {
-    try {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userName');
-      sessionStorage.clear();
-    } catch {}
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,27 +31,22 @@ function LoginForm() {
 
       if (res.ok && data.user) {
         if (data.token) {
-          try {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-          } catch {}
+          localStorage.setItem('token', data.token);
         }
-
         const role = data.user.role;
-        const target = redirectPath || (
-          role === 'Admin'
-            ? '/admin'
-            : role === 'Cashier'
-            ? '/cashier'
-            : role === 'Barista'
-            ? '/barista'
-            : role === 'Owner'
-            ? '/owner'
-            : '/menu'
-        );
-
-        // Gunakan hard redirect agar dashboard & navbar terinisialisasi bersih
-        window.location.href = target;
+        if (redirectPath) {
+          router.push(redirectPath);
+        } else if (role === 'Admin') {
+          router.push('/admin');
+        } else if (role === 'Cashier') {
+          router.push('/cashier');
+        } else if (role === 'Barista') {
+          router.push('/barista');
+        } else if (role === 'Owner') {
+          router.push('/owner');
+        } else {
+          router.push('/menu');
+        }
       } else {
         setErrorMessage(data.error || 'Login gagal. Periksa kembali Email atau Nomor WhatsApp Anda.');
       }
@@ -158,16 +142,18 @@ function LoginForm() {
           </button>
         </form>
 
-        {/* Demo Accounts Quick Fill (3 Akun Staf Utama: Admin, Kasir, Barista) */}
+        {/* Demo Accounts Quick Fill */}
         <div className="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-espresso-deep border border-amber-200/70 dark:border-espresso-border text-[11px] text-coffee-950 dark:text-cream space-y-2">
           <p className="font-extrabold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
             <ShieldCheck className="w-4 h-4 text-amber-700 dark:text-amber-400" /> Akun Demo Cepat:
           </p>
-          <div className="grid grid-cols-3 gap-2 pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
             {[
               { label: 'Admin', email: 'admin@kopimahasiswa.id' },
               { label: 'Kasir', email: 'cashier@kopimahasiswa.id' },
               { label: 'Barista', email: 'barista@kopimahasiswa.id' },
+              { label: 'Owner', email: 'owner@kopimahasiswa.id' },
+              { label: 'Customer', email: 'customer@kopimahasiswa.id' },
             ].map((acc) => (
               <button
                 key={acc.label}

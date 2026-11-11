@@ -193,7 +193,7 @@ export default function AdminMembershipApproval({
         {/* Refresh Button */}
         <button
           onClick={fetchMemberships}
-          className="self-start md:self-auto p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-2 text-xs font-bold"
+          className="self-start md:self-auto p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2 text-xs font-bold shadow-xs"
           title="Segarkan Data"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -207,62 +207,62 @@ export default function AdminMembershipApproval({
           onClick={() => setActiveStatusFilter('ALL')}
           className={`p-4 rounded-2xl border cursor-pointer transition-all ${
             activeStatusFilter === 'ALL'
-              ? 'bg-slate-800 border-amber-500/50 shadow-lg'
-              : 'bg-slate-900/80 border-slate-800 hover:bg-slate-800/60'
+              ? 'bg-amber-500/10 border-amber-500/50 shadow-md'
+              : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 shadow-xs'
           }`}
         >
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Pendaftar</span>
-          <div className="text-2xl font-black text-white mt-1">{counts.total}</div>
-          <span className="text-[10px] text-slate-500 mt-1 block">Seluruh riwayat pendaftaran</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Total Pendaftar</span>
+          <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{counts.total}</div>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block">Seluruh riwayat pendaftaran</span>
         </div>
 
         <div
           onClick={() => setActiveStatusFilter('PENDING')}
           className={`p-4 rounded-2xl border cursor-pointer transition-all ${
             activeStatusFilter === 'PENDING'
-              ? 'bg-amber-950/40 border-amber-500 shadow-lg shadow-amber-500/10'
-              : 'bg-slate-900/80 border-slate-800 hover:bg-slate-800/60'
+              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-md shadow-amber-500/10'
+              : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 shadow-xs'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Menunggu (Pending)</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Menunggu (Pending)</span>
             {counts.pending > 0 && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
             )}
           </div>
-          <div className="text-2xl font-black text-amber-400 mt-1">{counts.pending}</div>
-          <span className="text-[10px] text-amber-300/80 mt-1 block">Wajib ditinjau admin</span>
+          <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{counts.pending}</div>
+          <span className="text-[10px] text-amber-700/80 dark:text-amber-300/80 mt-1 block">Wajib ditinjau admin</span>
         </div>
 
         <div
           onClick={() => setActiveStatusFilter('APPROVED')}
           className={`p-4 rounded-2xl border cursor-pointer transition-all ${
             activeStatusFilter === 'APPROVED'
-              ? 'bg-emerald-950/40 border-emerald-500 shadow-lg'
-              : 'bg-slate-900/80 border-slate-800 hover:bg-slate-800/60'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md'
+              : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 shadow-xs'
           }`}
         >
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Disetujui (Approved)</span>
-          <div className="text-2xl font-black text-emerald-400 mt-1">{counts.approved}</div>
-          <span className="text-[10px] text-emerald-300/80 mt-1 block">Member aktif Kopi Mahasiswa</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">Disetujui (Approved)</span>
+          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{counts.approved}</div>
+          <span className="text-[10px] text-emerald-700/80 dark:text-emerald-300/80 mt-1 block">Member aktif Kopi Mahasiswa</span>
         </div>
 
         <div
           onClick={() => setActiveStatusFilter('REJECTED')}
           className={`p-4 rounded-2xl border cursor-pointer transition-all ${
             activeStatusFilter === 'REJECTED'
-              ? 'bg-rose-950/40 border-rose-500 shadow-lg'
-              : 'bg-slate-900/80 border-slate-800 hover:bg-slate-800/60'
+              ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md'
+              : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 shadow-xs'
           }`}
         >
-          <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 block">Ditolak (Rejected)</span>
-          <div className="text-2xl font-black text-rose-400 mt-1">{counts.rejected}</div>
-          <span className="text-[10px] text-rose-300/80 mt-1 block">Tidak memenuhi syarat</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 block">Ditolak (Rejected)</span>
+          <div className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{counts.rejected}</div>
+          <span className="text-[10px] text-rose-700/80 dark:text-rose-300/80 mt-1 block">Tidak memenuhi syarat</span>
         </div>
       </div>
 
       {/* Filter Tabs & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/90 p-3 rounded-2xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-slate-900/90 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           {[
             { id: 'PENDING', label: `Menunggu (${counts.pending})` },
@@ -276,7 +276,7 @@ export default function AdminMembershipApproval({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
                 activeStatusFilter === tab.id
                   ? 'bg-amber-500 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
               }`}
             >
               {tab.label}
@@ -286,22 +286,22 @@ export default function AdminMembershipApproval({
 
         {/* Search */}
         <form onSubmit={handleSearchSubmit} className="relative sm:w-72">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Cari nama, nomor WA, kampus..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-xs bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-white focus:outline-none focus:border-amber-500"
+            className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-amber-500"
           />
         </form>
       </div>
 
       {/* Table Membership */}
-      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800 font-bold">
+          <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-800 font-bold">
               <tr>
                 <th className="px-5 py-3.5">Pelanggan / Mahasiswa</th>
                 <th className="px-4 py-3.5">WhatsApp</th>
@@ -312,17 +312,17 @@ export default function AdminMembershipApproval({
                 <th className="px-5 py-3.5 text-right">Aksi Verifikasi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80 text-xs">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-slate-400">
+                  <td colSpan={7} className="px-5 py-12 text-center text-slate-500 dark:text-slate-400">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-500" />
                     <span>Memuat data pendaftaran membership...</span>
                   </td>
                 </tr>
               ) : memberships.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-slate-500">
+                  <td colSpan={7} className="px-5 py-12 text-center text-slate-400 dark:text-slate-500">
                     Tidak ada data membership dengan filter saat ini.
                   </td>
                 </tr>
@@ -334,10 +334,10 @@ export default function AdminMembershipApproval({
                   const isActionLoading = actionLoadingId === m.id;
 
                   return (
-                    <tr key={m.id} className="hover:bg-slate-800/40 transition">
+                    <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                       {/* Name & Email */}
                       <td className="px-5 py-3.5">
-                        <div className="font-bold text-white text-sm">{m.name}</div>
+                        <div className="font-bold text-slate-900 dark:text-white text-sm">{m.name}</div>
                         <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
                           <Mail className="w-3 h-3 text-slate-500" />
                           <span>{m.email}</span>

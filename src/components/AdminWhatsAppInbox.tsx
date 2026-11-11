@@ -174,17 +174,17 @@ export default function AdminWhatsAppInbox({ onShowToast }: AdminWhatsAppInboxPr
       </div>
 
       {/* Main Chat Layout (Split Pane) */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-12 min-h-[620px] max-h-[720px]">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-12 min-h-[620px] max-h-[720px]">
         {/* Left Pane: Conversations List (5 cols) */}
-        <div className="md:col-span-5 lg:col-span-4 border-r border-slate-800 flex flex-col bg-slate-950/60">
+        <div className="md:col-span-5 lg:col-span-4 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50 dark:bg-slate-950/60">
           {/* Search & Filter Bar */}
-          <div className="p-3.5 border-b border-slate-800 space-y-2">
+          <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 space-y-2">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nomor atau nama pelanggan..."
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-amber-500"
+              className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:border-amber-500"
             />
             <div className="flex items-center gap-1.5 text-[11px]">
               {(['ALL', 'BOT_ACTIVE', 'HUMAN_ACTIVE'] as const).map((st) => (
@@ -194,7 +194,7 @@ export default function AdminWhatsAppInbox({ onShowToast }: AdminWhatsAppInboxPr
                   className={`px-2.5 py-1 rounded-lg font-semibold transition ${
                     statusFilter === st
                       ? 'bg-amber-500 text-slate-950'
-                      : 'bg-slate-800/80 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:text-white'
                   }`}
                 >
                   {st === 'ALL' ? 'Semua' : st === 'BOT_ACTIVE' ? '🤖 Bot' : '👤 Staf'}
