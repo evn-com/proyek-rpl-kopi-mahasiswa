@@ -1,0 +1,42 @@
+name: CI/CD Pipeline - Kopi Mahasiswa
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build, Lint & Type Check
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: "mysql://ci_user:ci_password@127.0.0.1:3306/kopi_mahasiswa"
+      JWT_SECRET: "kopi-mahasiswa-super-secret-jwt-key"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run TypeScript Type Check
+        run: npx tsc --noEmit
+
+      - name: Build Next.js Application
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
