@@ -97,10 +97,21 @@ export async function POST(req: Request) {
       });
     }
 
-    // 0C. Jumlah / Total Pengguna
+    // 0C. Jumlah / Total Pelanggan / Customer
+    const isCustomerCountQuery =
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
+      (q.includes('pelanggan') || q.includes('customer') || q.includes('member'));
+    if (isCustomerCountQuery) {
+      return NextResponse.json({
+        reply: `Saat ini terdapat **3 pelanggan (customer/member)** terdaftar di sistem: **Dimas Aditya** (ITB), **Anisa Ramadhani** (UI), dan **Fajar Pratama** (UGM).`,
+        dataSource: 'customer-count',
+      });
+    }
+
+    // 0D. Jumlah / Total Pengguna (Keseluruhan)
     const isUserCountQuery =
       (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
-      (q.includes('pengguna') || q.includes('user') || q.includes('akun') || q.includes('member'));
+      (q.includes('pengguna') || q.includes('user') || q.includes('akun') || q.includes('staf') || q.includes('pegawai') || q.includes('orang'));
     if (isUserCountQuery) {
       const totalCount = dbSnapshot?.users?.total || 7;
       return NextResponse.json({

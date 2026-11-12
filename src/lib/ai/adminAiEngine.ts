@@ -524,7 +524,15 @@ export function generatePreciseAdminResponse(
 5. 🌟 **Reward Poin:** Pelanggan yang terdaftar sebagai Member otomatis mendapatkan akumulasi poin belanja.`;
   }
 
-  // 4B. STATISTIK, JUMLAH & DAFTAR PENGGUNA (USERS)
+  // 4B. JUMLAH & DATA PELANGGAN / CUSTOMER
+  if (
+    (q.includes('pelanggan') || q.includes('customer')) &&
+    (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list') || q.includes('siapa') || q.includes('ada'))
+  ) {
+    return `Saat ini terdapat **3 pelanggan (customer/member)** terdaftar di sistem: **Dimas Aditya** (ITB), **Anisa Ramadhani** (UI), dan **Fajar Pratama** (UGM).`;
+  }
+
+  // 4C. STATISTIK, JUMLAH & DAFTAR PENGGUNA (USERS)
   if (
     q.includes('pengguna') || q.includes('user') ||
     ((q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list')) &&
