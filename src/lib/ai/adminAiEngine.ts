@@ -610,6 +610,40 @@ Berbeda dengan chatbot generik yang hanya menjawab pertanyaan teks umum, chatbot
 6. ⏱️ **Mengurangi Pencarian Data Manual**: Menghemat waktu dengan pencarian informasi menggunakan bahasa sehari-hari (*Natural Language Query*).`;
     }
 
+    if (
+      q.includes('alur kerja chatbot') || q.includes('alur kerja ai') || q.includes('alur chatbot') ||
+      q.includes('teknologi ai') || q.includes('arsitektur ai') || q.includes('prinsip utama ai') ||
+      q.includes('9 langkah') || q.includes('arsitektur sistem ai')
+    ) {
+      return `⚙️ **2. Arsitektur & Alur Kerja Sistem AI Chatbot — Kopi Mahasiswa**
+
+Sistem menggunakan pendekatan **AI Assistant berbasis role** (*Role-Based Access Control / RBAC*).
+
+🛠️ **Teknologi Utama:**
+- **Backend**: Next.js & PHP Native API Service.
+- **Database**: MySQL.
+- **Environment**: Laragon / Node.js.
+- **AI Service**: Integrasi model AI melalui REST API.
+- **Model/Provider**: Konfigurasi xKiro / Nous Research, Google Gemini, OpenAI GPT, DeepSeek.
+- **Autentikasi**: Session PHP & JWT Token.
+- **Keamanan**: Role-Based Access Control (RBAC).
+- **Konteks AI**: Data operasional yang diekstrak terfilter dari database.
+
+🔄 **Alur Kerja Chatbot (9 Tahap):**
+1. 🔑 **Login**: Pengguna login ke aplikasi Kopi Mahasiswa.
+2. 👤 **Identifikasi**: Sistem mengidentifikasi identitas akun dan role pengguna.
+3. 💬 **Buka Chatbot**: Pengguna membuka antarmuka asisten AI.
+4. 📨 **Kirim Pertanyaan**: Pertanyaan dikirim ke endpoint AI sesuai role.
+5. 🛡️ **Validasi Backend**: Backend memeriksa autentikasi dan hak akses role.
+6. 🗄️ **Retrieval Konteks**: Sistem mengambil konteks data yang relevan dari database.
+7. 🤖 **Kirim ke AI Service**: Konteks data dan pertanyaan dikirim ke model AI provider.
+8. ⚡ **Pemrosesan AI**: Model AI memproses informasi dan menghasilkan respon kontekstual.
+9. 📬 **Pengiriman Jawaban**: Jawaban dikirim kembali ke layar pengguna.
+
+🔒 **Prinsip Utama:**
+*AI tidak diberikan akses bebas terhadap seluruh database. Backend menentukan secara ketat data apa saja yang boleh digunakan berdasarkan role dan batasan akses (Backend-enforced Least Privilege).*`;
+    }
+
     if (q.includes('keamanan') || q.includes('lapisan')) {
       return `🛡️ **6 Lapisan Keamanan Sistem AI Chatbot Kopi Mahasiswa:**
 
