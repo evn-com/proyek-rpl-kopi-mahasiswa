@@ -137,6 +137,47 @@ export async function POST(req: Request) {
       });
     }
 
+    // 0E0. Harga / Info Produk Spesifik (Menjawab hanya 1 produk yang ditanyakan)
+    const allProducts = dbSnapshot?.catalog?.products?.list || [];
+    const specificProduct = allProducts.find((p: any) => {
+      const pName = p.name.toLowerCase();
+      if (q.includes(pName)) return true;
+      const cleanName = pName.replace(/\(.*?\)/g, '').trim();
+      if (cleanName.length > 3 && q.includes(cleanName)) return true;
+      const words = cleanName.split(' ');
+      if (words.length >= 2) {
+        const twoWords = words.slice(0, 2).join(' ');
+        if (q.includes(twoWords) && (q.includes('harga') || q.includes('berapa') || q.includes('ada'))) return true;
+      }
+      return false;
+    });
+
+    if (specificProduct) {
+      const variantStr = (specificProduct.variants && specificProduct.variants.length > 0)
+        ? ` (Varian: ${specificProduct.variants.join(', ')})`
+        : '';
+      const statusStr = specificProduct.isAvailable ? '✅ Tersedia' : '🔴 Sedang Habis';
+      return NextResponse.json({
+        reply: `Harga **${specificProduct.name}** adalah **Rp ${specificProduct.basePrice.toLocaleString('id-ID')}** [${specificProduct.category} — ${statusStr}]${variantStr}.`,
+        dataSource: 'product-price',
+      });
+    }
+
+    // Topping Spesifik
+    const allToppings = dbSnapshot?.catalog?.toppings || [];
+    const specificTopping = allToppings.find((t: any) => {
+      const tName = t.name.toLowerCase();
+      if (q.includes(tName)) return true;
+      const firstWord = tName.split(' ')[0];
+      return tName.length > 4 && q.includes(firstWord) && (q.includes('harga') || q.includes('berapa'));
+    });
+    if (specificTopping) {
+      return NextResponse.json({
+        reply: `Harga topping **${specificTopping.name}** adalah **Rp ${specificTopping.price.toLocaleString('id-ID')}** (${specificTopping.isAvailable ? '✅ Tersedia' : '🔴 Habis'}).`,
+        dataSource: 'topping-price',
+      });
+    }
+
     // 0E. Menu Kopi / Jumlah Menu Kopi (Hanya Kopi, bukan non-kopi atau cemilan)
     const isCoffeeMenuQuery =
       (q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi')) ||

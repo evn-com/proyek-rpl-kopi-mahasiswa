@@ -1152,6 +1152,41 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
     const nonCoffeeProducts = allProducts.filter(isNonCoffeeProduct);
     const snackProducts = allProducts.filter(isSnackProduct);
 
+    // 10-SPECIFIC. Cek apakah menanyakan 1 PRODUK spesifik (misal: "brapa harga pandan aren latte", "harga croissant")
+    const specificProduct = allProducts.find((p: any) => {
+      const pName = p.name.toLowerCase();
+      if (q.includes(pName)) return true;
+      const cleanName = pName.replace(/\(.*?\)/g, '').trim();
+      if (cleanName.length > 3 && q.includes(cleanName)) return true;
+      const words = cleanName.split(' ');
+      if (words.length >= 2) {
+        const twoWords = words.slice(0, 2).join(' ');
+        if (q.includes(twoWords) && (q.includes('harga') || q.includes('berapa') || q.includes('ada'))) return true;
+      }
+      return false;
+    });
+
+    if (specificProduct) {
+      const variantStr = (specificProduct.variants && specificProduct.variants.length > 0)
+        ? `\n- Pilihan Varian: ${specificProduct.variants.join(', ')}`
+        : '';
+      const statusStr = specificProduct.isAvailable ? '✅ Tersedia' : '🔴 Sedang Habis';
+      return `☕ Harga **${specificProduct.name}** adalah **Rp ${specificProduct.basePrice.toLocaleString('id-ID')}** [${specificProduct.category} — ${statusStr}].${variantStr}`;
+    }
+
+    // Cek apakah menanyakan TOPPING spesifik
+    const allToppings = catalog?.toppings || [];
+    const specificTopping = allToppings.find((t: any) => {
+      const tName = t.name.toLowerCase();
+      if (q.includes(tName)) return true;
+      const firstWord = tName.split(' ')[0];
+      return tName.length > 4 && q.includes(firstWord) && (q.includes('harga') || q.includes('berapa'));
+    });
+
+    if (specificTopping) {
+      return `Harga topping **${specificTopping.name}** adalah **Rp ${specificTopping.price.toLocaleString('id-ID')}** (${specificTopping.isAvailable ? '✅ Tersedia' : '🔴 Habis'}).`;
+    }
+
     // 10A. Jika menanyakan khusus NON-KOPI
     if (
       q.includes('non kopi') || q.includes('bukan kopi') || q.includes('non coffee') ||
@@ -1174,8 +1209,11 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
       return `🥐 **Daftar Menu Snack & Pastry (${snackProducts.length} Produk):**\n\n${list}`;
     }
 
-    // 10C. Jika menanyakan khusus KOPI / COFFEE (misal: "ada brapa menu kopi", "daftar menu kopi")
-    if (q.includes('kopi') || q.includes('coffee') || q.includes('espresso') || q.includes('latte')) {
+    // 10C. Jika menanyakan khusus KOPI / COFFEE (misal: "ada brapa menu kopi", "daftar menu kopi", "menu kopi")
+    if (
+      q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi') ||
+      ((q.includes('kopi') || q.includes('coffee')) && (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('ada')))
+    ) {
       const list = coffeeProducts
         .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
         .join('\n');
