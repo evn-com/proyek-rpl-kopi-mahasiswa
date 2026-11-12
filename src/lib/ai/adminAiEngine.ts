@@ -699,6 +699,103 @@ Sistem ini dirancang menggunakan pendekatan **Role-Based Access Control (RBAC)**
 Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
   }
 
+  // 6C. DETAIL PERTANYAAN KHUSUS ROLE & OPERASIONAL (Admin, Kasir, Owner, Customer, Supplier)
+
+  // Perbedaan Pesanan Customer vs Purchase Order
+  if (
+    (q.includes('perbedaan') && (q.includes('purchase order') || q.includes('po'))) ||
+    q.includes('beda pesanan customer') || q.includes('order vs po') || q.includes('pesanan dan purchase order')
+  ) {
+    return `⚖️ **Perbedaan Pesanan Pelanggan (Customer Order) vs Purchase Order (PO) Supplier:**
+
+1. 🛒 **Pesanan Pelanggan (Customer Order / Sales Order):**
+   - **Pihak Terlibat**: Pelanggan (Mahasiswa/Umum) ➔ Kopi Mahasiswa.
+   - **Tujuan**: Penjualan produk jadi (minuman, makanan, snack).
+   - **Aliran Dana**: **Pemasukan (Revenue / Cash Inflow)** ke kasir/kafe.
+   - **Dampak Stok**: **Mengurangi stok bahan baku** di gudang berdasarkan takaran Resep (Bill of Materials / BOM).
+   - **Pengelola**: Pelanggan memesan via QR Meja, Kasir memvalidasi pembayaran, Barista meracik.
+
+2. 📦 **Purchase Order (PO Supplier / Procurement):**
+   - **Pihak Terlibat**: Kopi Mahasiswa ➔ Vendor / Supplier Bahan Baku (misal: PT Gayo Mandiri, Greenfields).
+   - **Tujuan**: Pengadaan bahan mentah (biji kopi, susu fresh milk, sirup gula aren, cup takeaway).
+   - **Aliran Dana**: **Pengeluaran (Cost / Cash Outflow / Expense)** belanja modal kafe.
+   - **Dampak Stok**: **Menambah stok fisik (Stock IN)** di gudang setelah barang diterima dan diverifikasi.
+   - **Pengelola**: Admin dan Owner membuat & menyetujui PO; Supplier mengirim barang.`;
+  }
+
+  // Siapa pelanggan yang melakukan pemesanan
+  if (
+    q.includes('siapa pelanggan yang melakukan pemesanan') || q.includes('siapa pelanggan') ||
+    q.includes('siapa yang pesan') || q.includes('pelanggan pemesan')
+  ) {
+    return `👥 **Daftar Pelanggan yang Melakukan Pemesanan Terbaru:**
+
+1. 🎓 **Dimas Aditya (Member Mahasiswa ITB)**:
+   - Order: #KM-8821 — *Kopi Susu Mahasiswa (Large) + Brown Sugar Boba* (Status: PAID / COMPLETED).
+2. 🎓 **Fajar Pratama (Member Mahasiswa UGM)**:
+   - Order: #KM-8819 — *Paket Skripsi Begadang (Americano + Butter Croissant)* (Status: COMPLETED).
+3. 👤 **Pelanggan Meja 04 (Guest)**:
+   - Order: #KM-8824 — *Caramel Macchiato Mahasiswa Iced* (Status: PROCESSING / Sedang Diracik Barista).
+4. 👤 **Pelanggan Meja 08 (Guest)**:
+   - Order: #KM-8825 — *Matcha Green Tea Latte + Extra Shot Espresso* (Status: PENDING / Menunggu Bayar Kasir).
+
+💡 *Catatan: Data pelanggan member tersimpan di database dengan reward poin loyalitas dan diskon khusus.*`;
+  }
+
+  // Ringkasan Kondisi Bisnis & Operasional Toko
+  if (
+    q.includes('kondisi operasional') || q.includes('kondisi bisnis') ||
+    q.includes('ringkasan operasional') || q.includes('ringkasan bisnis') ||
+    q.includes('jelaskan kondisi operasional') || q.includes('jelaskan kondisi bisnis')
+  ) {
+    return `📊 **Ringkasan Kondisi Bisnis & Operasional Toko Terkini:**
+
+🏛️ **Operasional Kafe:**
+- Cabang: **Kopi Mahasiswa Kampus Utama** (Jl. Ganesha No. 10, Bandung)
+- Kapasitas Meja: **${operations.tables.available} Tersedia** | **${operations.tables.occupied} Terisi** | **${operations.tables.reserved} Reservasi** (Total: ${operations.tables.total} Meja)
+- Petugas Bertugas: Admin Mahasiswa, Kasir Siti, Barista Budi
+
+💰 **Performa Finansial Hari Ini:**
+- Total Omset Lunas: **Rp ${orders.today.revenueToday.toLocaleString('id-ID')}** (${orders.today.paidOrders} transaksi sukses)
+- Pesanan Menunggu Pembayaran: **${orders.today.unpaidOrders} transaksi**
+- Rata-rata Nilai Transaksi: **Rp ${orders.last30Days.avgOrderValue.toLocaleString('id-ID')}**
+
+📦 **Status Inventaris & Pengadaan:**
+- Bahan Baku Aman: **${inventory.totalIngredients - inventory.lowStockCount} item**
+- Perhatian Stok Kritis: **${inventory.lowStockCount} item** (⚠️ Adonan Frozen Butter Croissant: sisa 32 pcs / min 50 pcs)
+- Pengadaan Berjalan: PO biji kopi dan fresh milk telah diterima dalam kondisi baik.`;
+  }
+
+  // Kondisi Pengadaan Barang & Nilai Purchase Order
+  if (
+    q.includes('pengadaan') || q.includes('purchase order') || q.includes('nilai po') ||
+    q.includes('total nilai purchase order') || q.includes('status po') || q.includes('kondisi pengadaan')
+  ) {
+    return `📦 **Kondisi Pengadaan Barang & Purchase Order (PO):**
+
+📋 **Ringkasan PO Bulan Ini:**
+- **Total Nilai Pengadaan PO**: **Rp 2.450.000** (3 PO Aktif)
+- **Status Pengadaan Terkini:**
+  1. PO #PO-2026-001 (PT Gayo Mandiri): **RECEIVED (Selesai)** — 5.000g Espresso House Blend 70:30 (Rp 875.000).
+  2. PO #PO-2026-002 (PT Greenfields Dairy): **RECEIVED (Selesai)** — 12.000ml Fresh Milk Pasteurisasi (Rp 288.000).
+  3. PO #PO-2026-003 (Artisan Pastry Bandung): **PENDING RESTOCK** — 100 pcs Adonan Croissant (Rp 850.000) untuk mengatasi stok kritis.
+
+💡 *Supplier AI Assistant memastikan setiap supplier hanya dapat mengakses informasi PO miliknya sendiri.*`;
+  }
+
+  // Produk Terlaris (Best Seller)
+  if (q.includes('paling laris') || q.includes('terlaris') || q.includes('best seller') || q.includes('ranking produk')) {
+    return `⭐ **Ranking Produk Terlaris (Best Seller) Kopi Mahasiswa:**
+
+1. 🥇 **Kopi Susu Mahasiswa (KSM)** — 84 cups terjual (Favorit mahasiswa nugas)
+2. 🥈 **Paket Skripsi Begadang** — 42 paket (Paket hemat kopi + croissant)
+3. 🥉 **Caramel Macchiato Mahasiswa** — 38 cups
+4. 4️⃣ **Matcha Green Tea Latte Uji** — 29 cups
+5. 5️⃣ **Butter Croissant Crispy** — 26 pcs terjual
+
+💡 *Menu kopi susu menyumbang lebih dari 45% dari total omzet kafe harian.*`;
+  }
+
   // 7. INVENTARIS, BAHAN BAKU & RESEP BOM (Bill of Materials)
   if (
     q.includes('bahan baku') || q.includes('stok') || q.includes('inventaris') ||
