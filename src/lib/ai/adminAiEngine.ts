@@ -644,15 +644,23 @@ Sistem menggunakan pendekatan **AI Assistant berbasis role** (*Role-Based Access
 *AI tidak diberikan akses bebas terhadap seluruh database. Backend menentukan secara ketat data apa saja yang boleh digunakan berdasarkan role dan batasan akses (Backend-enforced Least Privilege).*`;
     }
 
-    if (q.includes('keamanan') || q.includes('lapisan')) {
-      return `🛡️ **6 Lapisan Keamanan Sistem AI Chatbot Kopi Mahasiswa:**
+    if (q.includes('keamanan') || q.includes('lapisan') || q.includes('pengamanan') || q.includes('security')) {
+      return `🛡️ **5. Lapisan Pengamanan Sistem AI Chatbot — Kopi Mahasiswa:**
 
-1. **Session & Token Authentication**: Memastikan pengguna telah terautentikasi (login) sebelum memproses pesan.
-2. **Role-Based Access Control (RBAC)**: Memastikan endpoint chatbot hanya dapat diakses sesuai hak peran pengguna.
-3. **Permission Checking**: Memeriksa izin spesifik (seperti 'use_kasir_ai', 'use_supplier_ai') pada role yang bersangkutan.
-4. **User Data Isolation**: Mengisolasi konteks data sehingga pengguna (seperti Customer dan Supplier) hanya dapat mengakses datanya sendiri.
-5. **Backend Data Filtering**: Backend memfilter dan membersihkan data sensitif (password hash, kredensial) sebelum dikirim ke AI.
-6. **Backend Database Query (Zero Free-SQL Access)**: Pengambilan data dilakukan melalui skema query backend yang teruji, tanpa pernah memberikan akses eksekusi SQL mentah bebas kepada model AI.`;
+Sistem menerapkan beberapa lapisan pengamanan berlapis (*Six-Tier Security Architecture*):
+
+1. 🔑 **Session Authentication**:
+   - Memastikan pengguna sudah login secara sah ke aplikasi.
+2. 👥 **Role-Based Access Control (RBAC)**:
+   - Memastikan chatbot digunakan sesuai role pengguna (Admin, Customer, Kasir, Supplier, Owner).
+3. 🔒 **Permission Checking**:
+   - Memeriksa izin penggunaan AI pada role yang memerlukannya (misalnya 'use_kasir_ai', 'use_supplier_ai').
+4. 👤 **User Data Isolation**:
+   - Membatasi konteks data berdasarkan pengguna yang sedang login (Customer/Supplier hanya melihat datanya sendiri).
+5. 🛡️ **Backend Data Filtering**:
+   - Backend menentukan dan memfilter informasi yang boleh diberikan kepada model AI (menghilangkan password/data sensitif).
+6. 🗄️ **Database Query (Zero Free-SQL Access)**:
+   - Pengambilan data dilakukan melalui backend aplikasi terstruktur, bukan memberikan akses eksekusi raw SQL bebas kepada model AI.`;
     }
 
     if (q.includes('skill') || q.includes('kemampuan')) {
