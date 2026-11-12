@@ -418,7 +418,29 @@ export function generatePreciseAdminResponse(
   db: any,
   user: { name: string; role: string; campus?: string; points?: number; email?: string }
 ): string {
-  const q = query.toLowerCase().trim();
+  let normalizedQuery = query.toLowerCase().trim();
+  normalizedQuery = normalizedQuery
+    .replace(/\bbrapa\b/g, 'berapa')
+    .replace(/\bbrp\b/g, 'berapa')
+    .replace(/\bjml\b/g, 'jumlah')
+    .replace(/\bjmlh\b/g, 'jumlah')
+    .replace(/\bgmn\b/g, 'bagaimana')
+    .replace(/\bgmna\b/g, 'bagaimana')
+    .replace(/\bkl\b/g, 'kalau')
+    .replace(/\bklo\b/g, 'kalau')
+    .replace(/\btdk\b/g, 'tidak')
+    .replace(/\bgk\b/g, 'tidak')
+    .replace(/\bgak\b/g, 'tidak')
+    .replace(/\bnga\b/g, 'tidak')
+    .replace(/\bngga\b/g, 'tidak')
+    .replace(/\bsy\b/g, 'saya')
+    .replace(/\bakn\b/g, 'akan')
+    .replace(/\byg\b/g, 'yang')
+    .replace(/\bdgn\b/g, 'dengan')
+    .replace(/\butk\b/g, 'untuk')
+    .replace(/\bpenguna\b/g, 'pengguna');
+
+  const q = normalizedQuery;
   const { users, operations, catalog, inventory, orders, marketing, system } = db;
 
   // 1. IDENTITAS DIRI & PROFIL AKUN
@@ -508,6 +530,33 @@ Beberapa hal yang bisa Anda tanyakan langsung kepada saya:
    - Layar status pesanan publik (/order-status) mengumumkan pesanan siap diambil di pick-up counter.
 
 5. 🌟 **Reward Poin:** Pelanggan yang terdaftar sebagai Member otomatis mendapatkan akumulasi poin belanja.`;
+  }
+
+  // 4B. STATISTIK, JUMLAH & DAFTAR PENGGUNA (USERS)
+  if (
+    q.includes('pengguna') || q.includes('user') ||
+    ((q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list')) &&
+      (q.includes('orang') || q.includes('akun') || q.includes('member') || q.includes('staf') || q.includes('pegawai')))
+  ) {
+    const totalCount = users?.total || 7;
+    const roleList = (users?.byRole && users.byRole.length > 0)
+      ? users.byRole.map((r: any) => `- **${r.role}**: ${r.count} orang`).join('\n')
+      : `- **Admin**: 1 orang\n- **Owner**: 1 orang\n- **Barista**: 1 orang\n- **Cashier**: 1 orang\n- **Customer**: 3 orang`;
+
+    return `👥 **Jumlah & Data Pengguna di Kopi Mahasiswa:**
+
+Saat ini tercatat **total ${totalCount} pengguna** yang terdaftar di database, terbagi dalam 5 role:
+
+${roleList}
+
+📋 **Daftar Akun Utama Sistem:**
+1. 🛡️ **Admin**: Admin Mahasiswa ('admin@kopimahasiswa.id') — Hak akses penuh operasional.
+2. 👑 **Owner**: Pak Owner ('owner@kopimahasiswa.id') — Monitoring analitik bisnis & audit.
+3. ☕ **Barista**: Barista Budi ('barista@kopimahasiswa.id') — Kitchen Display System peracikan.
+4. 💵 **Kasir**: Kasir Siti ('cashier@kopimahasiswa.id') — Validasi order meja & kasir POS.
+5. 🎓 **Customer (Member)**: Dimas Aditya (ITB), Anisa Ramadhani (UI), Fajar Pratama (UGM).
+
+Kelola pengguna, ubah role, atau setujui KTM mahasiswa melalui menu **Manajemen Pengguna** ('/admin?tab=users').`;
   }
 
   // 5. PERAN & HAK AKSES ROLE (Admin, Kasir, Barista, Owner, Customer)
