@@ -685,6 +685,31 @@ Lima chatbot telah melalui pemeriksaan kode (*code review*) dan pengujian fungsi
 - **Evaluasi Provider AI**: Pernah muncul error layanan AI generik secara intermiten pada beberapa pengujian API eksternal. Untuk menjamin keandalan 100%, sistem dilengkapi **Engine Simulasi Fallback Cerdas** sehingga chatbot tetap dapat menjawab pertanyaan dengan tepat meskipun koneksi ke provider pihak ketiga mengalami kendala jaringan.`;
     }
 
+    if (
+      q.includes('keunggulan') || q.includes('kelebihan') ||
+      q.includes('keistimewaan') || q.includes('manfaat sistem') ||
+      q.includes('mengapa 5 ai') || q.includes('kenapa 5 ai')
+    ) {
+      return `⭐ **8. Keunggulan Sistem AI Chatbot — Kopi Mahasiswa:**
+
+Sistem AI Chatbot Kopi Mahasiswa memiliki 7 keunggulan utama dibandingkan chatbot generik:
+
+1. 🌟 **One Application, Five Specialized AI Assistants**:
+   - Satu aplikasi kafe terintegrasi memiliki 5 asisten AI khusus yang disesuaikan dengan setiap pengguna.
+2. 🎯 **Spesialisasi Fungsi**:
+   - Setiap chatbot memiliki fungsi dan peran yang berbeda (Admin, Customer, Kasir, Supplier, dan Owner).
+3. 🗄️ **Konteks Data Operasional Riil**:
+   - Jawaban tidak sekadar teks umum atau halusinasi, melainkan selalu berlandaskan data operasional nyata (transaksi, resep BOM, stok gudang).
+4. 👥 **Personalisasi Berbasis Peran**:
+   - Informasi disajikan sesuai kebutuhan spesifik setiap role tanpa tercampur aduk.
+5. 🛡️ **Tata Kelola & Keamanan Data (RBAC)**:
+   - Data pengguna dibatasi secara ketat sesuai hak akses (data pelanggan & PO supplier terisolasi aman).
+6. 📈 **Dukungan Keputusan Bisnis (Actionable Insights)**:
+   - Tidak hanya menjawab pertanyaan FAQ santai, melainkan membantu manajemen memahami aktivitas dan metrik kesehatan bisnis.
+7. 🚀 **Arsitektur Modular & Skalabel**:
+   - Arsitektur backend dirancang fleksibel sehingga dapat dikembangkan lebih lanjut untuk fitur prediksi analitis di masa depan.`;
+    }
+
     if (q.includes('skill') || q.includes('kemampuan')) {
       return `🧠 **Pengelompokan Kemampuan & Skill Inti AI Chatbot — Kopi Mahasiswa:**
 
