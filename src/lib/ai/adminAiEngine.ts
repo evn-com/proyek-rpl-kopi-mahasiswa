@@ -740,6 +740,29 @@ Berikut adalah potensi pengembangan fitur AI di masa depan (*belum boleh diangga
 ⚠️ *Penting: Seluruh pengembangan tersebut memerlukan tahapan perencanaan, implementasi arsitektur, dan pengujian tersendiri.*`;
     }
 
+    if (
+      q.includes('kesimpulan') || q.includes('rangkuman sistem ai') ||
+      q.includes('inti dari sistem ai') || q.includes('konsep utama ai') ||
+      q.includes('ringkasan sistem ai')
+    ) {
+      return `🏁 **10. Kesimpulan Sistem AI Chatbot — Kopi Mahasiswa:**
+
+**AI Chatbot Kopi Mahasiswa** merupakan sistem *multi-role AI Assistant* yang dirancang untuk mengintegrasikan kecerdasan buatan langsung dengan data operasional aplikasi kafe.
+
+🌟 **Konsep Utama: "One Application, Five Specialized AI Assistants"**
+Sistem terdiri dari lima asisten kecerdasan buatan khusus:
+1. 🛡️ **Admin AI** — Pengelolaan dan pengawasan operasional kafe.
+2. 🎓 **Customer AI** — Asisten belanja pribadi (*Personal Shopping Concierge*).
+3. 💵 **Kasir AI** — Dukungan operasional transaksi POS.
+4. 🚚 **Supplier AI** — Informasi pengadaan bahan baku & Purchase Order.
+5. 👑 **Owner AI** — Analisis performa bisnis eksekutif.
+
+💡 **Pilar Keberhasilan:**
+Setiap asisten memiliki konteks, tujuan, dan batasan akses (RBAC) tersendiri sehingga AI dapat memberikan bantuan yang jauh lebih relevan, aman, dan efisien dengan pekerjaan masing-masing pengguna.
+
+📌 *Catatan: Dokumentasi ini menjelaskan kemampuan dan implementasi nyata yang telah aktif di sistem, bukan klaim bahwa semua potensi pengembangan di masa depan sudah selesai.*`;
+    }
+
     if (q.includes('skill') || q.includes('kemampuan')) {
       return `🧠 **Pengelompokan Kemampuan & Skill Inti AI Chatbot — Kopi Mahasiswa:**
 
