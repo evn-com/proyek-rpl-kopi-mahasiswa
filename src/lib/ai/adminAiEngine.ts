@@ -582,6 +582,69 @@ Website ini dilengkapi asisten kecerdasan buatan (*AI Barista Assistant*) yang d
 🔒 **Hak Akses Pengaturan:** Hanya **Admin** dan **Owner** yang berhak mengganti model AI aktif.`;
   }
 
+  // 6B. DOKUMENTASI SISTEM AI CHATBOT (One Application, Five Specialized AI Assistants)
+  if (
+    q.includes('dokumentasi ai') || q.includes('arsitektur ai') || q.includes('5 ai') ||
+    q.includes('lima ai') || q.includes('keamanan ai') || q.includes('skill ai') ||
+    q.includes('kemampuan ai') || q.includes('one application') || q.includes('supplier ai') ||
+    q.includes('kasir ai') || q.includes('owner ai') || q.includes('customer ai') ||
+    q.includes('lapisan keamanan') || q.includes('rbac ai')
+  ) {
+    if (q.includes('keamanan') || q.includes('lapisan')) {
+      return `🛡️ **6 Lapisan Keamanan Sistem AI Chatbot Kopi Mahasiswa:**
+
+1. **Session & Token Authentication**: Memastikan pengguna telah terautentikasi (login) sebelum memproses pesan.
+2. **Role-Based Access Control (RBAC)**: Memastikan endpoint chatbot hanya dapat diakses sesuai hak peran pengguna.
+3. **Permission Checking**: Memeriksa izin spesifik (seperti 'use_kasir_ai', 'use_supplier_ai') pada role yang bersangkutan.
+4. **User Data Isolation**: Mengisolasi konteks data sehingga pengguna (seperti Customer dan Supplier) hanya dapat mengakses datanya sendiri.
+5. **Backend Data Filtering**: Backend memfilter dan membersihkan data sensitif (password hash, kredensial) sebelum dikirim ke AI.
+6. **Backend Database Query (Zero Free-SQL Access)**: Pengambilan data dilakukan melalui skema query backend yang teruji, tanpa pernah memberikan akses eksekusi SQL mentah bebas kepada model AI.`;
+    }
+
+    if (q.includes('skill') || q.includes('kemampuan')) {
+      return `🧠 **Daftar Skill & Kemampuan Inti AI Chatbot Kopi Mahasiswa:**
+
+1. **Context Awareness**: Memahami konteks data pengguna secara spesifik.
+2. **Role Awareness**: Menyesuaikan gaya dan konten jawaban berdasarkan role pengguna.
+3. **Database Context Retrieval**: Mengambil informasi relevan dari database melalui backend yang aman.
+4. **Business Intelligence**: Membantu memahami kondisi dan performa bisnis secara analitis.
+5. **Sales Analysis**: Menganalisis ringkasan penjualan, transaksi, dan omzet.
+6. **Product Intelligence**: Memahami informasi katalog, resep, dan performa produk.
+7. **Order Intelligence**: Memahami status dan detail pesanan pelanggan.
+8. **Procurement Intelligence**: Memahami Purchase Order dan pengadaan bahan baku supplier.
+9. **Inventory Awareness**: Memahami kondisi stok riil, batas minimum, dan audit mutasi.
+10. **Personalized Assistance**: Memberikan jawaban yang dipersonalisasi sesuai profil pengguna.
+11. **Natural Language Understanding (NLU)**: Memahami pertanyaan menggunakan bahasa sehari-hari.
+12. **Contextual Response**: Menyusun jawaban terstruktur berdasarkan data faktual.`;
+    }
+
+    return `🤖 **Sistem AI Chatbot Kopi Mahasiswa — "One Application, Five Specialized AI Assistants"**
+
+Sistem ini dirancang menggunakan pendekatan **Role-Based Access Control (RBAC)** dengan 5 asisten AI khusus:
+
+1. 🛡️ **Admin AI Assistant**:
+   - **Fokus**: Pengelolaan dan pengawasan operasional kafe.
+   - **Kemampuan**: Konteks pelanggan, ringkasan pesanan, operasional toko, dan membedakan order customer vs Purchase Order supplier.
+
+2. 🎓 **Customer AI Assistant**:
+   - **Fokus**: Asisten belanja pribadi (*Personal Shopping Concierge*).
+   - **Kemampuan**: Status pesanan meja, isi keranjang belanja, katalog produk, rekomendasi menu, dan poin loyalitas (terisolasi per akun customer).
+
+3. 💵 **Kasir AI Assistant**:
+   - **Fokus**: Dukungan operasional transaksi POS.
+   - **Kemampuan**: Ringkasan penjualan harian, jumlah transaksi, dan informasi antrean pesanan (dilindungi izin 'use_kasir_ai').
+
+4. 🚚 **Supplier AI Assistant**:
+   - **Fokus**: Pengelolaan pengadaan barang dan Purchase Order.
+   - **Kemampuan**: Status PO (Draft, Approved, In Transit, Received) dan rincian pengadaan bahan baku (terisolasi per 'supplier_id').
+
+5. 👑 **Owner AI Assistant**:
+   - **Fokus**: Analisis bisnis eksekutif (*Executive Business Intelligence*).
+   - **Kemampuan**: Analisis omzet transaksi selesai, ranking produk terlaris, stok bahan baku kritis (*Low Stock Alert*), dan rekap nilai PO.
+
+Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
+  }
+
   // 7. INVENTARIS, BAHAN BAKU & RESEP BOM (Bill of Materials)
   if (
     q.includes('bahan baku') || q.includes('stok') || q.includes('inventaris') ||
