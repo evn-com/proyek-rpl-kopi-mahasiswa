@@ -656,20 +656,24 @@ Sistem menggunakan pendekatan **AI Assistant berbasis role** (*Role-Based Access
     }
 
     if (q.includes('skill') || q.includes('kemampuan')) {
-      return `🧠 **Daftar Skill & Kemampuan Inti AI Chatbot Kopi Mahasiswa:**
+      return `🧠 **Pengelompokan Kemampuan & Skill Inti AI Chatbot — Kopi Mahasiswa:**
 
-1. **Context Awareness**: Memahami konteks data pengguna secara spesifik.
-2. **Role Awareness**: Menyesuaikan gaya dan konten jawaban berdasarkan role pengguna.
-3. **Database Context Retrieval**: Mengambil informasi relevan dari database melalui backend yang aman.
-4. **Business Intelligence**: Membantu memahami kondisi dan performa bisnis secara analitis.
-5. **Sales Analysis**: Menganalisis ringkasan penjualan, transaksi, dan omzet.
-6. **Product Intelligence**: Memahami informasi katalog, resep, dan performa produk.
-7. **Order Intelligence**: Memahami status dan detail pesanan pelanggan.
-8. **Procurement Intelligence**: Memahami Purchase Order dan pengadaan bahan baku supplier.
-9. **Inventory Awareness**: Memahami kondisi stok riil, batas minimum, dan audit mutasi.
-10. **Personalized Assistance**: Memberikan jawaban yang dipersonalisasi sesuai profil pengguna.
-11. **Natural Language Understanding (NLU)**: Memahami pertanyaan menggunakan bahasa sehari-hari.
-12. **Contextual Response**: Menyusun jawaban terstruktur berdasarkan data faktual.`;
+| Skill | Fungsi |
+|---|---|
+| **Context Awareness** | Memahami konteks data pengguna |
+| **Role Awareness** | Menyesuaikan jawaban berdasarkan role |
+| **Database Context Retrieval** | Mengambil informasi relevan dari database melalui backend |
+| **Business Intelligence** | Membantu memahami kondisi bisnis |
+| **Sales Analysis** | Menganalisis ringkasan penjualan |
+| **Product Intelligence** | Memahami informasi dan performa produk |
+| **Order Intelligence** | Memahami informasi pesanan |
+| **Procurement Intelligence** | Memahami Purchase Order |
+| **Inventory Awareness** | Memahami kondisi stok |
+| **Personalized Assistance** | Memberikan jawaban sesuai konteks pengguna |
+| **Natural Language Understanding (NLU)** | Memahami pertanyaan menggunakan bahasa sehari-hari |
+| **Contextual Response** | Menyusun jawaban berdasarkan data yang diberikan |
+
+💡 *Catatan: Pengelompokan skill di atas merupakan dokumentasi kemampuan sistem, bukan daftar tool AI terpisah yang semuanya dapat dieksekusi secara mandiri.*`;
     }
 
     return `🤖 **Sistem AI Chatbot Kopi Mahasiswa — "One Application, Five Specialized AI Assistants"**
