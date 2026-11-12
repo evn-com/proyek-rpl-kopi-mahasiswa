@@ -710,6 +710,36 @@ Sistem AI Chatbot Kopi Mahasiswa memiliki 7 keunggulan utama dibandingkan chatbo
    - Arsitektur backend dirancang fleksibel sehingga dapat dikembangkan lebih lanjut untuk fitur prediksi analitis di masa depan.`;
     }
 
+    if (
+      q.includes('pengembangan selanjutnya') || q.includes('roadmap') ||
+      q.includes('rencana pengembangan') || q.includes('potensi pengembangan') ||
+      q.includes('fitur masa depan') || q.includes('tahap selanjutnya') ||
+      q.includes('potensi ai')
+    ) {
+      return `🔮 **9. Potensi Pengembangan AI Selanjutnya (Roadmap Masa Depan):**
+
+Berikut adalah potensi pengembangan fitur AI di masa depan (*belum boleh dianggap sebagai fitur yang sudah tersedia saat ini*):
+
+1. 📄 **Laporan Otomatis Berbasis AI**:
+   - Pembuatan laporan berkala (harian/mingguan/bulanan) otomatis dalam format PDF atau ringkasan instan.
+2. 📈 **Analisis Prediksi Penjualan (Predictive Sales Forecasting)**:
+   - Proyeksi volume penjualan berdasarkan tren historis dan kalender akademik mahasiswa.
+3. 📦 **Rekomendasi Restock Otomatis**:
+   - Saran pengadaan bahan baku berdasarkan pola konsumsi dan lead-time supplier.
+4. 📊 **Analisis Tren Produk & Preferensi Pelanggan**:
+   - Memetakan pergeseran selera menu dan pola jam nugas mahasiswa.
+5. 🔍 **Natural Language Query dengan Kontrol Keamanan**:
+   - Kemampuan query data analitik yang lebih mendalam dengan pengawasan izin ketat.
+6. 🔔 **Integrasi AI dengan Sistem Notifikasi Proaktif**:
+   - Pengiriman alert stok menipis atau broadcast promo via WhatsApp secara cerdas.
+7. 🖥️ **Dashboard Insight Berbasis AI**:
+   - Visualisasi grafik otomatis dengan narasi analisis performa kafe.
+8. ⚡ **Eksekusi Tindakan Operasional dengan Persetujuan (Human-in-the-Loop)**:
+   - AI mengajukan draf tindakan (misal: draf PO restock) yang menunggu konfirmasi Admin/Owner sebelum dieksekusi.
+
+⚠️ *Penting: Seluruh pengembangan tersebut memerlukan tahapan perencanaan, implementasi arsitektur, dan pengujian tersendiri.*`;
+    }
+
     if (q.includes('skill') || q.includes('kemampuan')) {
       return `🧠 **Pengelompokan Kemampuan & Skill Inti AI Chatbot — Kopi Mahasiswa:**
 
