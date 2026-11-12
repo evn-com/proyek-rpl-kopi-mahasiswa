@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Bell, CheckCheck, ExternalLink, Coffee, AlertCircle, Sparkles } from 'lucide-react';
+import { Bell, CheckCheck, ExternalLink, Coffee, AlertCircle, Sparkles, Settings } from 'lucide-react';
 
 export interface NotificationItem {
   id: string;
@@ -157,9 +157,8 @@ export default function NotificationCenter() {
                 <div
                   key={n.id}
                   onClick={() => !n.isRead && markAsRead(n.id)}
-                  className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 hover:bg-coffee-50/80 dark:hover:bg-espresso-deep ${
-                    n.isRead ? 'bg-white dark:bg-espresso-card opacity-85' : 'bg-amber-50/50 dark:bg-amber-950/20'
-                  }`}
+                  className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 hover:bg-coffee-50/80 dark:hover:bg-espresso-deep ${n.isRead ? 'bg-white dark:bg-espresso-card opacity-85' : 'bg-amber-50/50 dark:bg-amber-950/20'
+                    }`}
                 >
                   <div className="p-2 rounded-xl bg-coffee-100/70 dark:bg-espresso-deep shrink-0 mt-0.5">
                     {getTypeIcon(n.type)}
@@ -193,6 +192,18 @@ export default function NotificationCenter() {
                 </div>
               ))
             )}
+          </div>
+
+          {/* Footer Pengaturan Preferensi Notifikasi */}
+          <div className="p-3 bg-slate-50 dark:bg-slate-900 border-t border-coffee-100 dark:border-espresso-border">
+            <Link
+              href="/admin/settings/notifications"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-center py-2 px-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition flex items-center justify-center gap-1.5 shadow-2xs"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>Pengaturan Preferensi Notifikasi</span>
+            </Link>
           </div>
         </div>
       )}

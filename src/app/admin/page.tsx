@@ -33,6 +33,7 @@ import {
 import { Product, Category, Ingredient, InventoryTransaction } from '@/types';
 import AdminSidebar from '@/components/AdminSidebar';
 import AdminUserManagement from '@/components/AdminUserManagement';
+import AdminNotificationPreferences from '@/components/AdminNotificationPreferences';
 import AdminAIChat from '@/components/AdminAIChat';
 import AdminWhatsAppInbox from '@/components/AdminWhatsAppInbox';
 import {
@@ -44,7 +45,7 @@ import {
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'products' | 'categories' | 'toppings' | 'ingredients' | 'recipes' | 'inventory' | 'promotions' | 'vouchers' | 'users' | 'memberships' | 'inbox'
+    'overview' | 'products' | 'categories' | 'toppings' | 'ingredients' | 'recipes' | 'inventory' | 'promotions' | 'vouchers' | 'users' | 'memberships' | 'inbox' | 'notifications'
   >('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingMembersCount, setPendingMembersCount] = useState<number>(0);
@@ -1804,6 +1805,11 @@ export default function AdminPage() {
           {/* WHATSAPP LIVE CHAT & HUMAN HANDOVER TAB */}
           {activeTab === 'inbox' && (
             <AdminWhatsAppInbox onShowToast={showToast} />
+          )}
+
+          {/* NOTIFICATION PREFERENCES TAB */}
+          {activeTab === 'notifications' && (
+            <AdminNotificationPreferences onShowToast={showToast} />
           )}
         </main>
       </div>

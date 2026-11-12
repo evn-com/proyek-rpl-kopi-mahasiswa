@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Coffee, TrendingUp, Package, Layers, Sparkles, FlaskConical,
-  BookOpen, Boxes, Tag, Ticket, Users, X, ShieldCheck, MessageSquare, Bot,
+  BookOpen, Boxes, Tag, Ticket, Users, X, ShieldCheck, MessageSquare, Bot, Bell,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -63,6 +63,7 @@ const SECTIONS: SidebarSection[] = [
     title: 'KOMUNIKASI & PENGGUNA',
     items: [
       { id: 'inbox', label: 'WhatsApp Live Chat & Handover', icon: MessageSquare },
+      { id: 'notifications', label: 'Preferensi Notifikasi', icon: Bell, href: '/admin/settings/notifications' },
       { id: 'users', label: 'Manajemen Pengguna', icon: Users },
     ],
   },
