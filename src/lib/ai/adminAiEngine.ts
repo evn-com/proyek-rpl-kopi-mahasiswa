@@ -1067,15 +1067,93 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
   // 10. DAFTAR MENU, PRODUK & HARGA
   if (
     q.includes('produk') || q.includes('menu') || q.includes('makanan') ||
-    q.includes('minuman') || q.includes('harga') || q.includes('katalog')
+    q.includes('minuman') || q.includes('harga') || q.includes('katalog') ||
+    q.includes('kopi') || q.includes('coffee') || q.includes('snack') || q.includes('cemilan')
   ) {
-    const coffeeList = catalog.products.list
-      .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
+    const allProducts = catalog?.products?.list || [];
+
+    // Klasifikasi kategori akurat
+    const isCoffeeProduct = (p: any) => {
+      const cat = (p.category || '').toLowerCase();
+      const name = (p.name || '').toLowerCase();
+      if (
+        cat.includes('non-coffee') || cat.includes('non coffee') || cat.includes('tea') ||
+        cat.includes('snack') || cat.includes('pastry') || cat.includes('makanan')
+      ) {
+        return false;
+      }
+      return (
+        cat.includes('coffee') || cat.includes('espresso') || cat.includes('promo') ||
+        name.includes('kopi') || name.includes('latte') || name.includes('macchiato') ||
+        name.includes('americano') || name.includes('skripsi')
+      );
+    };
+
+    const isNonCoffeeProduct = (p: any) => {
+      const cat = (p.category || '').toLowerCase();
+      return cat.includes('non-coffee') || cat.includes('non coffee') || cat.includes('tea');
+    };
+
+    const isSnackProduct = (p: any) => {
+      const cat = (p.category || '').toLowerCase();
+      return cat.includes('snack') || cat.includes('pastry') || cat.includes('makanan');
+    };
+
+    const coffeeProducts = allProducts.filter(isCoffeeProduct);
+    const nonCoffeeProducts = allProducts.filter(isNonCoffeeProduct);
+    const snackProducts = allProducts.filter(isSnackProduct);
+
+    // 10A. Jika menanyakan khusus NON-KOPI
+    if (
+      q.includes('non kopi') || q.includes('bukan kopi') || q.includes('non coffee') ||
+      q.includes('teh') || q.includes('tea') || q.includes('cokelat')
+    ) {
+      const list = nonCoffeeProducts
+        .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
+        .join('\n');
+      return `🍵 **Daftar Menu Non-Coffee & Tea (${nonCoffeeProducts.length} Produk):**\n\n${list}`;
+    }
+
+    // 10B. Jika menanyakan khusus SNACK / CEMILAN / MAKANAN
+    if (
+      q.includes('snack') || q.includes('cemilan') || q.includes('makanan') ||
+      q.includes('pastry') || q.includes('kue')
+    ) {
+      const list = snackProducts
+        .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
+        .join('\n');
+      return `🥐 **Daftar Menu Snack & Pastry (${snackProducts.length} Produk):**\n\n${list}`;
+    }
+
+    // 10C. Jika menanyakan khusus KOPI / COFFEE (misal: "ada brapa menu kopi", "daftar menu kopi")
+    if (q.includes('kopi') || q.includes('coffee') || q.includes('espresso') || q.includes('latte')) {
+      const list = coffeeProducts
+        .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
+        .join('\n');
+      return `☕ **Daftar Menu Kopi (${coffeeProducts.length} Varian):**\n\n${list}\n\n⭐ _Catatan: Menu Non-Coffee (2) dan Snack/Pastry (2) dipisahkan dan tidak termasuk dalam daftar kopi ini._`;
+    }
+
+    // 10D. Jika menanyakan SEMUA menu / katalog secara umum
+    const coffeeList = coffeeProducts
+      .map((p: any) => `  - **${p.name}** — Rp ${p.basePrice.toLocaleString('id-ID')}`)
+      .join('\n');
+    const nonCoffeeList = nonCoffeeProducts
+      .map((p: any) => `  - **${p.name}** — Rp ${p.basePrice.toLocaleString('id-ID')}`)
+      .join('\n');
+    const snackList = snackProducts
+      .map((p: any) => `  - **${p.name}** — Rp ${p.basePrice.toLocaleString('id-ID')}`)
       .join('\n');
 
-    return `☕ **Daftar Menu & Katalog Kopi Mahasiswa (${catalog.products.total} Produk):**
+    return `📋 **Katalog Lengkap Menu Kopi Mahasiswa (Total ${allProducts.length} Produk):**
 
+☕ **Kategori Kopi (${coffeeProducts.length} Varian):**
 ${coffeeList}
+
+🍵 **Kategori Non-Coffee & Tea (${nonCoffeeProducts.length} Varian):**
+${nonCoffeeList}
+
+🥐 **Kategori Snack & Cemilan (${snackProducts.length} Varian):**
+${snackList}
 
 ⭐ Menu Best Seller: **Kopi Susu Mahasiswa (KSM)**, **Paket Skripsi Begadang**, dan **Caramel Macchiato**.`;
   }

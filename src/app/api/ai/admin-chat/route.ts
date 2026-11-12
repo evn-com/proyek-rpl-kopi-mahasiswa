@@ -137,6 +137,37 @@ export async function POST(req: Request) {
       });
     }
 
+    // 0E. Menu Kopi / Jumlah Menu Kopi (Hanya Kopi, bukan non-kopi atau cemilan)
+    const isCoffeeMenuQuery =
+      (q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi')) ||
+      ((q.includes('berapa') || q.includes('jumlah') || q.includes('total')) && (q.includes('kopi') || q.includes('coffee')));
+    if (isCoffeeMenuQuery) {
+      const allProducts = dbSnapshot?.catalog?.products?.list || [];
+      const coffeeProducts = allProducts.filter((p: any) => {
+        const cat = (p.category || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        if (
+          cat.includes('non-coffee') || cat.includes('non coffee') || cat.includes('tea') ||
+          cat.includes('snack') || cat.includes('pastry') || cat.includes('makanan')
+        ) {
+          return false;
+        }
+        return (
+          cat.includes('coffee') || cat.includes('espresso') || cat.includes('promo') ||
+          name.includes('kopi') || name.includes('latte') || name.includes('macchiato') ||
+          name.includes('americano') || name.includes('skripsi')
+        );
+      });
+      const count = coffeeProducts.length || 7;
+      const list = coffeeProducts
+        .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
+        .join('\n');
+      return NextResponse.json({
+        reply: `Saat ini terdapat **${count} varian menu kopi** di Kopi Mahasiswa:\n\n${list}\n\n⭐ _Catatan: Menu Non-Coffee dan Snack/Cemilan dipisahkan dan tidak masuk dalam kategori kopi._`,
+        dataSource: 'coffee-menu',
+      });
+    }
+
     // 1. Deteksi Pertanyaan Profil User / Identitas Diri
     const profileKeywords = [
       'siapa saya', 'siapa aku', 'siapakah saya', 'siapakah aku',
