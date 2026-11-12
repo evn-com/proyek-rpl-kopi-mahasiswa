@@ -168,6 +168,68 @@ export async function POST(req: Request) {
       });
     }
 
+    // 0F. Nama Staf Spesifik (Owner, Barista, Kasir, Admin)
+    const staffList: Array<{ name: string; role: string; email?: string }> = dbSnapshot?.users?.staff || [
+      { name: 'Admin Mahasiswa', role: 'Admin', email: 'admin@kopimahasiswa.id' },
+      { name: 'Pak Owner', role: 'Owner', email: 'owner@kopimahasiswa.id' },
+      { name: 'Barista Budi', role: 'Barista', email: 'barista@kopimahasiswa.id' },
+      { name: 'Kasir Siti', role: 'Cashier', email: 'cashier@kopimahasiswa.id' },
+    ];
+
+    const getStaffName = (roleKey: string, fallbackName: string) => {
+      const found = staffList.find((s) => s.role.toLowerCase() === roleKey.toLowerCase());
+      return found ? found.name : fallbackName;
+    };
+
+    // Owner / Pemilik
+    if (
+      (q.includes('siapa') || q.includes('nama')) &&
+      (q.includes('owner') || q.includes('pemilik'))
+    ) {
+      const ownerName = getStaffName('Owner', 'Pak Owner');
+      return NextResponse.json({
+        reply: `Nama Owner (Pemilik) Kopi Mahasiswa adalah **${ownerName}**.`,
+        dataSource: 'staff-info',
+      });
+    }
+
+    // Barista
+    if (
+      (q.includes('siapa') || q.includes('nama')) &&
+      (q.includes('barista') || q.includes('koki') || q.includes('dapur'))
+    ) {
+      const baristaName = getStaffName('Barista', 'Barista Budi');
+      return NextResponse.json({
+        reply: `Nama Barista yang bertugas di Kitchen Display System adalah **${baristaName}**.`,
+        dataSource: 'staff-info',
+      });
+    }
+
+    // Kasir / Cashier
+    if (
+      (q.includes('siapa') || q.includes('nama')) &&
+      (q.includes('kasir') || q.includes('cashier'))
+    ) {
+      const kasirName = getStaffName('Cashier', 'Kasir Siti');
+      return NextResponse.json({
+        reply: `Nama Kasir yang bertugas di meja kasir POS adalah **${kasirName}**.`,
+        dataSource: 'staff-info',
+      });
+    }
+
+    // Admin (bukan "siapa saya" atau "siapa anda")
+    if (
+      (q.includes('siapa') || q.includes('nama')) &&
+      q.includes('admin') &&
+      !q.includes('siapa saya') && !q.includes('siapa anda')
+    ) {
+      const adminName = getStaffName('Admin', 'Admin Mahasiswa');
+      return NextResponse.json({
+        reply: `Nama Administrator yang mengelola sistem operasional kafe adalah **${adminName}**.`,
+        dataSource: 'staff-info',
+      });
+    }
+
     // 1. Deteksi Pertanyaan Profil User / Identitas Diri
     const profileKeywords = [
       'siapa saya', 'siapa aku', 'siapakah saya', 'siapakah aku',

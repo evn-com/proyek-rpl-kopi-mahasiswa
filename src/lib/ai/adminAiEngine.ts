@@ -15,6 +15,12 @@ export function getFallbackAdminDatabaseSnapshot() {
         { name: 'Fajar Pratama', campus: 'UGM', points: 120 },
       ],
       customerCount: 3,
+      staff: [
+        { name: 'Admin Mahasiswa', role: 'Admin', email: 'admin@kopimahasiswa.id' },
+        { name: 'Pak Owner', role: 'Owner', email: 'owner@kopimahasiswa.id' },
+        { name: 'Barista Budi', role: 'Barista', email: 'barista@kopimahasiswa.id' },
+        { name: 'Kasir Siti', role: 'Cashier', email: 'cashier@kopimahasiswa.id' },
+      ],
       byRole: [
         { role: 'Admin', count: 1 },
         { role: 'Cashier', count: 1 },
@@ -262,21 +268,25 @@ export async function fetchAdminDatabaseSnapshot() {
       return getFallbackAdminDatabaseSnapshot();
     }
 
-    const [roles, customerUsers] = await Promise.all([
+    const [roles, allUsers] = await Promise.all([
       prisma.role.findMany(),
       prisma.user.findMany({
-        where: { role: { name: 'Customer' } },
         select: {
           id: true,
           name: true,
+          email: true,
+          phone: true,
+          role: { select: { name: true } },
           membership: { select: { campus: true } },
           profile: { select: { points: true } },
         },
-        orderBy: { createdAt: 'desc' },
-        take: 30,
+        orderBy: { createdAt: 'asc' },
       }),
     ]);
     const roleMap = new Map(roles.map((r) => [r.id, r.name]));
+
+    const customerUsers = allUsers.filter((u) => u.role?.name === 'Customer');
+    const staffUsers = allUsers.filter((u) => u.role?.name !== 'Customer');
 
     const lowStockItems = inventories.filter(
       (inv) => inv.stockQuantity <= inv.ingredient.minimumStock
@@ -295,6 +305,12 @@ export async function fetchAdminDatabaseSnapshot() {
           points: c.profile?.points || 0,
         })),
         customerCount: customerUsers.length,
+        staff: staffUsers.map((s) => ({
+          name: s.name,
+          role: s.role?.name || 'Staff',
+          email: s.email,
+          phone: s.phone,
+        })),
         byRole: userByRole.map((u) => ({
           role: roleMap.get(u.roleId) || u.roleId,
           count: u._count.id,
@@ -580,6 +596,39 @@ export function generatePreciseAdminResponse(
       .join(', ');
     const breakdownStr = roleBreakdown ? ` (${roleBreakdown})` : '';
     return `Saat ini terdapat total **${totalCount} pengguna** terdaftar di database${breakdownStr}.`;
+  }
+
+  // 4D. NAMA STAF SPESIFIK (Owner, Barista, Kasir, Admin)
+  const staffList: Array<{ name: string; role: string; email?: string }> = users?.staff || [
+    { name: 'Admin Mahasiswa', role: 'Admin', email: 'admin@kopimahasiswa.id' },
+    { name: 'Pak Owner', role: 'Owner', email: 'owner@kopimahasiswa.id' },
+    { name: 'Barista Budi', role: 'Barista', email: 'barista@kopimahasiswa.id' },
+    { name: 'Kasir Siti', role: 'Cashier', email: 'cashier@kopimahasiswa.id' },
+  ];
+
+  const getStaffName = (roleKey: string, fallbackName: string) => {
+    const found = staffList.find((s) => s.role.toLowerCase() === roleKey.toLowerCase());
+    return found ? found.name : fallbackName;
+  };
+
+  if ((q.includes('siapa') || q.includes('nama')) && (q.includes('owner') || q.includes('pemilik'))) {
+    const ownerName = getStaffName('Owner', 'Pak Owner');
+    return `Nama Owner (Pemilik) Kopi Mahasiswa adalah **${ownerName}**.`;
+  }
+
+  if ((q.includes('siapa') || q.includes('nama')) && (q.includes('barista') || q.includes('koki') || q.includes('dapur'))) {
+    const baristaName = getStaffName('Barista', 'Barista Budi');
+    return `Nama Barista yang bertugas di Kitchen Display System adalah **${baristaName}**.`;
+  }
+
+  if ((q.includes('siapa') || q.includes('nama')) && (q.includes('kasir') || q.includes('cashier'))) {
+    const kasirName = getStaffName('Cashier', 'Kasir Siti');
+    return `Nama Kasir yang bertugas di meja kasir POS adalah **${kasirName}**.`;
+  }
+
+  if ((q.includes('siapa') || q.includes('nama')) && q.includes('admin') && !q.includes('siapa saya') && !q.includes('siapa anda')) {
+    const adminName = getStaffName('Admin', 'Admin Mahasiswa');
+    return `Nama Administrator yang mengelola sistem operasional kafe adalah **${adminName}**.`;
   }
 
   // 5. PERAN & HAK AKSES ROLE (Admin, Kasir, Barista, Owner, Customer)
