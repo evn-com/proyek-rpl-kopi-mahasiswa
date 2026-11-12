@@ -113,8 +113,10 @@ async function main() {
     },
   ];
 
+  const createdUserMap: Record<string, string> = {};
   for (const u of staffUsers) {
     const createdUser = await prisma.user.create({ data: u });
+    createdUserMap[u.email] = createdUser.id;
     if (u.roleId === createdRoles['Customer']) {
       await prisma.customerProfile.create({
         data: {
@@ -314,11 +316,13 @@ async function main() {
     },
   ];
 
+  const createdProductMap: Record<string, string> = {};
   for (const p of productsData) {
     const { variants, ...productInfo } = p;
     const createdProduct = await prisma.product.create({
       data: productInfo,
     });
+    createdProductMap[p.slug] = createdProduct.id;
 
     if (variants && variants.length > 0) {
       for (const v of variants) {
@@ -399,6 +403,326 @@ async function main() {
     await prisma.voucher.create({ data: v });
   }
   console.log('✅ Created promo vouchers');
+
+  // 10. Create Master Ingredients & Branch Inventory
+  const ingredientsData = [
+    {
+      name: 'Espresso House Blend 70:30 (Arabika-Robusta)',
+      unit: 'gram',
+      minimumStock: 1000,
+      purchasePrice: 175000,
+      supplier: 'PT Gayo Mandiri Perkasa',
+      expiryDate: new Date('2027-04-15'),
+      stockQuantity: 4500,
+    },
+    {
+      name: 'Fresh Milk Pasteurisasi (Greenfields)',
+      unit: 'ml',
+      minimumStock: 3000,
+      purchasePrice: 24000,
+      supplier: 'PT Greenfields Dairy Indonesia',
+      expiryDate: new Date('2026-12-05'),
+      stockQuantity: 12000,
+    },
+    {
+      name: 'Sirup Gula Aren Murni Organik',
+      unit: 'ml',
+      minimumStock: 1500,
+      purchasePrice: 45000,
+      supplier: 'Koperasi Petani Aren Lebak',
+      expiryDate: new Date('2027-08-20'),
+      stockQuantity: 6500,
+    },
+    {
+      name: 'Sirup Caramel Gourmet',
+      unit: 'ml',
+      minimumStock: 500,
+      purchasePrice: 135000,
+      supplier: 'Monin Indonesia Official',
+      expiryDate: new Date('2027-10-10'),
+      stockQuantity: 2200,
+    },
+    {
+      name: 'Sirup Hazelnut Signature',
+      unit: 'ml',
+      minimumStock: 500,
+      purchasePrice: 130000,
+      supplier: 'Toffin Indonesia Distr.',
+      expiryDate: new Date('2027-09-18'),
+      stockQuantity: 1800,
+    },
+    {
+      name: 'Pure Matcha Powder Uji Premium',
+      unit: 'gram',
+      minimumStock: 300,
+      purchasePrice: 280000,
+      supplier: 'Kyoto Tea Import Partner',
+      expiryDate: new Date('2027-06-30'),
+      stockQuantity: 1100,
+    },
+    {
+      name: 'Belgian Dark Chocolate 70% Powder',
+      unit: 'gram',
+      minimumStock: 500,
+      purchasePrice: 165000,
+      supplier: 'Barry Callebaut Indo',
+      expiryDate: new Date('2027-07-25'),
+      stockQuantity: 2400,
+    },
+    {
+      name: 'Adonan Frozen Butter Croissant',
+      unit: 'pcs',
+      minimumStock: 50,
+      purchasePrice: 8500,
+      supplier: 'Artisan Pastry Bandung',
+      expiryDate: new Date('2026-12-20'),
+      stockQuantity: 32, // Low stock simulation
+    },
+    {
+      name: 'Cup Plastik PP 16oz + Custom Logo KM',
+      unit: 'pcs',
+      minimumStock: 300,
+      purchasePrice: 450,
+      supplier: 'CV Berkat Kemasan Mandiri',
+      expiryDate: null,
+      stockQuantity: 1500,
+    },
+    {
+      name: 'Paper Hot Cup 8oz Double Wall',
+      unit: 'pcs',
+      minimumStock: 150,
+      purchasePrice: 650,
+      supplier: 'CV Berkat Kemasan Mandiri',
+      expiryDate: null,
+      stockQuantity: 600,
+    },
+    {
+      name: 'Sedotan Ramah Lingkungan (Oxo-Biodegradable)',
+      unit: 'pcs',
+      minimumStock: 400,
+      purchasePrice: 120,
+      supplier: 'EcoStraw Nusantara',
+      expiryDate: null,
+      stockQuantity: 2000,
+    },
+    {
+      name: 'Kentang Beku Shoestring Cut',
+      unit: 'gram',
+      minimumStock: 2000,
+      purchasePrice: 38000,
+      supplier: 'Sumber Segar Pangan',
+      expiryDate: new Date('2027-03-12'),
+      stockQuantity: 5500,
+    },
+  ];
+
+  const createdIngredients: Record<string, { ingredientId: string; inventoryId: string }> = {};
+
+  for (const item of ingredientsData) {
+    const { stockQuantity, ...ingData } = item;
+    const ing = await prisma.ingredient.create({ data: ingData });
+    const inv = await prisma.inventory.create({
+      data: {
+        branchId: branch.id,
+        ingredientId: ing.id,
+        stockQuantity: stockQuantity,
+      },
+    });
+    createdIngredients[item.name] = { ingredientId: ing.id, inventoryId: inv.id };
+  }
+  console.log('✅ Created ingredients & branch inventory');
+
+  // 11. Create Inventory Transactions (Audit & Movements by Role)
+  const adminId = createdUserMap['admin@kopimahasiswa.id'];
+  const baristaId = createdUserMap['barista@kopimahasiswa.id'] || adminId;
+  const cashierId = createdUserMap['cashier@kopimahasiswa.id'] || adminId;
+  const ownerId = createdUserMap['owner@kopimahasiswa.id'] || adminId;
+  const customerId = createdUserMap['customer@kopimahasiswa.id'] || adminId;
+
+  const transactionsData = [
+    // Admin transactions
+    {
+      ingName: 'Espresso House Blend 70:30 (Arabika-Robusta)',
+      type: 'IN',
+      amount: 5000,
+      notes: 'Restock batch mingguan biji kopi dari PT Gayo Mandiri (PO #PO-2026-001)',
+      userId: adminId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 35),
+    },
+    {
+      ingName: 'Cup Plastik PP 16oz + Custom Logo KM',
+      type: 'ADJUSTMENT',
+      amount: 100,
+      notes: 'Penyesuaian audit fisik stok mingguan (cup rusak/reject sealer)',
+      userId: adminId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4),
+    },
+    {
+      ingName: 'Adonan Frozen Butter Croissant',
+      type: 'IN',
+      amount: 50,
+      notes: 'Penerimaan adonan pastry beku dari Artisan Pastry Bandung',
+      userId: adminId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 22),
+    },
+
+    // Barista transactions
+    {
+      ingName: 'Espresso House Blend 70:30 (Arabika-Robusta)',
+      type: 'OUT',
+      amount: 750,
+      notes: 'Pemakaian biji kopi operasional bar shift pagi & kalibrasi grinder mesin espresso',
+      userId: baristaId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 55),
+    },
+    {
+      ingName: 'Fresh Milk Pasteurisasi (Greenfields)',
+      type: 'OUT',
+      amount: 3000,
+      notes: 'Pemakaian susu segar untuk order batch promo jam nugas siang mahasiswa',
+      userId: baristaId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 110),
+    },
+    {
+      ingName: 'Sirup Gula Aren Murni Organik',
+      type: 'OUT',
+      amount: 600,
+      notes: 'Refill botol squeeze gula aren meja bar racik kopi susu',
+      userId: baristaId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
+    },
+    {
+      ingName: 'Adonan Frozen Butter Croissant',
+      type: 'OUT',
+      amount: 18,
+      notes: 'Pemanggangan oven kloter 1 untuk pesanan Paket Skripsi Begadang',
+      userId: baristaId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6),
+    },
+    {
+      ingName: 'Pure Matcha Powder Uji Premium',
+      type: 'OUT',
+      amount: 150,
+      notes: 'Pemakaian pure matcha powder untuk 10 porsi pesanan Matcha Latte Iced',
+      userId: baristaId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8),
+    },
+
+    // Cashier transactions
+    {
+      ingName: 'Cup Plastik PP 16oz + Custom Logo KM',
+      type: 'OUT',
+      amount: 120,
+      notes: 'Pengambilan cup takeaway & sealer lid dari gudang ke etalase counter kasir',
+      userId: cashierId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+    },
+    {
+      ingName: 'Sedotan Ramah Lingkungan (Oxo-Biodegradable)',
+      type: 'OUT',
+      amount: 100,
+      notes: 'Pengisian dispenser sedotan counter kasir & pick-up area',
+      userId: cashierId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 7),
+    },
+
+    // Owner transactions
+    {
+      ingName: 'Pure Matcha Powder Uji Premium',
+      type: 'IN',
+      amount: 1000,
+      notes: 'Approval penerimaan pengadaan matcha grade ceremonial langsung dari supplier',
+      userId: ownerId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 26),
+    },
+    {
+      ingName: 'Sirup Caramel Gourmet',
+      type: 'ADJUSTMENT',
+      amount: 500,
+      notes: 'Koreksi selisih hitung inventaris akhir bulan saat audit bersama Owner',
+      userId: ownerId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
+    },
+
+    // Customer order simulation
+    {
+      ingName: 'Sirup Gula Aren Murni Organik',
+      type: 'OUT',
+      amount: 40,
+      notes: 'Otomatis terpotong via sistem resep pesanan order #KM-8821 (Kopi Susu Mahasiswa)',
+      userId: customerId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 15),
+    },
+    {
+      ingName: 'Cup Plastik PP 16oz + Custom Logo KM',
+      type: 'OUT',
+      amount: 1,
+      notes: 'Otomatis terpotong via sistem resep pesanan order #KM-8821 (Cup Takeaway 16oz)',
+      userId: customerId,
+      createdAt: new Date(Date.now() - 1000 * 60 * 15),
+    },
+  ];
+
+  for (const t of transactionsData) {
+    const target = createdIngredients[t.ingName];
+    if (target && t.userId) {
+      await prisma.inventoryTransaction.create({
+        data: {
+          inventoryId: target.inventoryId,
+          type: t.type,
+          amount: t.amount,
+          notes: t.notes,
+          createdById: t.userId,
+          createdAt: t.createdAt,
+        },
+      });
+    }
+  }
+  console.log('✅ Created inventory transactions across all roles');
+
+  // 12. Create Recipes (BOM) linking Products to Ingredients
+  const espressoId = createdIngredients['Espresso House Blend 70:30 (Arabika-Robusta)']?.ingredientId;
+  const milkId = createdIngredients['Fresh Milk Pasteurisasi (Greenfields)']?.ingredientId;
+  const arenId = createdIngredients['Sirup Gula Aren Murni Organik']?.ingredientId;
+  const caramelId = createdIngredients['Sirup Caramel Gourmet']?.ingredientId;
+  const matchaId = createdIngredients['Pure Matcha Powder Uji Premium']?.ingredientId;
+  const croissantIngId = createdIngredients['Adonan Frozen Butter Croissant']?.ingredientId;
+
+  const recipesData = [
+    // Kopi Susu Mahasiswa
+    { productSlug: 'kopi-susu-mahasiswa', ingId: espressoId, qty: 18 },
+    { productSlug: 'kopi-susu-mahasiswa', ingId: milkId, qty: 120 },
+    { productSlug: 'kopi-susu-mahasiswa', ingId: arenId, qty: 25 },
+
+    // Americano Double Shot
+    { productSlug: 'americano-double-shot', ingId: espressoId, qty: 20 },
+
+    // Caramel Macchiato Mahasiswa
+    { productSlug: 'caramel-macchiato-mahasiswa', ingId: espressoId, qty: 18 },
+    { productSlug: 'caramel-macchiato-mahasiswa', ingId: milkId, qty: 150 },
+    { productSlug: 'caramel-macchiato-mahasiswa', ingId: caramelId, qty: 20 },
+
+    // Matcha Green Tea Latte
+    { productSlug: 'matcha-green-tea-latte', ingId: matchaId, qty: 15 },
+    { productSlug: 'matcha-green-tea-latte', ingId: milkId, qty: 180 },
+
+    // Butter Croissant
+    { productSlug: 'butter-croissant-crispy', ingId: croissantIngId, qty: 1 },
+  ];
+
+  for (const r of recipesData) {
+    const prodId = createdProductMap[r.productSlug];
+    if (prodId && r.ingId) {
+      await prisma.recipe.create({
+        data: {
+          productId: prodId,
+          ingredientId: r.ingId,
+          quantityRequired: r.qty,
+        },
+      });
+    }
+  }
+  console.log('✅ Created product recipes (BOM)');
 
   console.log('🚀 Seed completed successfully!');
 }

@@ -208,8 +208,14 @@ export default function AdminPage() {
           setSelectedProductForRecipe(pData[0].id);
         }
       }
-      if (catRes.ok) setCategories(await catRes.json());
-      if (ingRes.ok) setIngredients(await ingRes.json());
+      if (catRes.ok) {
+        const cData = await catRes.json();
+        setCategories(Array.isArray(cData) ? cData : []);
+      }
+      if (ingRes.ok) {
+        const iData = await ingRes.json();
+        setIngredients(Array.isArray(iData) ? iData : []);
+      }
       if (invRes.ok) {
         const invData = await invRes.json();
         setLowStockList(invData.lowStockAlerts || []);
@@ -218,7 +224,8 @@ export default function AdminPage() {
       // Fetch history logs
       const historyRes = await fetch('/api/admin/inventory?view=history');
       if (historyRes.ok) {
-        setInventoryLogs(await historyRes.json());
+        const hData = await historyRes.json();
+        setInventoryLogs(Array.isArray(hData) ? hData : []);
       }
 
       // Fetch pending memberships count

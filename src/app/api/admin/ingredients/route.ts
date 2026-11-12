@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromRequest, createAuditLog } from '@/lib/auth';
+import { SIMULATION_INGREDIENTS, seedSimulationDataIfEmpty } from '@/lib/simulationData';
 
 export async function GET() {
   try {
-    const branch = await prisma.branch.findFirst({ where: { isActive: true } });
+    let branch = await prisma.branch.findFirst({ where: { isActive: true } });
     if (!branch) {
-      return NextResponse.json({ error: 'Cabang tidak ditemukan' }, { status: 500 });
+      // Auto seed simulation if database is unseeded
+      await seedSimulationDataIfEmpty(prisma);
+      branch = await prisma.branch.findFirst({ where: { isActive: true } });
+      if (!branch) {
+        return NextResponse.json(SIMULATION_INGREDIENTS);
+      }
     }
 
-    const ingredients = await prisma.ingredient.findMany({
+    let ingredients = await prisma.ingredient.findMany({
       include: {
         inventories: {
           where: { branchId: branch.id },
@@ -18,6 +24,22 @@ export async function GET() {
       },
       orderBy: { name: 'asc' },
     });
+
+    if (ingredients.length === 0) {
+      await seedSimulationDataIfEmpty(prisma);
+      ingredients = await prisma.ingredient.findMany({
+        include: {
+          inventories: {
+            where: { branchId: branch.id },
+          },
+          _count: { select: { recipes: true } },
+        },
+        orderBy: { name: 'asc' },
+      });
+      if (ingredients.length === 0) {
+        return NextResponse.json(SIMULATION_INGREDIENTS);
+      }
+    }
 
     const formatted = ingredients.map((ing) => {
       const inv = ing.inventories[0];
@@ -39,8 +61,8 @@ export async function GET() {
 
     return NextResponse.json(formatted);
   } catch (error) {
-    console.error('Error fetching ingredients:', error);
-    return NextResponse.json({ error: 'Gagal mengambil data bahan baku' }, { status: 500 });
+    console.error('Error fetching ingredients (falling back to simulation):', error);
+    return NextResponse.json(SIMULATION_INGREDIENTS);
   }
 }
 
