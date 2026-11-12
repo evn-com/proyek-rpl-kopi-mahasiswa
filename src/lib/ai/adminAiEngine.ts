@@ -588,8 +588,28 @@ Website ini dilengkapi asisten kecerdasan buatan (*AI Barista Assistant*) yang d
     q.includes('lima ai') || q.includes('keamanan ai') || q.includes('skill ai') ||
     q.includes('kemampuan ai') || q.includes('one application') || q.includes('supplier ai') ||
     q.includes('kasir ai') || q.includes('owner ai') || q.includes('customer ai') ||
-    q.includes('lapisan keamanan') || q.includes('rbac ai')
+    q.includes('lapisan keamanan') || q.includes('rbac ai') || q.includes('pengenalan sistem') ||
+    q.includes('tujuan utama') || q.includes('tujuan chatbot') || q.includes('tujuan ai')
   ) {
+    if (q.includes('pengenalan') || q.includes('tujuan') || q.includes('beda chatbot') || q.includes('berbeda dengan chatbot')) {
+      return `📌 **1. Pengenalan Sistem AI Chatbot — Kopi Mahasiswa**
+
+**AI Chatbot Kopi Mahasiswa** merupakan sistem asisten kecerdasan buatan yang terintegrasi langsung dengan aplikasi Kopi Mahasiswa.
+
+Sistem ini dirancang untuk membantu setiap pengguna menjalankan aktivitas berdasarkan peran (*Role-Based Access Control / RBAC*).
+
+💡 **Perbedaan Kunci dengan Chatbot Biasa:**
+Berbeda dengan chatbot generik yang hanya menjawab pertanyaan teks umum, chatbot ini memiliki akses terhadap **konteks data operasional riil** aplikasi sesuai dengan role pengguna dan batasan keamanan backend (*Role-Aware & Context-Aware*).
+
+🎯 **6 Tujuan Utama Sistem:**
+1. ⚙️ **Membantu Pekerjaan Operasional**: Mempercepat alur kerja harian Admin, Kasir, Barista, dan Owner.
+2. 🗄️ **Menyediakan Informasi Berbasis Database**: Jawaban berlandaskan data faktual transaksi, stok bahan baku, dan katalog menu.
+3. 🔍 **Mempermudah Pencarian Data**: Menemukan status pesanan atau bahan kritis tanpa perlu navigasi rumit.
+4. 📊 **Memberikan Analisis & Ringkasan Aktivitas**: Rekap omzet harian, tren produk terlaris, dan mutasi inventaris.
+5. 💡 **Membantu Pengambilan Keputusan**: Memberikan insight bisnis langsung kepada manajemen dan pemilik kafe.
+6. ⏱️ **Mengurangi Pencarian Data Manual**: Menghemat waktu dengan pencarian informasi menggunakan bahasa sehari-hari (*Natural Language Query*).`;
+    }
+
     if (q.includes('keamanan') || q.includes('lapisan')) {
       return `🛡️ **6 Lapisan Keamanan Sistem AI Chatbot Kopi Mahasiswa:**
 

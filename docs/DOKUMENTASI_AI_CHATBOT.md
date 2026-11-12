@@ -219,3 +219,4 @@ Potensi fitur di masa depan:
 ## 10. KESIMPULAN
 
 AI Chatbot Kopi Mahasiswa mewujudkan paradigma **"One Application, Five Specialized AI Assistants"**. Setiap asisten memiliki konteks, tujuan, dan batasan akses tersendiri sehingga mampu memberikan bantuan yang relevan, aman, dan efisien untuk operasional kafe modern.
+
