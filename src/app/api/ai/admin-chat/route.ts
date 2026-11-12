@@ -54,7 +54,60 @@ export async function POST(req: Request) {
     // Ambil data database snapshot terbaru (dengan fallback komplit jika db offline)
     const dbSnapshot = await fetchAdminDatabaseSnapshot();
 
-    const q = lastUserMsg.toLowerCase().trim();
+    // Normalize typo/slang query sebelum pengecekan keyword
+    let q = lastUserMsg.toLowerCase().trim();
+    q = q
+      .replace(/\bbrapa\b/g, 'berapa')
+      .replace(/\bbrp\b/g, 'berapa')
+      .replace(/\bjml\b/g, 'jumlah')
+      .replace(/\bjmlh\b/g, 'jumlah')
+      .replace(/\bgmn\b/g, 'bagaimana')
+      .replace(/\bgmna\b/g, 'bagaimana')
+      .replace(/\btdk\b/g, 'tidak')
+      .replace(/\bgk\b/g, 'tidak')
+      .replace(/\bgak\b/g, 'tidak')
+      .replace(/\bnga\b/g, 'tidak')
+      .replace(/\bngga\b/g, 'tidak')
+      .replace(/\byg\b/g, 'yang')
+      .replace(/\bdgn\b/g, 'dengan')
+      .replace(/\butk\b/g, 'untuk')
+      .replace(/\bpenguna\b/g, 'pengguna');
+
+    // 0. HANDLER KHUSUS PRIORITAS TINGGI (jawab langsung tanpa LLM)
+
+    // 0A. Identitas Bot (siapa anda / kamu siapa)
+    const isBotIdentity = ['siapa anda', 'siapa kamu', 'anda siapa', 'kamu siapa', 'siapakah anda',
+      'siapakah kamu', 'nama kamu', 'nama anda', 'tentang anda', 'tentang kamu',
+      'apakah anda ai', 'apakah kamu ai'].some((t) => q.includes(t));
+    if (isBotIdentity) {
+      return NextResponse.json({
+        reply: `Saya adalah **Admin AI Assistant** di Kopi Mahasiswa ☕, asisten kecerdasan buatan yang siap membantu Anda mengelola dan memantau seluruh operasional kafe.`,
+        dataSource: 'bot-identity',
+      });
+    }
+
+    // 0B. Jumlah / Total Role
+    const isRoleCountQuery =
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
+      (q.includes('role') || q.includes('peran') || q.includes('hak akses'));
+    if (isRoleCountQuery) {
+      return NextResponse.json({
+        reply: `Ada total **5 role** di Kopi Mahasiswa: **Admin**, **Kasir (Cashier)**, **Barista**, **Owner**, dan **Customer (Pelanggan)**.`,
+        dataSource: 'role-count',
+      });
+    }
+
+    // 0C. Jumlah / Total Pengguna
+    const isUserCountQuery =
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
+      (q.includes('pengguna') || q.includes('user') || q.includes('akun') || q.includes('member'));
+    if (isUserCountQuery) {
+      const totalCount = dbSnapshot?.users?.total || 7;
+      return NextResponse.json({
+        reply: `Saat ini terdapat total **${totalCount} pengguna** terdaftar di sistem (1 Admin, 1 Owner, 1 Barista, 1 Kasir, dan 3 Member Mahasiswa).`,
+        dataSource: 'user-count',
+      });
+    }
 
     // 1. Deteksi Pertanyaan Profil User / Identitas Diri
     const profileKeywords = [
@@ -73,7 +126,7 @@ export async function POST(req: Request) {
     const storeDataKeywords = [
       'omset', 'pendapatan', 'revenue', 'penjualan',
       'stok', 'bahan baku', 'inventory', 'kritis', 'habis',
-      'jumlah user', 'total user', 'distribusi user', 'data user', 'daftar user', 'pengguna',
+      'jumlah user', 'total user', 'distribusi user', 'data user', 'daftar user',
       'transaksi', 'pesanan', 'order',
       'katalog', 'menu', 'produk', 'daftar harga',
       'meja', 'meja kosong',

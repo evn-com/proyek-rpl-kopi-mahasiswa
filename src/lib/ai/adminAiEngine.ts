@@ -540,43 +540,37 @@ export function generatePreciseAdminResponse(
     q.includes('tugas kasir') || q.includes('tugas barista') || q.includes('tugas admin') ||
     q.includes('tugas owner') || q.includes('fungsi kasir') || q.includes('fungsi barista')
   ) {
+    // Jika menanyakan jumlah/total role
+    if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) {
+      return `Ada total **5 role** di Kopi Mahasiswa: **Admin**, **Kasir (Cashier)**, **Barista**, **Owner**, dan **Customer (Pelanggan)**.`;
+    }
+
     if (q.includes('kasir')) {
-      return `👤 **Role Kasir (Cashier):**
-- **Halaman Utama**: '/cashier'
-- **Tanggung Jawab**:
-  1. Menerima pesanan masuk dari pelanggan meja.
-  2. Memverifikasi pembayaran tunai atau scan QRIS.
-  3. Mencetak bill/struk kasir.
-  4. Melakukan handover mutasi stok packaging (cup takeaway, sedotan).`;
+      return `👤 **Role Kasir (Cashier)**: Bertanggung jawab menerima pesanan meja, verifikasi pembayaran Tunai/QRIS, cetak struk, dan mencatat mutasi kemasan ('/cashier').`;
     }
 
     if (q.includes('barista')) {
-      return `☕ **Role Barista:**
-- **Halaman Utama**: '/barista'
-- **Tanggung Jawab**:
-  1. Memantau antrean pesanan masuk di Kitchen Display System (KDS).
-  2. Meracik kopi dan makanan sesuai resep standar operasional kafe.
-  3. Memperbarui status pesanan (*Mulai Racik* ➔ *Selesai*).
-  4. Memonitor sisa bahan baku bar dan mencatat pemakaian harian.`;
+      return `☕ **Role Barista**: Bertanggung jawab memproses antrean racikan di Kitchen Display System (KDS), meracik menu sesuai resep, dan update status pesanan ('/barista').`;
     }
 
     if (q.includes('owner')) {
-      return `👑 **Role Owner (Pemilik):**
-- **Halaman Utama**: '/owner'
-- **Tanggung Jawab**:
-  1. Memantau laporan omset, profit, dan performa keuangan harian hingga bulanan.
-  2. Menganalisa produk terlaris (*Best Seller*) dan tren jam sibuk.
-  3. Menginspeksi audit log aktivitas sistem.
-  - _Catatan: Akun Owner bersifat **Read-Only** untuk menjaga keaslian data audit operasional._`;
+      return `👑 **Role Owner (Pemilik)**: Memiliki akses analitik eksekutif (Read-Only) untuk memantau omset, profit, ranking produk terlaris, dan audit log kafe ('/owner').`;
     }
 
-    return `👥 **Daftar Role & Hak Akses di Kopi Mahasiswa:**
+    if (q.includes('admin')) {
+      return `🛡️ **Role Admin**: Memiliki hak akses penuh untuk mengelola katalog menu, stok bahan baku, resep BOM, verifikasi member, dan pengaturan AI ('/admin').`;
+    }
 
-1. 🛡️ **Admin**: Hak akses penuh manajemen kafe ('/admin') — katalog produk, resep BOM, inventaris stok, approval member, audit log, dan pengaturan model AI.
-2. 💵 **Kasir (Cashier)**: Operasional kasir POS ('/cashier') — validasi order masuk, konfirmasi pembayaran, dan cetak struk.
-3. ☕ **Barista**: Kitchen Display System ('/barista') — memproses racikan pesanan dan update status sajian real-time.
-4. 👑 **Owner**: Executive Analytics ('/owner') — memantau omset, performa bisnis, dan audit (Read-Only).
-5. 🎓 **Customer (Pelanggan / Member)**: Antarmuka belanja publik ('/menu', '/order-status') — pesan menu via meja, klaim voucher, dan simpan poin membership.`;
+    if (q.includes('customer') || q.includes('pelanggan')) {
+      return `🎓 **Role Customer**: Pelanggan/mahasiswa yang memesan menu via scan QR Meja, klaim voucher, dan simpan poin membership ('/menu').`;
+    }
+
+    return `Ada total **5 role** di Kopi Mahasiswa:
+1. 🛡️ **Admin**: Hak akses penuh manajemen kafe, inventaris, dan AI.
+2. 💵 **Kasir (Cashier)**: Operasional kasir POS dan validasi pembayaran.
+3. ☕ **Barista**: Kitchen Display System untuk meracik pesanan.
+4. 👑 **Owner**: Monitoring omset dan laporan bisnis eksekutif (Read-Only).
+5. 🎓 **Customer**: Pelanggan/member untuk pemesanan meja dan poin reward.`;
   }
 
   // 6. MODEL AI BARISTA & PENGATURAN AI (/admin/settings/ai)
