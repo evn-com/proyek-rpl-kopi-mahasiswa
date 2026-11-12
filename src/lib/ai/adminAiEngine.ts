@@ -465,6 +465,11 @@ export function generatePreciseAdminResponse(
     .replace(/\bbrp\b/g, 'berapa')
     .replace(/\bjml\b/g, 'jumlah')
     .replace(/\bjmlh\b/g, 'jumlah')
+    .replace(/\bcoffe\b/g, 'coffee')
+    .replace(/\bcafee\b/g, 'caffe')
+    .replace(/\bcafe\b/g, 'caffe')
+    .replace(/\bcoklat\b/g, 'chocolate')
+    .replace(/\bcokelat\b/g, 'chocolate')
     .replace(/\bgmn\b/g, 'bagaimana')
     .replace(/\bgmna\b/g, 'bagaimana')
     .replace(/\bkl\b/g, 'kalau')
@@ -1152,19 +1157,48 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
     const nonCoffeeProducts = allProducts.filter(isNonCoffeeProduct);
     const snackProducts = allProducts.filter(isSnackProduct);
 
-    // 10-SPECIFIC. Cek apakah menanyakan 1 PRODUK spesifik (misal: "brapa harga pandan aren latte", "harga croissant")
-    const specificProduct = allProducts.find((p: any) => {
-      const pName = p.name.toLowerCase();
-      if (q.includes(pName)) return true;
-      const cleanName = pName.replace(/\(.*?\)/g, '').trim();
-      if (cleanName.length > 3 && q.includes(cleanName)) return true;
-      const words = cleanName.split(' ');
-      if (words.length >= 2) {
-        const twoWords = words.slice(0, 2).join(' ');
-        if (q.includes(twoWords) && (q.includes('harga') || q.includes('berapa') || q.includes('ada'))) return true;
+    // 10-SPECIFIC. Cek apakah menanyakan 1 PRODUK spesifik (misal: "brapa harga classic coffe latte", "harga croissant")
+    const productKeyMap: Array<{ keys: string[]; nameMatch: string }> = [
+      { keys: ['classic', 'caffe latte', 'coffe latte', 'coffee latte'], nameMatch: 'Classic Caffe Latte' },
+      { keys: ['pandan', 'aren'], nameMatch: 'Pandan Aren Latte' },
+      { keys: ['hazelnut'], nameMatch: 'Hazelnut Cream Latte' },
+      { keys: ['caramel', 'macchiato'], nameMatch: 'Caramel Macchiato' },
+      { keys: ['americano'], nameMatch: 'Americano' },
+      { keys: ['croissant'], nameMatch: 'Butter Croissant' },
+      { keys: ['kentang', 'french fries'], nameMatch: 'Kentang Goreng' },
+      { keys: ['matcha', 'green tea'], nameMatch: 'Matcha Green Tea' },
+      { keys: ['chocolate', 'cokelat', 'coklat'], nameMatch: 'Artisan Chocolate' },
+      { keys: ['skripsi', 'begadang'], nameMatch: 'Paket Skripsi Begadang' },
+      { keys: ['ksm', 'kopi susu mahasiswa', 'kopi susu'], nameMatch: 'Kopi Susu Mahasiswa' },
+    ];
+
+    let specificProduct: any = null;
+    for (const mapping of productKeyMap) {
+      if (mapping.keys.some((k) => q.includes(k))) {
+        const found = allProducts.find((p: any) =>
+          p.name.toLowerCase().includes(mapping.nameMatch.toLowerCase())
+        );
+        if (found) {
+          specificProduct = found;
+          break;
+        }
       }
-      return false;
-    });
+    }
+
+    if (!specificProduct) {
+      specificProduct = allProducts.find((p: any) => {
+        const pName = p.name.toLowerCase();
+        if (q.includes(pName)) return true;
+        const cleanName = pName.replace(/\(.*?\)/g, '').trim();
+        if (cleanName.length > 3 && q.includes(cleanName)) return true;
+        const words = cleanName.split(' ');
+        if (words.length >= 2) {
+          const twoWords = words.slice(0, 2).join(' ');
+          if (q.includes(twoWords) && (q.includes('harga') || q.includes('berapa') || q.includes('ada'))) return true;
+        }
+        return false;
+      });
+    }
 
     if (specificProduct) {
       const variantStr = (specificProduct.variants && specificProduct.variants.length > 0)
