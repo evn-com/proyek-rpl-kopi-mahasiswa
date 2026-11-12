@@ -443,7 +443,18 @@ export function generatePreciseAdminResponse(
   const q = normalizedQuery;
   const { users, operations, catalog, inventory, orders, marketing, system } = db;
 
-  // 1. IDENTITAS DIRI & PROFIL AKUN
+  // 1A. IDENTITAS BOT (SIAPA ANDA / KAMU SIAPA)
+  const isBotIdentityQuery = [
+    'siapa anda', 'siapa kamu', 'anda siapa', 'kamu siapa', 'siapakah anda',
+    'siapakah kamu', 'nama kamu', 'nama anda', 'tentang anda', 'tentang kamu',
+    'apakah anda ai', 'apakah kamu ai',
+  ].some((term) => q.includes(term));
+
+  if (isBotIdentityQuery) {
+    return `Saya adalah **Admin AI Assistant** di Kopi Mahasiswa ☕, asisten kecerdasan buatan yang siap membantu Anda mengelola dan memantau seluruh operasional kafe.`;
+  }
+
+  // 1B. IDENTITAS DIRI & PROFIL AKUN
   const isProfileQuery = [
     'siapa saya', 'siapa aku', 'siapakah saya', 'nama saya', 'namaku',
     'profil saya', 'profilku', 'akun saya', 'tentang saya', 'role saya',
@@ -451,38 +462,19 @@ export function generatePreciseAdminResponse(
   ].some((term) => q.includes(term));
 
   if (isProfileQuery) {
-    const campusInfo = user.campus ? `\n🎓 Asal Kampus: **${user.campus}**` : '';
-    const pointsInfo = user.points !== undefined && user.points > 0 ? `\n🌟 Saldo Poin: **${user.points} Poin**` : '';
-
-    return `👋 Kamu adalah **${user.name}**, login sebagai **${user.role}** Kopi Mahasiswa.${campusInfo}${pointsInfo}
-- Email: **${user.email || 'admin@kopimahasiswa.id'}**
-- Hak Akses: **Akses Manajemen Penuh (Administrator)**
-
-Sebagai **${user.role}**, kamu memiliki hak akses penuh untuk mengelola katalog menu, memantau omset, menyetujui member mahasiswa, mengelola stok bahan baku, dan mengatur model AI Barista.`;
+    return `Kamu adalah **${user.name}**, login sebagai **${user.role}** Kopi Mahasiswa (${user.email || 'admin@kopimahasiswa.id'}).`;
   }
 
   // 2. SAPAAN & BANTUAN
   const isGreeting = [
     'halo', 'hai', 'helo', 'hi', 'selamat pagi', 'selamat siang', 'selamat sore', 'selamat malam',
-    'apa kabar', 'help', 'bantuan', 'bisa apa', 'fitur apa'
+    'apa kabar', 'help', 'bantuan'
   ].some((w) => q === w || q.startsWith(w + ' ') || q.includes(' ' + w));
 
   if (isGreeting && q.length < 30) {
     const hour = new Date().getHours();
     const timeGreeting = hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 18 ? 'Selamat sore' : 'Selamat malam';
-
-    return `👋 ${timeGreeting}, **${user.name}**! (${user.role})
-
-Saya adalah **Admin AI Assistant** Kopi Mahasiswa ☕. Saya memahami seluruh arsitektur dan operasional website ini.
-
-Beberapa hal yang bisa Anda tanyakan langsung kepada saya:
-1. 💡 **Tentang Website**: _"Website ini tentang apa?"_ atau _"Bagaimana alur pemesanan di website ini?"_
-2. 👥 **Hak Akses & Role**: _"Apa saja role dan tugasnya di sistem ini?"_
-3. 🤖 **Fitur AI Barista**: _"Bagaimana cara kerja model AI dan cara menggantinya?"_
-4. 📦 **Bahan Baku & Inventaris**: _"Ada bahan baku yang stoknya kritis?"_ atau _"Bagaimana cara catat mutasi stok?"_
-5. 💰 **Laporan Finansial**: _"Berapa omset hari ini?"_ atau _"Berapa transaksi bulan ini?"_
-6. ☕ **Katalog & Resep**: _"Tampilkan daftar menu kopi dan harga"_ atau _"Bagaimana cara buat resep BOM?"_
-7. 🎟️ **Promo & Member**: _"Voucher apa saja yang aktif?"_ atau _"Bagaimana cara approval member mahasiswa?"_`;
+    return `👋 ${timeGreeting}, **${user.name}**! Ada yang bisa saya bantu terkait operasional Kopi Mahasiswa?`;
   }
 
   // 3. TENTANG WEBSITE & SISTEM KOPI MAHASISWA
@@ -539,24 +531,7 @@ Beberapa hal yang bisa Anda tanyakan langsung kepada saya:
       (q.includes('orang') || q.includes('akun') || q.includes('member') || q.includes('staf') || q.includes('pegawai')))
   ) {
     const totalCount = users?.total || 7;
-    const roleList = (users?.byRole && users.byRole.length > 0)
-      ? users.byRole.map((r: any) => `- **${r.role}**: ${r.count} orang`).join('\n')
-      : `- **Admin**: 1 orang\n- **Owner**: 1 orang\n- **Barista**: 1 orang\n- **Cashier**: 1 orang\n- **Customer**: 3 orang`;
-
-    return `👥 **Jumlah & Data Pengguna di Kopi Mahasiswa:**
-
-Saat ini tercatat **total ${totalCount} pengguna** yang terdaftar di database, terbagi dalam 5 role:
-
-${roleList}
-
-📋 **Daftar Akun Utama Sistem:**
-1. 🛡️ **Admin**: Admin Mahasiswa ('admin@kopimahasiswa.id') — Hak akses penuh operasional.
-2. 👑 **Owner**: Pak Owner ('owner@kopimahasiswa.id') — Monitoring analitik bisnis & audit.
-3. ☕ **Barista**: Barista Budi ('barista@kopimahasiswa.id') — Kitchen Display System peracikan.
-4. 💵 **Kasir**: Kasir Siti ('cashier@kopimahasiswa.id') — Validasi order meja & kasir POS.
-5. 🎓 **Customer (Member)**: Dimas Aditya (ITB), Anisa Ramadhani (UI), Fajar Pratama (UGM).
-
-Kelola pengguna, ubah role, atau setujui KTM mahasiswa melalui menu **Manajemen Pengguna** ('/admin?tab=users').`;
+    return `Saat ini terdapat total **${totalCount} pengguna** terdaftar di sistem (1 Admin, 1 Owner, 1 Barista, 1 Kasir, dan 3 Member Mahasiswa).`;
   }
 
   // 5. PERAN & HAK AKSES ROLE (Admin, Kasir, Barista, Owner, Customer)
@@ -1137,14 +1112,6 @@ Setiap meja terpasang QR Code untuk pemesanan mandiri pelanggan langsung ke dapu
   }
 
   // 15. DEFAULT RESPONS INTELIGEN
-  return `Halo **${user.name}**! Saya dapat membantu Anda menjawab segala pertanyaan operasional di website Kopi Mahasiswa:
-
-1. 💼 **Fitur & Peran**: Tanyakan _"Apa saja role di sistem ini?"_ atau _"Bagaimana alur pemesanan?"_.
-2. ☕ **Katalog & Resep**: Tanyakan _"Daftar menu kopi"_ atau _"Bagaimana cara membuat resep BOM?"_.
-3. 📦 **Inventaris**: Tanyakan _"Bahan apa yang stoknya kritis?"_ atau _"Cara catat mutasi stok"_.
-4. 🤖 **AI Barista**: Tanyakan _"Bagaimana cara kerja dan ganti model AI?"_.
-5. 📊 **Laporan Finansial**: Tanyakan _"Berapa omset hari ini?"_ atau _"Status meja saat ini"_.
-
-Ada informasi spesifik yang ingin Anda tanyakan lebih lanjut?`;
+  return `Saya belum menemukan data spesifik untuk pertanyaan tersebut. Silakan tanyakan hal spesifik seputar pengguna, pesanan, omset, stok bahan baku, atau menu Kopi Mahasiswa.`;
 }
 
