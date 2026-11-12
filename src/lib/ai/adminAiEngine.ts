@@ -8,19 +8,25 @@ export function getFallbackAdminDatabaseSnapshot() {
   const now = new Date();
   return {
     users: {
-      total: 5,
+      total: 7,
+      customers: [
+        { name: 'Dimas Aditya', campus: 'ITB', points: 150 },
+        { name: 'Anisa Ramadhani', campus: 'UI', points: 200 },
+        { name: 'Fajar Pratama', campus: 'UGM', points: 120 },
+      ],
+      customerCount: 3,
       byRole: [
         { role: 'Admin', count: 1 },
         { role: 'Cashier', count: 1 },
         { role: 'Barista', count: 1 },
         { role: 'Owner', count: 1 },
-        { role: 'Customer', count: 1 },
+        { role: 'Customer', count: 3 },
       ],
       customerPointsStats: {
-        totalProfiles: 1,
-        avgPoints: 150,
-        totalPoints: 150,
-        highestPoints: 150,
+        totalProfiles: 3,
+        avgPoints: 156,
+        totalPoints: 470,
+        highestPoints: 200,
       },
     },
     operations: {
@@ -256,7 +262,20 @@ export async function fetchAdminDatabaseSnapshot() {
       return getFallbackAdminDatabaseSnapshot();
     }
 
-    const roles = await prisma.role.findMany();
+    const [roles, customerUsers] = await Promise.all([
+      prisma.role.findMany(),
+      prisma.user.findMany({
+        where: { role: { name: 'Customer' } },
+        select: {
+          id: true,
+          name: true,
+          membership: { select: { campus: true } },
+          profile: { select: { points: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 30,
+      }),
+    ]);
     const roleMap = new Map(roles.map((r) => [r.id, r.name]));
 
     const lowStockItems = inventories.filter(
@@ -270,6 +289,12 @@ export async function fetchAdminDatabaseSnapshot() {
     return {
       users: {
         total: userCount,
+        customers: customerUsers.map((c) => ({
+          name: c.name,
+          campus: c.membership?.campus || null,
+          points: c.profile?.points || 0,
+        })),
+        customerCount: customerUsers.length,
         byRole: userByRole.map((u) => ({
           role: roleMap.get(u.roleId) || u.roleId,
           count: u._count.id,
@@ -529,7 +554,18 @@ export function generatePreciseAdminResponse(
     (q.includes('pelanggan') || q.includes('customer')) &&
     (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list') || q.includes('siapa') || q.includes('ada'))
   ) {
-    return `Saat ini terdapat **3 pelanggan (customer/member)** terdaftar di sistem: **Dimas Aditya** (ITB), **Anisa Ramadhani** (UI), dan **Fajar Pratama** (UGM).`;
+    const customers = users?.customers || [];
+    const customerRole = users?.byRole?.find((r: any) => r.role?.toLowerCase() === 'customer');
+    const count = customerRole?.count ?? (customers.length || 5);
+
+    let customerNames = '';
+    if (customers.length > 0) {
+      const namesList = customers
+        .map((c: any) => `**${c.name}**${c.campus ? ` (${c.campus})` : ''}`)
+        .join(', ');
+      customerNames = `: ${namesList}`;
+    }
+    return `Saat ini terdapat **${count} pelanggan (customer)** terdaftar di database${customerNames}.`;
   }
 
   // 4C. STATISTIK, JUMLAH & DAFTAR PENGGUNA (USERS)
@@ -538,8 +574,12 @@ export function generatePreciseAdminResponse(
     ((q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list')) &&
       (q.includes('orang') || q.includes('akun') || q.includes('member') || q.includes('staf') || q.includes('pegawai')))
   ) {
-    const totalCount = users?.total || 7;
-    return `Saat ini terdapat total **${totalCount} pengguna** terdaftar di sistem (1 Admin, 1 Owner, 1 Barista, 1 Kasir, dan 3 Member Mahasiswa).`;
+    const totalCount = users?.total || 0;
+    const roleBreakdown = (users?.byRole || [])
+      .map((r: any) => `${r.count} ${r.role}`)
+      .join(', ');
+    const breakdownStr = roleBreakdown ? ` (${roleBreakdown})` : '';
+    return `Saat ini terdapat total **${totalCount} pengguna** terdaftar di database${breakdownStr}.`;
   }
 
   // 5. PERAN & HAK AKSES ROLE (Admin, Kasir, Barista, Owner, Customer)

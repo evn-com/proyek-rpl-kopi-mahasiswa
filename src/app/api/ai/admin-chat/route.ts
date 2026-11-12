@@ -102,8 +102,21 @@ export async function POST(req: Request) {
       (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
       (q.includes('pelanggan') || q.includes('customer') || q.includes('member'));
     if (isCustomerCountQuery) {
+      const customers = dbSnapshot?.users?.customers || [];
+      const customerRole = dbSnapshot?.users?.byRole?.find(
+        (r: any) => r.role?.toLowerCase() === 'customer'
+      );
+      const count = customerRole?.count ?? (customers.length || 5);
+
+      let customerNames = '';
+      if (customers.length > 0) {
+        const namesList = customers
+          .map((c: any) => `**${c.name}**${c.campus ? ` (${c.campus})` : ''}`)
+          .join(', ');
+        customerNames = `: ${namesList}`;
+      }
       return NextResponse.json({
-        reply: `Saat ini terdapat **3 pelanggan (customer/member)** terdaftar di sistem: **Dimas Aditya** (ITB), **Anisa Ramadhani** (UI), dan **Fajar Pratama** (UGM).`,
+        reply: `Saat ini terdapat **${count} pelanggan (customer)** terdaftar di database${customerNames}.`,
         dataSource: 'customer-count',
       });
     }
@@ -113,9 +126,13 @@ export async function POST(req: Request) {
       (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
       (q.includes('pengguna') || q.includes('user') || q.includes('akun') || q.includes('staf') || q.includes('pegawai') || q.includes('orang'));
     if (isUserCountQuery) {
-      const totalCount = dbSnapshot?.users?.total || 7;
+      const totalCount = dbSnapshot?.users?.total || 0;
+      const roleBreakdown = (dbSnapshot?.users?.byRole || [])
+        .map((r: any) => `${r.count} ${r.role}`)
+        .join(', ');
+      const breakdownStr = roleBreakdown ? ` (${roleBreakdown})` : '';
       return NextResponse.json({
-        reply: `Saat ini terdapat total **${totalCount} pengguna** terdaftar di sistem (1 Admin, 1 Owner, 1 Barista, 1 Kasir, dan 3 Member Mahasiswa).`,
+        reply: `Saat ini terdapat total **${totalCount} pengguna** terdaftar di database${breakdownStr}.`,
         dataSource: 'user-count',
       });
     }
