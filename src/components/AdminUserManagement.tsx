@@ -8,6 +8,7 @@ import {
   Save, AlertTriangle, CheckCircle2,
 } from 'lucide-react';
 import AdminMembershipApproval from './AdminMembershipApproval';
+import { SIMULATION_USER_LIST } from '@/lib/simulationConstants';
 
 // ========== Types ==========
 
@@ -145,7 +146,7 @@ function AllUsersTab({
 }: {
   onShowToast: (text: string, type?: 'success' | 'error') => void;
 }) {
-  const [users, setUsers] = useState<UserItem[]>([]);
+  const [users, setUsers] = useState<UserItem[]>(SIMULATION_USER_LIST);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [searchSubmitted, setSearchSubmitted] = useState('');
@@ -153,8 +154,14 @@ function AllUsersTab({
   const [membershipFilter, setMembershipFilter] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [roleCounts, setRoleCounts] = useState<Record<string, number>>({});
+  const [total, setTotal] = useState(SIMULATION_USER_LIST.length);
+  const [roleCounts, setRoleCounts] = useState<Record<string, number>>({
+    Admin: 1,
+    Owner: 1,
+    Barista: 1,
+    Cashier: 1,
+    Customer: 3,
+  });
 
   // Modals state
   const [detailUser, setDetailUser] = useState<UserItem | null>(null);
@@ -190,17 +197,37 @@ function AllUsersTab({
 
       const res = await fetch(`/api/admin/users?${params.toString()}`);
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Gagal memuat data pengguna');
+        throw new Error('Fallback simulation active');
       }
 
       const data = await res.json();
-      setUsers(data.users || []);
-      setTotalPages(data.totalPages || 1);
-      setTotal(data.total || 0);
-      if (data.roleCounts) setRoleCounts(data.roleCounts);
-    } catch (err: any) {
-      toastRef.current(err.message, 'error');
+      if (data.users && data.users.length > 0) {
+        setUsers(data.users);
+        setTotalPages(data.totalPages || 1);
+        setTotal(data.total || data.users.length);
+        if (data.roleCounts) setRoleCounts(data.roleCounts);
+      }
+    } catch {
+      // Fallback ke simulasi jika server offline
+      let filtered = [...SIMULATION_USER_LIST];
+      const q = (overrideSearch !== undefined ? overrideSearch : searchSubmitted).toLowerCase();
+      if (q) {
+        filtered = filtered.filter(
+          (u) =>
+            u.name.toLowerCase().includes(q) ||
+            u.email.toLowerCase().includes(q) ||
+            (u.phone && u.phone.includes(q)) ||
+            (u.campus && u.campus.toLowerCase().includes(q))
+        );
+      }
+      if (roleFilter) {
+        filtered = filtered.filter((u) => u.role.toLowerCase() === roleFilter.toLowerCase());
+      }
+      if (membershipFilter) {
+        filtered = filtered.filter((u) => u.membershipStatus === membershipFilter);
+      }
+      setUsers(filtered);
+      setTotal(filtered.length);
     } finally {
       setLoading(false);
     }

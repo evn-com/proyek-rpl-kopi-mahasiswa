@@ -29,7 +29,10 @@ export function requireRole(
     return auth;
   }
 
-  if (!allowedRoles.includes(auth.user.role)) {
+  const normalizedUserRole = (auth.user.role || '').toLowerCase();
+  const isAllowed = allowedRoles.some((r) => r.toLowerCase() === normalizedUserRole);
+
+  if (!isAllowed) {
     return {
       errorResponse: NextResponse.json(
         { error: `Akses ditolak. Role "${auth.user.role}" tidak memiliki izin.` },

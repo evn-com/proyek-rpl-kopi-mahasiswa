@@ -16,8 +16,11 @@ const QUICK_PROMPTS = [
   { icon: Users, label: 'Jumlah User', query: 'Berapa jumlah total user dan distribusinya per role?' },
   { icon: TrendingUp, label: 'Omset Hari Ini', query: 'Berapa omset dan jumlah transaksi hari ini?' },
   { icon: Package, label: 'Stok Kritis', query: 'Bahan baku apa yang stoknya di bawah minimum?' },
+  { icon: Sparkles, label: 'Alur Order', query: 'Bagaimana alur pemesanan dari pelanggan hingga barista di website ini?' },
+  { icon: ShieldCheck, label: 'Hak Akses Role', query: 'Jelaskan role yang ada di website ini dan masing-masing hak aksesnya' },
+  { icon: Bot, label: 'Model AI Barista', query: 'Bagaimana cara kerja dan pengaturan model AI Barista di website ini?' },
   { icon: BarChart3, label: 'Ringkasan DB', query: 'Tampilkan ringkasan lengkap seluruh database' },
-  { icon: Sparkles, label: 'Voucher Aktif', query: 'Voucher dan promo apa yang masih aktif?' },
+  { icon: Sparkles, label: 'Voucher & Promo', query: 'Voucher dan promo apa yang masih aktif?' },
   { icon: Database, label: 'Status Sistem', query: 'Tampilkan status sistem, audit log, dan notifikasi terbaru' },
 ];
 
@@ -56,9 +59,16 @@ export default function AdminAIChat() {
     setIsLoading(true);
 
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const res = await fetch('/api/ai/admin-chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
+        credentials: 'include',
         body: JSON.stringify({ messages: newMessages }),
       });
 
