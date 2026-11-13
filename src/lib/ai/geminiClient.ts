@@ -13,8 +13,8 @@ import { GoogleGenAI } from '@google/genai';
 import { fetchRealtimeDatabaseContext, detectMenuCategoryIntent, type RealtimeDatabaseContext } from './dbContext';
 import { getEffectiveApiKey } from './aiConfig';
 
-const PRIMARY_MODEL_ID = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
-const FALLBACK_MODELS = [PRIMARY_MODEL_ID, 'gemini-2.0-flash', 'gemini-1.5-flash'];
+const PRIMARY_MODEL_ID = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const FALLBACK_MODELS = [PRIMARY_MODEL_ID, 'gemini-1.5-flash', 'gemini-3.8-flash'];
 
 /** Output token limit — batasi agar hemat kuota */
 const MAX_OUTPUT_TOKENS = 600;
@@ -209,9 +209,8 @@ export async function generateStream(
       break;
     } catch (err: any) {
       lastErr = err;
-      if (!err?.message?.includes('404') && !err?.message?.includes('NOT_FOUND') && !err?.message?.includes('no longer available')) {
-        throw err;
-      }
+      console.warn(`[Gemini Stream] Model ${modelName} error:`, err?.message);
+      // Lanjut ke model fallback berikutnya
     }
   }
 
@@ -279,9 +278,8 @@ export async function generate(
       break;
     } catch (err: any) {
       lastErr = err;
-      if (!err?.message?.includes('404') && !err?.message?.includes('NOT_FOUND') && !err?.message?.includes('no longer available')) {
-        throw err;
-      }
+      console.warn(`[Gemini Generate] Model ${modelName} error:`, err?.message);
+      // Lanjut ke model fallback berikutnya
     }
   }
 

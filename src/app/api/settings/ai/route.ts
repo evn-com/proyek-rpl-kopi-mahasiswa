@@ -62,26 +62,38 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
 
       const client = new GoogleGenAI({ apiKey });
       const candidateModels = [
-        process.env.GEMINI_MODEL || 'gemini-3.8-flash',
-        'gemini-2.0-flash',
+        process.env.GEMINI_MODEL || 'gemini-2.0-flash',
         'gemini-1.5-flash',
+        'gemini-3.8-flash',
       ];
 
       let lastErr: any = null;
       for (const mId of candidateModels) {
         try {
-          const chat = client.chats.create({
-            model: mId,
-            config: { maxOutputTokens: 5, temperature: 0.1, thinkingConfig: { thinkingBudget: 0 } },
-          });
-          await chat.sendMessage({ message: 'ping' });
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout 5s')), 5000)
+          );
+
+          const testCall = (async () => {
+            const chat = client.chats.create({
+              model: mId,
+              config: { maxOutputTokens: 5, temperature: 0.1, thinkingConfig: { thinkingBudget: 0 } },
+            });
+            await chat.sendMessage({ message: 'ping' });
+          })();
+
+          await Promise.race([testCall, timeoutPromise]);
           return { success: true, latencyMs: Date.now() - start };
         } catch (err: any) {
           lastErr = err;
-          if (!err?.message?.includes('404') && !err?.message?.includes('NOT_FOUND') && !err?.message?.includes('no longer available')) {
-            throw err;
-          }
+          console.warn(`[Gemini Test] Model ${mId} failed, mencoba model berikutnya:`, err?.message);
+          // Lanjutkan ke model kandidat berikutnya jika error (404, 503, timeout)
         }
+      }
+
+      const errMsg = lastErr?.message || '';
+      if (errMsg.includes('503') || errMsg.includes('high demand') || errMsg.includes('UNAVAILABLE')) {
+        throw new Error('Server Google Gemini sedang sibuk (503 High Demand). Silakan coba beberapa saat lagi.');
       }
       throw lastErr || new Error('Gagal menghubungi model Gemini.');
     }
@@ -262,12 +274,12 @@ export async function GET(req: Request) {
         {
           id: 'gemini',
           name: 'Google Gemini',
-          subName: 'Gemini 3.8 Flash',
-          modelId: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
+          subName: 'Gemini 2.0 / 1.5 Flash',
+          modelId: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
           providerKey: 'gemini',
           contextWindow: '1.000.000 token',
           tag: 'Rekomendasi Utama',
-          description: 'Model generasi terbaru Google yang sudah diuji dengan penalaran menu real-time dan latensi ultra cepat.',
+          description: 'Model ultra cepat Google dengan penalaran menu real-time dan latensi instan.',
           isConfigured: !!geminiKey,
           lastTested: testGemini.lastTested,
           latencyMs: testGemini.latencyMs,
