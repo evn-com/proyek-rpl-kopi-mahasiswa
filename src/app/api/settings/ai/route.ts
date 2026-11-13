@@ -343,15 +343,19 @@ export async function POST(req: Request) {
         lastTested: new Date().toISOString(),
         latencyMs: testResult.latencyMs,
         status: testResult.success ? 'ok' : 'error',
-        error: testResult.error,
+        error: testResult.error ? testResult.error.slice(0, 200) : undefined,
       };
 
       if (settingDelegate) {
-        await settingDelegate.upsert({
-          where: { key: `ai_test_${model}` },
-          update: { value: JSON.stringify(testRecord) },
-          create: { key: `ai_test_${model}`, value: JSON.stringify(testRecord) },
-        });
+        try {
+          await settingDelegate.upsert({
+            where: { key: `ai_test_${model}` },
+            update: { value: JSON.stringify(testRecord) },
+            create: { key: `ai_test_${model}`, value: JSON.stringify(testRecord) },
+          });
+        } catch (dbErr) {
+          console.warn('[AI Settings] Could not save test record:', dbErr);
+        }
       }
 
       return NextResponse.json({
@@ -460,11 +464,15 @@ export async function POST(req: Request) {
           latencyMs: testCheck.latencyMs,
           status: 'ok',
         };
-        await settingDelegate.upsert({
-          where: { key: `ai_test_${modelToTest}` },
-          update: { value: JSON.stringify(testRecord) },
-          create: { key: `ai_test_${modelToTest}`, value: JSON.stringify(testRecord) },
-        });
+        try {
+          await settingDelegate.upsert({
+            where: { key: `ai_test_${modelToTest}` },
+            update: { value: JSON.stringify(testRecord) },
+            create: { key: `ai_test_${modelToTest}`, value: JSON.stringify(testRecord) },
+          });
+        } catch (dbErr) {
+          console.warn('[AI Settings] Could not save test record on key update:', dbErr);
+        }
       }
 
       if (userPayload?.userId) {
