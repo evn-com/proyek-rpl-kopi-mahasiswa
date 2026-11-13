@@ -76,3 +76,4 @@ export async function isProviderConfigured(provider: AIProvider): Promise<boolea
   const key = await getEffectiveApiKey(provider);
   return Boolean(key && key.length >= 8 && !key.includes('invalid'));
 }
+

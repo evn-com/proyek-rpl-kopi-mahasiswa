@@ -24,6 +24,9 @@ import {
   Flame,
   ShieldCheck,
   Server,
+  Eye,
+  EyeOff,
+  Copy,
 } from 'lucide-react';
 
 interface ApiKeyDetail {
@@ -31,6 +34,7 @@ interface ApiKeyDetail {
   label: string;
   isConfigured: boolean;
   maskedKey: string;
+  rawKey?: string;
   source: 'database' | 'environment' | 'none';
   updatedAt: string | null;
 }
@@ -69,6 +73,11 @@ export default function AdminAISettingsPage() {
   const [keyInput, setKeyInput] = useState<string>('');
   const [savingKey, setSavingKey] = useState(false);
   const [resettingKey, setResettingKey] = useState(false);
+
+  // Visibility toggles for API keys
+  const [showSavedKey, setShowSavedKey] = useState<boolean>(false);
+  const [showInputKey, setShowInputKey] = useState<boolean>(false);
+  const [copiedKey, setCopiedKey] = useState<boolean>(false);
 
   // Model switching & testing states
   const [activatingModel, setActivatingModel] = useState<string | null>(null);
@@ -382,6 +391,8 @@ export default function AdminAISettingsPage() {
                     onClick={() => {
                       setSelectedProvider(prov);
                       setKeyInput('');
+                      setShowSavedKey(false);
+                      setShowInputKey(false);
                     }}
                     className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                       isSelected
@@ -403,7 +414,7 @@ export default function AdminAISettingsPage() {
             <div className="space-y-3.5">
               <h3 className="text-sm font-bold text-white tracking-wide">API Key</h3>
 
-              {/* Status Bar: Badge + Masked Key + Source */}
+              {/* Status Bar: Badge + Source + Timestamp */}
               <div className="flex flex-wrap items-center gap-3 text-xs">
                 {currentKeyInfo?.isConfigured ? (
                   <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
@@ -417,12 +428,6 @@ export default function AdminAISettingsPage() {
                   </span>
                 )}
 
-                {currentKeyInfo?.maskedKey && (
-                  <span className="font-mono text-xs text-slate-300">
-                    {currentKeyInfo.maskedKey}
-                  </span>
-                )}
-
                 <span className="text-slate-400 text-xs">
                   Sumber:{' '}
                   <span className="text-slate-200 font-medium">
@@ -433,23 +438,99 @@ export default function AdminAISettingsPage() {
                       : 'Belum diisi'}
                   </span>
                 </span>
+
+                {currentKeyInfo?.updatedAt && (
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    • diperbarui {currentKeyInfo.updatedAt}
+                  </span>
+                )}
               </div>
 
-              {currentKeyInfo?.updatedAt && (
-                <p className="text-[11px] text-slate-400 font-mono">
-                  diperbarui {currentKeyInfo.updatedAt}
-                </p>
+              {/* Box Tampilan Code API Key Aktif dengan Toggle Lihat & Salin */}
+              {currentKeyInfo?.isConfigured && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-[#090D16] border border-slate-800">
+                  <div className="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
+                    <Key className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span className="font-mono text-xs sm:text-sm text-slate-200 select-all break-all">
+                      {showSavedKey
+                        ? (currentKeyInfo.rawKey || currentKeyInfo.maskedKey)
+                        : (currentKeyInfo.maskedKey || '••••••••••••••••••••••••')}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    {/* Tombol Lihat/Sembunyikan Code */}
+                    <button
+                      type="button"
+                      onClick={() => setShowSavedKey((prev) => !prev)}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700 shadow-sm"
+                      title={showSavedKey ? 'Sembunyikan code API key' : 'Lihat code lengkap API key'}
+                    >
+                      {showSavedKey ? (
+                        <>
+                          <EyeOff className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Sembunyikan</span>
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Lihat Code</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Tombol Salin */}
+                    {currentKeyInfo.rawKey && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(currentKeyInfo.rawKey || '');
+                          setCopiedKey(true);
+                          setTimeout(() => setCopiedKey(false), 2000);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700 shadow-sm"
+                        title="Salin API Key ke clipboard"
+                      >
+                        {copiedKey ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400 font-bold">Tersalin!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-slate-400" />
+                            <span>Salin</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               )}
 
-              {/* Input Tempel API Key + Tombol Perbarui */}
+              {/* Input Tempel API Key Baru dengan Tombol Lihat Input */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
-                <input
-                  type="password"
-                  value={keyInput}
-                  onChange={(e) => setKeyInput(e.target.value)}
-                  placeholder={`Tempel API Key ${currentKeyInfo?.label || selectedProvider} baru...`}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#090D16] border border-slate-800 text-xs sm:text-sm font-mono text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 transition"
-                />
+                <div className="relative flex-1">
+                  <input
+                    type={showInputKey ? 'text' : 'password'}
+                    value={keyInput}
+                    onChange={(e) => setKeyInput(e.target.value)}
+                    placeholder={`Tempel API Key ${currentKeyInfo?.label || selectedProvider} baru...`}
+                    className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#090D16] border border-slate-800 text-xs sm:text-sm font-mono text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 transition"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowInputKey((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400 transition"
+                    title={showInputKey ? 'Sembunyikan karakter' : 'Tampilkan karakter yang diketik'}
+                  >
+                    {showInputKey ? (
+                      <EyeOff className="w-4 h-4 text-amber-400" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
 
                 <button
                   type="button"
