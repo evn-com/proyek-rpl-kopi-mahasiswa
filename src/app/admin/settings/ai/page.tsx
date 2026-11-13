@@ -354,7 +354,7 @@ export default function AdminAISettingsPage() {
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Model Aktif</p>
                 <p className="text-sm font-extrabold text-white">
                   {activeModel === 'gemini'
-                    ? 'Google Gemini 2.5'
+                    ? 'Google Gemini Flash'
                     : activeModel === 'gpt'
                     ? 'OpenAI GPT-4o'
                     : activeModel === 'deepseek'

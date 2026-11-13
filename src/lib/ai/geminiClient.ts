@@ -13,7 +13,8 @@ import { GoogleGenAI } from '@google/genai';
 import { fetchRealtimeDatabaseContext, detectMenuCategoryIntent, type RealtimeDatabaseContext } from './dbContext';
 import { getEffectiveApiKey } from './aiConfig';
 
-const MODEL_ID = 'gemini-2.5-flash';
+const PRIMARY_MODEL_ID = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+const FALLBACK_MODELS = [PRIMARY_MODEL_ID, 'gemini-2.0-flash', 'gemini-1.5-flash'];
 
 /** Output token limit — batasi agar hemat kuota */
 const MAX_OUTPUT_TOKENS = 600;
@@ -187,21 +188,36 @@ export async function generateStream(
 
   const chatHistory = toChatHistory(history);
 
-  const chat = client.chats.create({
-    model: MODEL_ID,
-    config: {
-      systemInstruction,
-      maxOutputTokens: MAX_OUTPUT_TOKENS,
-      temperature: 0.7,
-      topP: 0.95,
-      // Disable thinking mode — required for gemini-2.5-flash to avoid
-      // "model output must contain either output text or tool calls" error
-      thinkingConfig: { thinkingBudget: 0 },
-    },
-    history: chatHistory,
-  });
+  let stream: any = null;
+  let lastErr: any = null;
 
-  const stream = await chat.sendMessageStream({ message: enrichedPrompt });
+  for (const modelName of FALLBACK_MODELS) {
+    try {
+      const chat = client.chats.create({
+        model: modelName,
+        config: {
+          systemInstruction,
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+          temperature: 0.7,
+          topP: 0.95,
+          thinkingConfig: { thinkingBudget: 0 },
+        },
+        history: chatHistory,
+      });
+
+      stream = await chat.sendMessageStream({ message: enrichedPrompt });
+      break;
+    } catch (err: any) {
+      lastErr = err;
+      if (!err?.message?.includes('404') && !err?.message?.includes('NOT_FOUND') && !err?.message?.includes('no longer available')) {
+        throw err;
+      }
+    }
+  }
+
+  if (!stream) {
+    throw lastErr || new Error('Tidak ada model Gemini yang dapat dihubungi.');
+  }
 
   async function* textChunks(): AsyncIterable<string> {
     let hasOutput = false;
@@ -243,19 +259,36 @@ export async function generate(
   const lastMsg = messages[messages.length - 1];
   const enrichedPrompt = await buildEnrichedPrompt(lastMsg.content, mode);
 
-  const chat = client.chats.create({
-    model: MODEL_ID,
-    config: {
-      systemInstruction,
-      maxOutputTokens: MAX_OUTPUT_TOKENS,
-      temperature: 0.7,
-      thinkingConfig: { thinkingBudget: 0 },
-    },
-    history: toChatHistory(history),
-  });
+  let response: any = null;
+  let lastErr: any = null;
 
-  const response = await chat.sendMessage({ message: enrichedPrompt });
-  const text = response.text?.trim();
+  for (const modelName of FALLBACK_MODELS) {
+    try {
+      const chat = client.chats.create({
+        model: modelName,
+        config: {
+          systemInstruction,
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+          temperature: 0.7,
+          thinkingConfig: { thinkingBudget: 0 },
+        },
+        history: toChatHistory(history),
+      });
+
+      response = await chat.sendMessage({ message: enrichedPrompt });
+      break;
+    } catch (err: any) {
+      lastErr = err;
+      if (!err?.message?.includes('404') && !err?.message?.includes('NOT_FOUND') && !err?.message?.includes('no longer available')) {
+        throw err;
+      }
+    }
+  }
+
+  const text = response?.text?.trim();
+  if (!text && lastErr) {
+    throw lastErr;
+  }
   return text || 'Maaf, saya tidak mendapat respons dari AI. Silakan coba lagi ☕';
 }
 

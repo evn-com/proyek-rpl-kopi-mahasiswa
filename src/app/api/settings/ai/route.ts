@@ -61,12 +61,29 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
       if (!apiKey) throw new Error('API Key Google Gemini belum diatur.');
 
       const client = new GoogleGenAI({ apiKey });
-      const chat = client.chats.create({
-        model: 'gemini-2.5-flash',
-        config: { maxOutputTokens: 5, temperature: 0.1, thinkingConfig: { thinkingBudget: 0 } },
-      });
-      await chat.sendMessage({ message: 'ping' });
-      return { success: true, latencyMs: Date.now() - start };
+      const candidateModels = [
+        process.env.GEMINI_MODEL || 'gemini-3.8-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+      ];
+
+      let lastErr: any = null;
+      for (const mId of candidateModels) {
+        try {
+          const chat = client.chats.create({
+            model: mId,
+            config: { maxOutputTokens: 5, temperature: 0.1, thinkingConfig: { thinkingBudget: 0 } },
+          });
+          await chat.sendMessage({ message: 'ping' });
+          return { success: true, latencyMs: Date.now() - start };
+        } catch (err: any) {
+          lastErr = err;
+          if (!err?.message?.includes('404') && !err?.message?.includes('NOT_FOUND') && !err?.message?.includes('no longer available')) {
+            throw err;
+          }
+        }
+      }
+      throw lastErr || new Error('Gagal menghubungi model Gemini.');
     }
 
     if (model === 'gpt') {
@@ -245,12 +262,12 @@ export async function GET(req: Request) {
         {
           id: 'gemini',
           name: 'Google Gemini',
-          subName: 'Gemini 2.5 Flash',
-          modelId: 'gemini-2.5-flash',
+          subName: 'Gemini 3.8 Flash',
+          modelId: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
           providerKey: 'gemini',
           contextWindow: '1.000.000 token',
           tag: 'Rekomendasi Utama',
-          description: 'Model utama Google yang sudah diuji dengan penalaran menu real-time dan latensi ultra cepat.',
+          description: 'Model generasi terbaru Google yang sudah diuji dengan penalaran menu real-time dan latensi ultra cepat.',
           isConfigured: !!geminiKey,
           lastTested: testGemini.lastTested,
           latencyMs: testGemini.latencyMs,
