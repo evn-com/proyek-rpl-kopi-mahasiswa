@@ -13,8 +13,8 @@ import { GoogleGenAI } from '@google/genai';
 import { fetchRealtimeDatabaseContext, detectMenuCategoryIntent, type RealtimeDatabaseContext } from './dbContext';
 import { getEffectiveApiKey } from './aiConfig';
 
-const PRIMARY_MODEL_ID = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-const FALLBACK_MODELS = [PRIMARY_MODEL_ID, 'gemini-1.5-flash', 'gemini-3.8-flash'];
+const PRIMARY_MODEL_ID = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+const FALLBACK_MODELS = [PRIMARY_MODEL_ID, 'gemini-flash-lite-latest', 'gemini-3.8-flash'];
 
 /** Output token limit — batasi agar hemat kuota */
 const MAX_OUTPUT_TOKENS = 600;
@@ -200,7 +200,6 @@ export async function generateStream(
           maxOutputTokens: MAX_OUTPUT_TOKENS,
           temperature: 0.7,
           topP: 0.95,
-          thinkingConfig: { thinkingBudget: 0 },
         },
         history: chatHistory,
       });
@@ -269,7 +268,6 @@ export async function generate(
           systemInstruction,
           maxOutputTokens: MAX_OUTPUT_TOKENS,
           temperature: 0.7,
-          thinkingConfig: { thinkingBudget: 0 },
         },
         history: toChatHistory(history),
       });

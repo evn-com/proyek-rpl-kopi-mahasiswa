@@ -62,8 +62,8 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
 
       const client = new GoogleGenAI({ apiKey });
       const candidateModels = [
-        process.env.GEMINI_MODEL || 'gemini-2.0-flash',
-        'gemini-1.5-flash',
+        process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
+        'gemini-flash-lite-latest',
         'gemini-3.8-flash',
       ];
 
@@ -71,13 +71,13 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
       for (const mId of candidateModels) {
         try {
           const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Timeout 5s')), 5000)
+            setTimeout(() => reject(new Error('Timeout 8s')), 8000)
           );
 
           const testCall = (async () => {
             const chat = client.chats.create({
               model: mId,
-              config: { maxOutputTokens: 5, temperature: 0.1, thinkingConfig: { thinkingBudget: 0 } },
+              config: { maxOutputTokens: 5, temperature: 0.1 },
             });
             await chat.sendMessage({ message: 'ping' });
           })();
@@ -87,7 +87,6 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
         } catch (err: any) {
           lastErr = err;
           console.warn(`[Gemini Test] Model ${mId} failed, mencoba model berikutnya:`, err?.message);
-          // Lanjutkan ke model kandidat berikutnya jika error (404, 503, timeout)
         }
       }
 
@@ -274,12 +273,12 @@ export async function GET(req: Request) {
         {
           id: 'gemini',
           name: 'Google Gemini',
-          subName: 'Gemini 2.0 / 1.5 Flash',
-          modelId: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+          subName: 'Gemini Flash Lite (3.5)',
+          modelId: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
           providerKey: 'gemini',
           contextWindow: '1.000.000 token',
           tag: 'Rekomendasi Utama',
-          description: 'Model ultra cepat Google dengan penalaran menu real-time dan latensi instan.',
+          description: 'Model cepat Google Gemini Flash Lite — hemat kuota, latensi rendah, cocok untuk produksi.',
           isConfigured: !!geminiKey,
           lastTested: testGemini.lastTested,
           latencyMs: testGemini.latencyMs,
