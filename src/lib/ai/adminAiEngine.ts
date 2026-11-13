@@ -133,6 +133,11 @@ export function getFallbackAdminDatabaseSnapshot() {
           { status: 'CONFIRMED', count: 1 },
         ],
       },
+      last7Days: {
+        totalPaidOrders: 68,
+        totalRevenue: 1540000,
+        avgOrderValue: 22647,
+      },
       last30Days: {
         totalPaidOrders: 142,
         totalRevenue: 3280000,
@@ -176,6 +181,8 @@ export async function fetchAdminDatabaseSnapshot() {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const thirtyDaysAgo = new Date(now);
     thirtyDaysAgo.setDate(now.getDate() - 30);
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(now.getDate() - 7);
 
     const [
       userCount,
@@ -191,6 +198,7 @@ export async function fetchAdminDatabaseSnapshot() {
       ordersToday,
       ordersTotal,
       ordersThirtyDays,
+      ordersSevenDays,
       vouchers,
       promotions,
       recipes,
@@ -236,6 +244,12 @@ export async function fetchAdminDatabaseSnapshot() {
       prisma.order.groupBy({ by: ['status'], _count: { id: true } }),
       prisma.order.aggregate({
         where: { createdAt: { gte: thirtyDaysAgo }, paymentStatus: 'PAID' },
+        _count: { id: true },
+        _sum: { finalAmount: true },
+        _avg: { finalAmount: true },
+      }),
+      prisma.order.aggregate({
+        where: { createdAt: { gte: sevenDaysAgo }, paymentStatus: 'PAID' },
         _count: { id: true },
         _sum: { finalAmount: true },
         _avg: { finalAmount: true },
@@ -401,6 +415,11 @@ export async function fetchAdminDatabaseSnapshot() {
         allTime: {
           byStatus: ordersTotal.map((s) => ({ status: s.status, count: s._count.id })),
         },
+        last7Days: {
+          totalPaidOrders: ordersSevenDays._count.id,
+          totalRevenue: ordersSevenDays._sum.finalAmount || 0,
+          avgOrderValue: Math.round(ordersSevenDays._avg.finalAmount || 0),
+        },
         last30Days: {
           totalPaidOrders: ordersThirtyDays._count.id,
           totalRevenue: ordersThirtyDays._sum.finalAmount || 0,
@@ -468,6 +487,9 @@ export function generatePreciseAdminResponse(
     .replace(/\bcoffe\b/g, 'coffee')
     .replace(/\bcafee\b/g, 'caffe')
     .replace(/\bcafe\b/g, 'caffe')
+    .replace(/\bomzet\b/g, 'omset')
+    .replace(/\bomzset\b/g, 'omset')
+    .replace(/\bpemasukan\b/g, 'omset')
     .replace(/\bcoklat\b/g, 'chocolate')
     .replace(/\bcokelat\b/g, 'chocolate')
     .replace(/\bgmn\b/g, 'bagaimana')
@@ -1101,14 +1123,34 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
   }
 
   // 9. OMSET, PENDAPATAN & KEUANGAN
-  if (q.includes('omset') || q.includes('pendapatan') || q.includes('revenue') || q.includes('penjualan')) {
+  if (
+    q.includes('omset') ||
+    q.includes('omzet') ||
+    q.includes('pendapatan') ||
+    q.includes('revenue') ||
+    q.includes('penjualan') ||
+    q.includes('pemasukan') ||
+    q.includes('laba') ||
+    q.includes('keuangan')
+  ) {
+    const isWeekly = q.includes('7 hari') || q.includes('seminggu') || q.includes('minggu') || q.includes('pekan');
     const isMonthly = q.includes('bulan') || q.includes('30 hari') || q.includes('sebulan');
+
+    if (isWeekly) {
+      const rev7 = orders.last7Days?.totalRevenue || 0;
+      const paid7 = orders.last7Days?.totalPaidOrders || 0;
+      const aov7 = orders.last7Days?.avgOrderValue || 0;
+      return `💰 **Laporan Omset 7 Hari Terakhir:**
+- **Total Omset Lunas**: **Rp ${rev7.toLocaleString('id-ID')}**
+- **Total Transaksi Selesai**: **${paid7} pesanan**
+- **Rata-rata Nilai Order (AOV)**: **Rp ${aov7.toLocaleString('id-ID')}**`;
+    }
 
     if (isMonthly) {
       return `💰 **Laporan Pendapatan 30 Hari Terakhir:**
-- **Total Omset Lunas**: **Rp ${(orders.last30Days.totalRevenue || 0).toLocaleString('id-ID')}**
-- **Total Transaksi Selesai**: **${orders.last30Days.totalPaidOrders} pesanan**
-- **Rata-rata Nilai Order (AOV)**: **Rp ${orders.last30Days.avgOrderValue.toLocaleString('id-ID')}**`;
+- **Total Omset Lunas**: **Rp ${(orders.last30Days?.totalRevenue || 0).toLocaleString('id-ID')}**
+- **Total Transaksi Selesai**: **${orders.last30Days?.totalPaidOrders || 0} pesanan**
+- **Rata-rata Nilai Order (AOV)**: **Rp ${(orders.last30Days?.avgOrderValue || 0).toLocaleString('id-ID')}**`;
     }
 
     return `💰 **Laporan Omset & Transaksi Hari Ini:**

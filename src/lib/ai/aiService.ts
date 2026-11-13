@@ -600,9 +600,9 @@ Setiap racikan menu Kopi Mahasiswa diproduksi berdasarkan standar ekstraksi *Gol
     const branch = await prisma.branch.findFirst({ where: { isActive: true } });
     const inventories = branch
       ? await prisma.inventory.findMany({
-          where: { branchId: branch.id },
-          include: { ingredient: true },
-        })
+        where: { branchId: branch.id },
+        include: { ingredient: true },
+      })
       : [];
 
     const lowStockItems = inventories.filter((i) => i.stockQuantity <= i.ingredient.minimumStock);
@@ -736,11 +736,11 @@ FORMAT JAWABAN WAJIB MEMAKAI KODE MARKDOWN:
 
 DATA NYATA DATABASE KOPI MAHASISWA:
 ${JSON.stringify({
-  products: dbCtx.products,
-  promotions: dbCtx.activePromotions,
-  tables: dbCtx.tableStats,
-  store: dbCtx.storeInfo,
-})}`
+        products: dbCtx.products,
+        promotions: dbCtx.activePromotions,
+        tables: dbCtx.tableStats,
+        store: dbCtx.storeInfo,
+      })}`
       : `Kamu adalah "Barista & Assistant Pintar Kopi Mahasiswa" ☕✨.
 Status User: ${isLoggedIn ? 'Login Kak ' + userName : 'Guest / Sobat Mahasiswa'}
 
@@ -767,16 +767,16 @@ ATURAN RESPON:
 
 DATA REAL-TIME DATABASE TOKO:
 ${JSON.stringify({
-  store: dbCtx.storeInfo,
-  tables: {
-    total: dbCtx.tableStats.total,
-    availableCount: dbCtx.tableStats.availableCount,
-    availableNumbers: dbCtx.tableStats.availableNumbers,
-  },
-  promotions: dbCtx.activePromotions,
-  vouchers: dbCtx.activeVouchers,
-  products: dbCtx.products,
-})}`;
+        store: dbCtx.storeInfo,
+        tables: {
+          total: dbCtx.tableStats.total,
+          availableCount: dbCtx.tableStats.availableCount,
+          availableNumbers: dbCtx.tableStats.availableNumbers,
+        },
+        promotions: dbCtx.activePromotions,
+        vouchers: dbCtx.activeVouchers,
+        products: dbCtx.products,
+      })}`;
 
     // 1. Try Nous Research API if key is available
     if (this.nousApiKey) {

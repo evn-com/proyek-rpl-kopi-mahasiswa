@@ -3,6 +3,7 @@ import { requireRole } from '@/lib/security';
 import { prisma } from '@/lib/prisma';
 import { fetchAdminDatabaseSnapshot, generatePreciseAdminResponse } from '@/lib/ai/adminAiEngine';
 import { getEffectiveApiKey } from '@/lib/ai/aiConfig';
+import { GoogleGenAI } from '@google/genai';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -65,6 +66,9 @@ export async function POST(req: Request) {
       .replace(/\bcoffe\b/g, 'coffee')
       .replace(/\bcafee\b/g, 'caffe')
       .replace(/\bcafe\b/g, 'caffe')
+      .replace(/\bomzet\b/g, 'omset')
+      .replace(/\bomzset\b/g, 'omset')
+      .replace(/\bpemasukan\b/g, 'omset')
       .replace(/\bcoklat\b/g, 'chocolate')
       .replace(/\bcokelat\b/g, 'chocolate')
       .replace(/\bgmn\b/g, 'bagaimana')
@@ -308,6 +312,54 @@ export async function POST(req: Request) {
       });
     }
 
+    // 0G. Laporan Omset / Pendapatan / Penjualan (Harian, Mingguan / 7 Hari, Bulanan)
+    const isOmsetDirectQuery =
+      q.includes('omset') ||
+      q.includes('omzet') ||
+      q.includes('pendapatan') ||
+      q.includes('revenue') ||
+      q.includes('penjualan') ||
+      q.includes('pemasukan');
+    if (isOmsetDirectQuery) {
+      const orders = dbSnapshot?.orders || {
+        today: { revenueToday: 0, paidOrders: 0, unpaidOrders: 0, totalOrders: 0 },
+        last7Days: { totalRevenue: 0, totalPaidOrders: 0, avgOrderValue: 0 },
+        last30Days: { totalRevenue: 0, totalPaidOrders: 0, avgOrderValue: 0 },
+      };
+
+      const isWeekly = q.includes('7 hari') || q.includes('seminggu') || q.includes('minggu') || q.includes('pekan');
+      const isMonthly = q.includes('30 hari') || q.includes('sebulan') || q.includes('bulan');
+
+      if (isWeekly) {
+        const rev7 = orders.last7Days?.totalRevenue || 0;
+        const paid7 = orders.last7Days?.totalPaidOrders || 0;
+        const aov7 = orders.last7Days?.avgOrderValue || 0;
+        return NextResponse.json({
+          reply: `💰 **Laporan Omset 7 Hari Terakhir:**\n\n- **Total Omset Lunas**: **Rp ${rev7.toLocaleString('id-ID')}**\n- **Total Transaksi Selesai**: **${paid7} pesanan**\n- **Rata-rata Nilai Order (AOV)**: **Rp ${aov7.toLocaleString('id-ID')}**`,
+          dataSource: 'omset-weekly',
+        });
+      }
+
+      if (isMonthly) {
+        const rev30 = orders.last30Days?.totalRevenue || 0;
+        const paid30 = orders.last30Days?.totalPaidOrders || 0;
+        const aov30 = orders.last30Days?.avgOrderValue || 0;
+        return NextResponse.json({
+          reply: `💰 **Laporan Pendapatan 30 Hari Terakhir:**\n\n- **Total Omset Lunas**: **Rp ${rev30.toLocaleString('id-ID')}**\n- **Total Transaksi Selesai**: **${paid30} pesanan**\n- **Rata-rata Nilai Order (AOV)**: **Rp ${aov30.toLocaleString('id-ID')}**`,
+          dataSource: 'omset-monthly',
+        });
+      }
+
+      const revToday = orders.today?.revenueToday || 0;
+      const paidToday = orders.today?.paidOrders || 0;
+      const unpaidToday = orders.today?.unpaidOrders || 0;
+      const totalToday = orders.today?.totalOrders || 0;
+      return NextResponse.json({
+        reply: `💰 **Laporan Omset & Transaksi Hari Ini:**\n\n- **Total Omset Lunas**: **Rp ${revToday.toLocaleString('id-ID')}**\n- **Pesanan Lunas (PAID)**: **${paidToday} transaksi**\n- **Pesanan Menunggu / Belum Bayar**: **${unpaidToday} transaksi**\n- **Total Pesanan Masuk Hari Ini**: **${totalToday} order**`,
+        dataSource: 'omset-today',
+      });
+    }
+
     // 1. Deteksi Pertanyaan Profil User / Identitas Diri
     const profileKeywords = [
       'siapa saya', 'siapa aku', 'siapakah saya', 'siapakah aku',
@@ -323,7 +375,7 @@ export async function POST(req: Request) {
 
     // 3. Deteksi Apakah Menanyakan Data Operasional Toko / Statistik Eksplisit
     const storeDataKeywords = [
-      'omset', 'pendapatan', 'revenue', 'penjualan',
+      'omset', 'omzet', 'pendapatan', 'revenue', 'penjualan', 'pemasukan', 'laba', 'keuangan',
       'stok', 'bahan baku', 'inventory', 'kritis', 'habis',
       'jumlah user', 'total user', 'distribusi user', 'data user', 'daftar user',
       'transaksi', 'pesanan', 'order',
@@ -331,6 +383,7 @@ export async function POST(req: Request) {
       'meja', 'meja kosong',
       'voucher', 'promo', 'promosi',
       'audit', 'log', 'sistem', 'database', 'ringkasan db', 'ringkasan database', 'statistik',
+      '7 hari', 'seminggu', 'minggu', 'bulan', '30 hari',
     ];
     const isStoreDataQuery = storeDataKeywords.some((k) => q.includes(k));
 
@@ -356,22 +409,20 @@ export async function POST(req: Request) {
       ragContext = `\n\n[SNAPSHOT OPERASIONAL DATABASE REAL-TIME]:\n${JSON.stringify(dbSnapshot)}`;
     }
 
-    // 1. Coba panggil LLM eksternal (Nous / Gemini) dengan timeout ketat 3.5 detik
-    const nousApiKey = (await getEffectiveApiKey('nous')) || process.env.NOUS_API_KEY;
-    const nousKeyId = process.env.NOUS_KEY_ID;
-    const nousApiUrl = process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
-    const nousModel = process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct';
+    // 1. Coba panggil LLM eksternal sesuai model aktif di Pengaturan AI (Gemini / OpenAI / Nous)
+    let activeModel = 'gemini';
+    try {
+      const activeSetting = await (prisma as any).setting?.findUnique({
+        where: { key: 'active_ai_model' },
+      });
+      if (activeSetting?.value) activeModel = activeSetting.value;
+    } catch {}
 
-    if (nousApiKey && !nousApiKey.includes('invalid')) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const cleanHistory = messages
+      .filter((m: any) => m.role === 'user' || m.role === 'assistant')
+      .slice(-6);
 
-        const cleanHistory = messages
-          .filter((m: any) => m.role === 'user' || m.role === 'assistant')
-          .slice(-6);
-
-        const systemPrompt = `Kamu adalah Admin AI Assistant untuk sistem manajemen Kopi Mahasiswa ☕.
+    const systemPrompt = `Kamu adalah Admin AI Assistant untuk sistem manajemen Kopi Mahasiswa ☕.
 Informasi Akun Pengguna yang Sedang Login:
 - Nama: ${currentUser.name}
 - Role: ${currentUser.role}
@@ -391,6 +442,61 @@ PANDUAN MENJAWAB & GUARDRAILS:
 3. JIKA PENGGUNA MENANYAKAN DATA TOKO / STATISTIK OPERASIONAL (hanya jika diminta eksplisit):
    - Jika pengguna menanyakan data bisnis (misal: "omset", "stok kritis", "jumlah user", "daftar menu", "meja kosong", "voucher"):
      Gunakan data snapshot database berikut secara akurat dan spesifik:${ragContext}`;
+
+    // Jalur A: Gemini (jika aktif atau fallback)
+    const geminiApiKey = (await getEffectiveApiKey('gemini')) || process.env.GEMINI_API_KEY;
+    if (activeModel === 'gemini' && geminiApiKey) {
+      try {
+        const client = new GoogleGenAI({ apiKey: geminiApiKey });
+        const candidateModels = [
+          process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
+          'gemini-flash-lite-latest',
+          'gemini-3.8-flash',
+        ];
+
+        for (const mId of candidateModels) {
+          try {
+            const timeoutPromise = new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('Timeout 4s')), 4000)
+            );
+            const call = (async () => {
+              const chat = client.chats.create({
+                model: mId,
+                config: {
+                  systemInstruction: systemPrompt,
+                  maxOutputTokens: 600,
+                  temperature: 0.3,
+                },
+              });
+              const res = await chat.sendMessage({
+                message: lastUserMsg + (ragContext ? `\n\n${ragContext}` : ''),
+              });
+              return res.text?.trim();
+            })();
+
+            const reply = await Promise.race([call, timeoutPromise]);
+            if (reply) {
+              return NextResponse.json({ reply, dataSource: `gemini-${mId}` });
+            }
+          } catch (mErr: any) {
+            console.warn(`[Admin AI Chat] Gemini model ${mId} failed:`, mErr?.message);
+          }
+        }
+      } catch (geminiErr) {
+        console.warn('[Admin AI Chat] Gemini error:', geminiErr);
+      }
+    }
+
+    // Jalur B: Nous Research / Llama (jika dikonfigurasi)
+    const nousApiKey = (await getEffectiveApiKey('nous')) || process.env.NOUS_API_KEY;
+    const nousKeyId = process.env.NOUS_KEY_ID;
+    const nousApiUrl = process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
+    const nousModel = process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct';
+
+    if (nousApiKey && !nousApiKey.includes('invalid')) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
 
         const res = await fetch(nousApiUrl, {
           method: 'POST',
