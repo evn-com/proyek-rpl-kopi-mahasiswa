@@ -11,8 +11,8 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { fetchRealtimeDatabaseContext, detectMenuCategoryIntent, type RealtimeDatabaseContext } from './dbContext';
+import { getEffectiveApiKey } from './aiConfig';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const MODEL_ID = 'gemini-2.5-flash';
 
 /** Output token limit — batasi agar hemat kuota */
@@ -77,15 +77,18 @@ ATURAN:
 2. Tolak topik lain di luar domain kopi & F&B.
 3. Sertakan angka/data sains yang akurat (mg kafein, pH, suhu ekstraksi).`;
 
-// Singleton Gemini client
+// Dynamic Gemini client
 let _client: GoogleGenAI | null = null;
+let _cachedKey: string = '';
 
-function getClient(): GoogleGenAI {
-  if (!GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY belum dikonfigurasi di .env');
+async function getClient(): Promise<GoogleGenAI> {
+  const apiKey = await getEffectiveApiKey('gemini');
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY belum dikonfigurasi di Pengaturan AI maupun .env');
   }
-  if (!_client) {
-    _client = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+  if (!_client || _cachedKey !== apiKey) {
+    _client = new GoogleGenAI({ apiKey });
+    _cachedKey = apiKey;
   }
   return _client;
 }
@@ -174,7 +177,7 @@ export async function generateStream(
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
   mode: 'barista' | 'research' = 'barista'
 ): Promise<AsyncIterable<string>> {
-  const client = getClient();
+  const client = await getClient();
   const systemInstruction = mode === 'research' ? RESEARCH_SYSTEM_INSTRUCTION : BARISTA_SYSTEM_INSTRUCTION;
 
   // Pisahkan history (tanpa pesan terakhir) dan last user message
@@ -233,7 +236,7 @@ export async function generate(
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
   mode: 'barista' | 'research' = 'barista'
 ): Promise<string> {
-  const client = getClient();
+  const client = await getClient();
   const systemInstruction = mode === 'research' ? RESEARCH_SYSTEM_INSTRUCTION : BARISTA_SYSTEM_INSTRUCTION;
 
   const history = messages.slice(0, -1);
@@ -257,6 +260,7 @@ export async function generate(
 }
 
 /** Cek apakah Gemini API Key tersedia */
-export function isGeminiConfigured(): boolean {
-  return !!GEMINI_API_KEY;
+export async function isGeminiConfigured(): Promise<boolean> {
+  const key = await getEffectiveApiKey('gemini');
+  return Boolean(key && key.length >= 8);
 }

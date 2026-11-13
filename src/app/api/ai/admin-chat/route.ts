@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireRole } from '@/lib/security';
 import { prisma } from '@/lib/prisma';
 import { fetchAdminDatabaseSnapshot, generatePreciseAdminResponse } from '@/lib/ai/adminAiEngine';
+import { getEffectiveApiKey } from '@/lib/ai/aiConfig';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -356,7 +357,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Coba panggil LLM eksternal (Nous / Gemini) dengan timeout ketat 3.5 detik
-    const nousApiKey = process.env.NOUS_API_KEY;
+    const nousApiKey = (await getEffectiveApiKey('nous')) || process.env.NOUS_API_KEY;
     const nousKeyId = process.env.NOUS_KEY_ID;
     const nousApiUrl = process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
     const nousModel = process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct';

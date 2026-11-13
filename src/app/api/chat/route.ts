@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
 
   // Jalur 1: OpenAI GPT (jika aktif)
   if (activeModel === 'gpt') {
-    if (isOpenAiConfigured()) {
+    if (await isOpenAiConfigured()) {
       try {
         const stream = generateOpenAiCompatibleStream({
           modelType: 'gpt',
@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
 
   // Jalur 2: DeepSeek (jika aktif)
   if (activeModel === 'deepseek') {
-    if (isDeepSeekConfigured()) {
+    if (await isDeepSeekConfigured()) {
       try {
         const stream = generateOpenAiCompatibleStream({
           modelType: 'deepseek',
@@ -199,7 +199,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Jalur 3: Google Gemini (default atau fallback)
-  if (isGeminiConfigured()) {
+  if (await isGeminiConfigured()) {
     try {
       const stream = await generateStream(messages, chatMode);
       return createSseResponse(stream, activeModel, 'google-gemini', rateLimitResult.remaining, categoryIntent);

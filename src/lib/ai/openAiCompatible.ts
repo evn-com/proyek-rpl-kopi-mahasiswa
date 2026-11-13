@@ -7,6 +7,7 @@
 
 import { BARISTA_SYSTEM_INSTRUCTION, RESEARCH_SYSTEM_INSTRUCTION } from './geminiClient';
 import { fetchRealtimeDatabaseContext, detectMenuCategoryIntent, type RealtimeDatabaseContext } from './dbContext';
+import { getEffectiveApiKey } from './aiConfig';
 
 export interface OpenAiCompatibleOptions {
   modelType: 'gpt' | 'deepseek';
@@ -15,14 +16,18 @@ export interface OpenAiCompatibleOptions {
 }
 
 /**
- * Memeriksa apakah provider memiliki API key yang valid di environment
+ * Memeriksa apakah provider memiliki API key yang valid di DB atau environment
  */
-export function isOpenAiConfigured(): boolean {
-  return !!process.env.OPENAI_API_KEY || !!process.env.NOUS_API_KEY;
+export async function isOpenAiConfigured(): Promise<boolean> {
+  const openaiKey = await getEffectiveApiKey('openai');
+  const nousKey = await getEffectiveApiKey('nous');
+  return Boolean(openaiKey || nousKey);
 }
 
-export function isDeepSeekConfigured(): boolean {
-  return !!process.env.DEEPSEEK_API_KEY || !!process.env.NOUS_API_KEY;
+export async function isDeepSeekConfigured(): Promise<boolean> {
+  const deepseekKey = await getEffectiveApiKey('deepseek');
+  const nousKey = await getEffectiveApiKey('nous');
+  return Boolean(deepseekKey || nousKey);
 }
 
 /**
@@ -40,34 +45,40 @@ export async function* generateOpenAiCompatibleStream(
   const extraHeaders: Record<string, string> = {};
 
   if (modelType === 'gpt') {
-    if (process.env.OPENAI_API_KEY) {
+    const openaiKey = await getEffectiveApiKey('openai');
+    const nousKey = await getEffectiveApiKey('nous');
+
+    if (openaiKey) {
       apiUrl = 'https://api.openai.com/v1/chat/completions';
-      apiKey = process.env.OPENAI_API_KEY;
+      apiKey = openaiKey;
       modelName = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-    } else if (process.env.NOUS_API_KEY) {
+    } else if (nousKey) {
       apiUrl = process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
-      apiKey = process.env.NOUS_API_KEY;
+      apiKey = nousKey;
       modelName = process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct';
       if (process.env.NOUS_KEY_ID) {
         extraHeaders['X-Key-Id'] = process.env.NOUS_KEY_ID;
       }
     } else {
-      throw new Error('API key OpenAI tidak ditemukan di environment (.env).');
+      throw new Error('API key OpenAI tidak ditemukan di Pengaturan AI maupun .env.');
     }
   } else if (modelType === 'deepseek') {
-    if (process.env.DEEPSEEK_API_KEY) {
+    const deepseekKey = await getEffectiveApiKey('deepseek');
+    const nousKey = await getEffectiveApiKey('nous');
+
+    if (deepseekKey) {
       apiUrl = 'https://api.deepseek.com/chat/completions';
-      apiKey = process.env.DEEPSEEK_API_KEY;
+      apiKey = deepseekKey;
       modelName = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
-    } else if (process.env.NOUS_API_KEY) {
+    } else if (nousKey) {
       apiUrl = process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
-      apiKey = process.env.NOUS_API_KEY;
+      apiKey = nousKey;
       modelName = process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct';
       if (process.env.NOUS_KEY_ID) {
         extraHeaders['X-Key-Id'] = process.env.NOUS_KEY_ID;
       }
     } else {
-      throw new Error('API key DeepSeek tidak ditemukan di environment (.env).');
+      throw new Error('API key DeepSeek tidak ditemukan di Pengaturan AI maupun .env.');
     }
   }
 
