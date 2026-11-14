@@ -519,7 +519,7 @@ export function generatePreciseAdminResponse(
   ].some((term) => q.includes(term));
 
   if (isBotIdentityQuery) {
-    return `Saya adalah **Admin AI Assistant** di Kopi Mahasiswa ☕, asisten kecerdasan buatan yang siap membantu Anda mengelola dan memantau seluruh operasional kafe.`;
+    return `Admin AI Assistant`;
   }
 
   // 1B. IDENTITAS DIRI & PROFIL AKUN
@@ -530,7 +530,7 @@ export function generatePreciseAdminResponse(
   ].some((term) => q.includes(term));
 
   if (isProfileQuery) {
-    return `Kamu adalah **${user.name}**, login sebagai **${user.role}** Kopi Mahasiswa (${user.email || 'admin@kopimahasiswa.id'}).`;
+    return `${user.name} (${user.role})`;
   }
 
   // 2. SAPAAN & BANTUAN
@@ -600,15 +600,20 @@ export function generatePreciseAdminResponse(
     const customers = users?.customers || [];
     const customerRole = users?.byRole?.find((r: any) => r.role?.toLowerCase() === 'customer');
     const count = customerRole?.count ?? (customers.length || 5);
+    const isCountOnly = q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa');
+
+    if (isCountOnly && !q.includes('daftar') && !q.includes('list') && !q.includes('siapa')) {
+      return `${count} pelanggan`;
+    }
 
     let customerNames = '';
     if (customers.length > 0) {
       const namesList = customers
-        .map((c: any) => `**${c.name}**${c.campus ? ` (${c.campus})` : ''}`)
+        .map((c: any) => `${c.name}${c.campus ? ` (${c.campus})` : ''}`)
         .join(', ');
       customerNames = `: ${namesList}`;
     }
-    return `Saat ini terdapat **${count} pelanggan (customer)** terdaftar di database${customerNames}.`;
+    return `${count} pelanggan${customerNames}`;
   }
 
   // 4C. STATISTIK, JUMLAH & DAFTAR PENGGUNA (USERS)
@@ -618,11 +623,7 @@ export function generatePreciseAdminResponse(
       (q.includes('orang') || q.includes('akun') || q.includes('member') || q.includes('staf') || q.includes('pegawai')))
   ) {
     const totalCount = users?.total || 0;
-    const roleBreakdown = (users?.byRole || [])
-      .map((r: any) => `${r.count} ${r.role}`)
-      .join(', ');
-    const breakdownStr = roleBreakdown ? ` (${roleBreakdown})` : '';
-    return `Saat ini terdapat total **${totalCount} pengguna** terdaftar di database${breakdownStr}.`;
+    return `${totalCount} pengguna`;
   }
 
   // 4D. NAMA STAF SPESIFIK (Owner, Barista, Kasir, Admin)
@@ -639,23 +640,19 @@ export function generatePreciseAdminResponse(
   };
 
   if ((q.includes('siapa') || q.includes('nama')) && (q.includes('owner') || q.includes('pemilik'))) {
-    const ownerName = getStaffName('Owner', 'Pak Owner');
-    return `Nama Owner (Pemilik) Kopi Mahasiswa adalah **${ownerName}**.`;
+    return getStaffName('Owner', 'Pak Owner');
   }
 
   if ((q.includes('siapa') || q.includes('nama')) && (q.includes('barista') || q.includes('koki') || q.includes('dapur'))) {
-    const baristaName = getStaffName('Barista', 'Barista Budi');
-    return `Nama Barista yang bertugas di Kitchen Display System adalah **${baristaName}**.`;
+    return getStaffName('Barista', 'Barista Budi');
   }
 
   if ((q.includes('siapa') || q.includes('nama')) && (q.includes('kasir') || q.includes('cashier'))) {
-    const kasirName = getStaffName('Cashier', 'Kasir Siti');
-    return `Nama Kasir yang bertugas di meja kasir POS adalah **${kasirName}**.`;
+    return getStaffName('Cashier', 'Kasir Siti');
   }
 
   if ((q.includes('siapa') || q.includes('nama')) && q.includes('admin') && !q.includes('siapa saya') && !q.includes('siapa anda')) {
-    const adminName = getStaffName('Admin', 'Admin Mahasiswa');
-    return `Nama Administrator yang mengelola sistem operasional kafe adalah **${adminName}**.`;
+    return getStaffName('Admin', 'Admin Mahasiswa');
   }
 
   // 5. PERAN & HAK AKSES ROLE (Admin, Kasir, Barista, Owner, Customer)
@@ -666,7 +663,11 @@ export function generatePreciseAdminResponse(
   ) {
     // Jika menanyakan jumlah/total role
     if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) {
-      return `Ada total **5 role** di Kopi Mahasiswa: **Admin**, **Kasir (Cashier)**, **Barista**, **Owner**, dan **Customer (Pelanggan)**.`;
+      return `5 role`;
+    }
+
+    if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar')) {
+      return `Admin, Kasir, Barista, Owner, Customer`;
     }
 
     if (q.includes('kasir')) {
@@ -1084,21 +1085,19 @@ Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
     }
 
     // Status Stok Kritis
-    if (inventory.lowStockCount > 0) {
-      const items = inventory.lowStockItems.map(
-        (i: any) => `- ⚠️ **${i.ingredient}**: sisa **${i.currentStock} ${i.unit}** (Batas Min: ${i.minimumStock} ${i.unit} | Defisit: **-${i.shortfallAmount} ${i.unit}**)`
-      ).join('\n');
-
-      return `📦 **Ringkasan Inventaris Bahan Baku (${inventory.totalIngredients} Item Master):**
-Terdapat **${inventory.lowStockCount} bahan baku berstatus LOW STOCK:**
-
-${items}
-
-Segera lakukan pengadaan pada supplier terkait melalui menu **Bahan Baku (Stock)**.`;
+    if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) {
+      return `${inventory.lowStockCount || 0} bahan baku kritis`;
     }
 
-    return `📦 **Status Inventaris Bahan Baku:**
-Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas batas aman stok minimum. Tidak ada bahan baku yang kritis.`;
+    if (inventory.lowStockCount > 0) {
+      const items = inventory.lowStockItems.map(
+        (i: any) => `- ${i.ingredient}: sisa ${i.currentStock} ${i.unit} (Min: ${i.minimumStock} ${i.unit})`
+      ).join('\n');
+
+      return items;
+    }
+
+    return `0 bahan baku kritis`;
   }
 
   // 8. MEMBERSHIP MAHASISWA & VERIFIKASI KTM
@@ -1131,33 +1130,24 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
     q.includes('penjualan') ||
     q.includes('pemasukan') ||
     q.includes('laba') ||
-    q.includes('keuangan')
+    q.includes('keuangan') ||
+    q.includes('transaksi')
   ) {
     const isWeekly = q.includes('7 hari') || q.includes('seminggu') || q.includes('minggu') || q.includes('pekan');
     const isMonthly = q.includes('bulan') || q.includes('30 hari') || q.includes('sebulan');
 
     if (isWeekly) {
       const rev7 = orders.last7Days?.totalRevenue || 0;
-      const paid7 = orders.last7Days?.totalPaidOrders || 0;
-      const aov7 = orders.last7Days?.avgOrderValue || 0;
-      return `💰 **Laporan Omset 7 Hari Terakhir:**
-- **Total Omset Lunas**: **Rp ${rev7.toLocaleString('id-ID')}**
-- **Total Transaksi Selesai**: **${paid7} pesanan**
-- **Rata-rata Nilai Order (AOV)**: **Rp ${aov7.toLocaleString('id-ID')}**`;
+      return `Rp ${rev7.toLocaleString('id-ID')}`;
     }
 
     if (isMonthly) {
-      return `💰 **Laporan Pendapatan 30 Hari Terakhir:**
-- **Total Omset Lunas**: **Rp ${(orders.last30Days?.totalRevenue || 0).toLocaleString('id-ID')}**
-- **Total Transaksi Selesai**: **${orders.last30Days?.totalPaidOrders || 0} pesanan**
-- **Rata-rata Nilai Order (AOV)**: **Rp ${(orders.last30Days?.avgOrderValue || 0).toLocaleString('id-ID')}**`;
+      const rev30 = orders.last30Days?.totalRevenue || 0;
+      return `Rp ${rev30.toLocaleString('id-ID')}`;
     }
 
-    return `💰 **Laporan Omset & Transaksi Hari Ini:**
-- **Total Omset Lunas**: **Rp ${orders.today.revenueToday.toLocaleString('id-ID')}**
-- **Pesanan Lunas (PAID)**: **${orders.today.paidOrders} transaksi**
-- **Pesanan Menunggu / Belum Bayar**: **${orders.today.unpaidOrders} transaksi**
-- **Total Pesanan Masuk Hari Ini**: **${orders.today.totalOrders} order**`;
+    const revToday = orders.today?.revenueToday || 0;
+    return `Rp ${revToday.toLocaleString('id-ID')}`;
   }
 
   // 10. DAFTAR MENU, PRODUK & HARGA
@@ -1243,11 +1233,7 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
     }
 
     if (specificProduct) {
-      const variantStr = (specificProduct.variants && specificProduct.variants.length > 0)
-        ? `\n- Pilihan Varian: ${specificProduct.variants.join(', ')}`
-        : '';
-      const statusStr = specificProduct.isAvailable ? '✅ Tersedia' : '🔴 Sedang Habis';
-      return `☕ Harga **${specificProduct.name}** adalah **Rp ${specificProduct.basePrice.toLocaleString('id-ID')}** [${specificProduct.category} — ${statusStr}].${variantStr}`;
+      return `Rp ${specificProduct.basePrice.toLocaleString('id-ID')}`;
     }
 
     // Cek apakah menanyakan TOPPING spesifik
@@ -1260,7 +1246,7 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
     });
 
     if (specificTopping) {
-      return `Harga topping **${specificTopping.name}** adalah **Rp ${specificTopping.price.toLocaleString('id-ID')}** (${specificTopping.isAvailable ? '✅ Tersedia' : '🔴 Habis'}).`;
+      return `Rp ${specificTopping.price.toLocaleString('id-ID')}`;
     }
 
     // 10A. Jika menanyakan khusus NON-KOPI
@@ -1288,12 +1274,17 @@ Saat ini seluruh **${inventory.totalIngredients} bahan baku** berada di atas bat
     // 10C. Jika menanyakan khusus KOPI / COFFEE (misal: "ada brapa menu kopi", "daftar menu kopi", "menu kopi")
     if (
       q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi') ||
-      ((q.includes('kopi') || q.includes('coffee')) && (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('ada')))
+      ((q.includes('kopi') || q.includes('coffee')) && (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('daftar') || q.includes('ada')))
     ) {
+      const isCount = q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa');
+      const isList = q.includes('daftar') || q.includes('apa saja') || q.includes('sebutkan');
+      if (isCount && !isList) {
+        return `${coffeeProducts.length} menu kopi`;
+      }
       const list = coffeeProducts
-        .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
+        .map((p: any) => `- ${p.name} (Rp ${p.basePrice.toLocaleString('id-ID')})`)
         .join('\n');
-      return `☕ **Daftar Menu Kopi (${coffeeProducts.length} Varian):**\n\n${list}\n\n⭐ _Catatan: Menu Non-Coffee (2) dan Snack/Pastry (2) dipisahkan dan tidak termasuk dalam daftar kopi ini._`;
+      return list;
     }
 
     // 10D. Jika menanyakan SEMUA menu / katalog secara umum
@@ -1369,32 +1360,15 @@ ${promoList}`;
 
   // 13. STATUS MEJA
   if (q.includes('meja') || q.includes('kursi')) {
-    return `🪑 **Status Ketersediaan Meja Saat Ini:**
-- 🟢 **Meja Kosong (Tersedia)**: **${operations.tables.available} meja**
-- 🔴 **Meja Terisi (Occupied)**: **${operations.tables.occupied} meja**
-- 🟡 **Meja Reserved**: **${operations.tables.reserved} meja**
-- 📋 **Total Meja**: **${operations.tables.total} meja**
-
-Setiap meja terpasang QR Code untuk pemesanan mandiri pelanggan langsung ke dapur.`;
+    return `${operations.tables.available} meja kosong`;
   }
 
   // 14. PANDUAN NAVIGASI DASHBOARD ADMIN
   if (q.includes('halaman admin') || q.includes('menu admin') || q.includes('navigasi admin')) {
-    return `🧭 **Panduan Menu Admin Dashboard ('/admin'):**
-
-- 📊 **Dashboard (Overview)**: Metrik omset, pesanan terkini, peringatan stok kritis, dan audit log.
-- ☕ **Produk & Kategori**: Manajemen daftar menu, upload foto produk, harga, dan varian.
-- 🍬 **Toppings**: Pengaturan topping tambahan (Extra Shot, Boba, Oat Milk).
-- 📦 **Bahan Baku (Stock)**: Master bahan baku, satuan unit, supplier, dan stok fisik.
-- 📋 **Resep (BOM)**: Racikan takaran bahan baku per menu kopi.
-- 🔄 **Riwayat Inventaris**: Log mutasi mutlak stok (IN, OUT, ADJUSTMENT).
-- 🎟️ **Promosi & Voucher**: Pembuatan kupon diskon dan banner promosi mahasiswa.
-- 👥 **User Management & Approval**: Verifikasi KTM member mahasiswa dan manajemen staf kasir/barista.
-- 💬 **WhatsApp Inbox**: CS chatting pelanggan terhubung bot WhatsApp.
-- 🤖 **Pengaturan Model AI**: Pemilihan engine AI Barista (Google Gemini, xAI Grok, xKiro Gateway).`;
+    return `Dashboard, Produk, Toppings, Bahan Baku, Resep, Riwayat Inventaris, Promosi, User Management, Pengaturan AI`;
   }
 
   // 15. DEFAULT RESPONS INTELIGEN
-  return `Saya belum menemukan data spesifik untuk pertanyaan tersebut. Silakan tanyakan hal spesifik seputar pengguna, pesanan, omset, stok bahan baku, atau menu Kopi Mahasiswa.`;
+  return `Data tidak ditemukan. Silakan tanyakan hal spesifik seputar role, user, omset, stok, atau menu.`;
 }
 

@@ -83,7 +83,7 @@ export async function POST(req: Request) {
       .replace(/\butk\b/g, 'untuk')
       .replace(/\bpenguna\b/g, 'pengguna');
 
-    // 0. HANDLER KHUSUS PRIORITAS TINGGI (jawab langsung tanpa LLM)
+    // 0. HANDLER KHUSUS PRIORITAS TINGGI (jawab langsung tanpa LLM, hanya jawab inti pertanyaan)
 
     // 0A. Identitas Bot (siapa anda / kamu siapa)
     const isBotIdentity = ['siapa anda', 'siapa kamu', 'anda siapa', 'kamu siapa', 'siapakah anda',
@@ -91,19 +91,27 @@ export async function POST(req: Request) {
       'apakah anda ai', 'apakah kamu ai'].some((t) => q.includes(t));
     if (isBotIdentity) {
       return NextResponse.json({
-        reply: `Saya adalah **Admin AI Assistant** di Kopi Mahasiswa ☕, asisten kecerdasan buatan yang siap membantu Anda mengelola dan memantau seluruh operasional kafe.`,
+        reply: `Admin AI Assistant`,
         dataSource: 'bot-identity',
       });
     }
 
     // 0B. Jumlah / Total Role
     const isRoleCountQuery =
-      (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) &&
       (q.includes('role') || q.includes('peran') || q.includes('hak akses'));
     if (isRoleCountQuery) {
       return NextResponse.json({
-        reply: `Ada total **5 role** di Kopi Mahasiswa: **Admin**, **Kasir (Cashier)**, **Barista**, **Owner**, dan **Customer (Pelanggan)**.`,
+        reply: `5 role`,
         dataSource: 'role-count',
+      });
+    }
+
+    // Daftar role jika ditanya apa saja / sebutkan
+    if ((q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar')) && (q.includes('role') || q.includes('peran'))) {
+      return NextResponse.json({
+        reply: `Admin, Kasir, Barista, Owner, Customer`,
+        dataSource: 'role-list',
       });
     }
 
@@ -116,17 +124,9 @@ export async function POST(req: Request) {
       const customerRole = dbSnapshot?.users?.byRole?.find(
         (r: any) => r.role?.toLowerCase() === 'customer'
       );
-      const count = customerRole?.count ?? (customers.length || 5);
-
-      let customerNames = '';
-      if (customers.length > 0) {
-        const namesList = customers
-          .map((c: any) => `**${c.name}**${c.campus ? ` (${c.campus})` : ''}`)
-          .join(', ');
-        customerNames = `: ${namesList}`;
-      }
+      const count = customerRole?.count ?? (customers.length || 3);
       return NextResponse.json({
-        reply: `Saat ini terdapat **${count} pelanggan (customer)** terdaftar di database${customerNames}.`,
+        reply: `${count} pelanggan`,
         dataSource: 'customer-count',
       });
     }
@@ -137,12 +137,8 @@ export async function POST(req: Request) {
       (q.includes('pengguna') || q.includes('user') || q.includes('akun') || q.includes('staf') || q.includes('pegawai') || q.includes('orang'));
     if (isUserCountQuery) {
       const totalCount = dbSnapshot?.users?.total || 0;
-      const roleBreakdown = (dbSnapshot?.users?.byRole || [])
-        .map((r: any) => `${r.count} ${r.role}`)
-        .join(', ');
-      const breakdownStr = roleBreakdown ? ` (${roleBreakdown})` : '';
       return NextResponse.json({
-        reply: `Saat ini terdapat total **${totalCount} pengguna** terdaftar di database${breakdownStr}.`,
+        reply: `${totalCount} pengguna`,
         dataSource: 'user-count',
       });
     }
@@ -194,12 +190,8 @@ export async function POST(req: Request) {
     }
 
     if (specificProduct) {
-      const variantStr = (specificProduct.variants && specificProduct.variants.length > 0)
-        ? ` (Varian: ${specificProduct.variants.join(', ')})`
-        : '';
-      const statusStr = specificProduct.isAvailable ? '✅ Tersedia' : '🔴 Sedang Habis';
       return NextResponse.json({
-        reply: `Harga **${specificProduct.name}** adalah **Rp ${specificProduct.basePrice.toLocaleString('id-ID')}** [${specificProduct.category} — ${statusStr}]${variantStr}.`,
+        reply: `Rp ${specificProduct.basePrice.toLocaleString('id-ID')}`,
         dataSource: 'product-price',
       });
     }
@@ -214,15 +206,15 @@ export async function POST(req: Request) {
     });
     if (specificTopping) {
       return NextResponse.json({
-        reply: `Harga topping **${specificTopping.name}** adalah **Rp ${specificTopping.price.toLocaleString('id-ID')}** (${specificTopping.isAvailable ? '✅ Tersedia' : '🔴 Habis'}).`,
+        reply: `Rp ${specificTopping.price.toLocaleString('id-ID')}`,
         dataSource: 'topping-price',
       });
     }
 
-    // 0E. Menu Kopi / Jumlah Menu Kopi (Hanya Kopi, bukan non-kopi atau cemilan)
+    // 0E. Menu Kopi / Jumlah Menu Kopi
     const isCoffeeMenuQuery =
       (q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi')) ||
-      ((q.includes('berapa') || q.includes('jumlah') || q.includes('total')) && (q.includes('kopi') || q.includes('coffee')));
+      ((q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) && (q.includes('kopi') || q.includes('coffee')));
     if (isCoffeeMenuQuery) {
       const allProducts = dbSnapshot?.catalog?.products?.list || [];
       const coffeeProducts = allProducts.filter((p: any) => {
@@ -241,11 +233,21 @@ export async function POST(req: Request) {
         );
       });
       const count = coffeeProducts.length || 7;
+      const isAskingCount = q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa');
+      const isAskingList = q.includes('daftar') || q.includes('apa saja') || q.includes('sebutkan') || q.includes('katalog');
+
+      if (isAskingCount && !isAskingList) {
+        return NextResponse.json({
+          reply: `${count} menu kopi`,
+          dataSource: 'coffee-menu-count',
+        });
+      }
+
       const list = coffeeProducts
-        .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
+        .map((p: any) => `- ${p.name} (Rp ${p.basePrice.toLocaleString('id-ID')})`)
         .join('\n');
       return NextResponse.json({
-        reply: `Saat ini terdapat **${count} varian menu kopi** di Kopi Mahasiswa:\n\n${list}\n\n⭐ _Catatan: Menu Non-Coffee dan Snack/Cemilan dipisahkan dan tidak masuk dalam kategori kopi._`,
+        reply: list,
         dataSource: 'coffee-menu',
       });
     }
@@ -270,7 +272,7 @@ export async function POST(req: Request) {
     ) {
       const ownerName = getStaffName('Owner', 'Pak Owner');
       return NextResponse.json({
-        reply: `Nama Owner (Pemilik) Kopi Mahasiswa adalah **${ownerName}**.`,
+        reply: ownerName,
         dataSource: 'staff-info',
       });
     }
@@ -282,7 +284,7 @@ export async function POST(req: Request) {
     ) {
       const baristaName = getStaffName('Barista', 'Barista Budi');
       return NextResponse.json({
-        reply: `Nama Barista yang bertugas di Kitchen Display System adalah **${baristaName}**.`,
+        reply: baristaName,
         dataSource: 'staff-info',
       });
     }
@@ -294,7 +296,7 @@ export async function POST(req: Request) {
     ) {
       const kasirName = getStaffName('Cashier', 'Kasir Siti');
       return NextResponse.json({
-        reply: `Nama Kasir yang bertugas di meja kasir POS adalah **${kasirName}**.`,
+        reply: kasirName,
         dataSource: 'staff-info',
       });
     }
@@ -307,7 +309,7 @@ export async function POST(req: Request) {
     ) {
       const adminName = getStaffName('Admin', 'Admin Mahasiswa');
       return NextResponse.json({
-        reply: `Nama Administrator yang mengelola sistem operasional kafe adalah **${adminName}**.`,
+        reply: adminName,
         dataSource: 'staff-info',
       });
     }
@@ -332,31 +334,56 @@ export async function POST(req: Request) {
 
       if (isWeekly) {
         const rev7 = orders.last7Days?.totalRevenue || 0;
-        const paid7 = orders.last7Days?.totalPaidOrders || 0;
-        const aov7 = orders.last7Days?.avgOrderValue || 0;
         return NextResponse.json({
-          reply: `💰 **Laporan Omset 7 Hari Terakhir:**\n\n- **Total Omset Lunas**: **Rp ${rev7.toLocaleString('id-ID')}**\n- **Total Transaksi Selesai**: **${paid7} pesanan**\n- **Rata-rata Nilai Order (AOV)**: **Rp ${aov7.toLocaleString('id-ID')}**`,
+          reply: `Rp ${rev7.toLocaleString('id-ID')}`,
           dataSource: 'omset-weekly',
         });
       }
 
       if (isMonthly) {
         const rev30 = orders.last30Days?.totalRevenue || 0;
-        const paid30 = orders.last30Days?.totalPaidOrders || 0;
-        const aov30 = orders.last30Days?.avgOrderValue || 0;
         return NextResponse.json({
-          reply: `💰 **Laporan Pendapatan 30 Hari Terakhir:**\n\n- **Total Omset Lunas**: **Rp ${rev30.toLocaleString('id-ID')}**\n- **Total Transaksi Selesai**: **${paid30} pesanan**\n- **Rata-rata Nilai Order (AOV)**: **Rp ${aov30.toLocaleString('id-ID')}**`,
+          reply: `Rp ${rev30.toLocaleString('id-ID')}`,
           dataSource: 'omset-monthly',
         });
       }
 
       const revToday = orders.today?.revenueToday || 0;
-      const paidToday = orders.today?.paidOrders || 0;
-      const unpaidToday = orders.today?.unpaidOrders || 0;
-      const totalToday = orders.today?.totalOrders || 0;
       return NextResponse.json({
-        reply: `💰 **Laporan Omset & Transaksi Hari Ini:**\n\n- **Total Omset Lunas**: **Rp ${revToday.toLocaleString('id-ID')}**\n- **Pesanan Lunas (PAID)**: **${paidToday} transaksi**\n- **Pesanan Menunggu / Belum Bayar**: **${unpaidToday} transaksi**\n- **Total Pesanan Masuk Hari Ini**: **${totalToday} order**`,
+        reply: `Rp ${revToday.toLocaleString('id-ID')}`,
         dataSource: 'omset-today',
+      });
+    }
+
+    // 0H. Meja Kosong
+    if (q.includes('meja') && (q.includes('berapa') || q.includes('jumlah') || q.includes('kosong') || q.includes('tersedia') || q.includes('ada berapa'))) {
+      const avail = dbSnapshot?.operations?.tables?.available ?? 14;
+      return NextResponse.json({
+        reply: `${avail} meja kosong`,
+        dataSource: 'table-count',
+      });
+    }
+
+    // 0I. Stok Kritis
+    if (q.includes('stok') && (q.includes('kritis') || q.includes('habis') || q.includes('kurang') || q.includes('menipis'))) {
+      const lowCount = dbSnapshot?.inventory?.lowStockCount ?? 0;
+      const lowItems = dbSnapshot?.inventory?.lowStockItems || [];
+      if (q.includes('berapa') || q.includes('jumlah') || q.includes('ada berapa')) {
+        return NextResponse.json({
+          reply: `${lowCount} bahan baku kritis`,
+          dataSource: 'low-stock-count',
+        });
+      }
+      if (lowItems.length > 0) {
+        const itemsList = lowItems.map((i: any) => `- ${i.ingredient}: sisa ${i.currentStock} ${i.unit}`).join('\n');
+        return NextResponse.json({
+          reply: itemsList,
+          dataSource: 'low-stock-list',
+        });
+      }
+      return NextResponse.json({
+        reply: `Tidak ada stok kritis`,
+        dataSource: 'low-stock-empty',
       });
     }
 
@@ -387,20 +414,20 @@ export async function POST(req: Request) {
     ];
     const isStoreDataQuery = storeDataKeywords.some((k) => q.includes(k));
 
-    // A. JIKA PERTANYAAN PROFIL USER (Tanpa minta data toko): Jawab langsung identitas user tanpa dump database
+    // A. JIKA PERTANYAAN PROFIL USER: Jawab singkat nama & role
     if (isProfileQuery && !isStoreDataQuery) {
-      const campusStr = currentUser.campus ? ` (Asal Kampus: **${currentUser.campus}**)` : '';
-      const pointsStr = currentUser.points ? ` dengan saldo **${currentUser.points} Poin**` : '';
-      const reply = `Kamu adalah **${currentUser.name}**, login sebagai **${currentUser.role}** Kopi Mahasiswa${campusStr}${pointsStr}.\n\nSebagai **${currentUser.role}**, kamu memiliki hak akses ke sistem manajemen operasional kafe. Ada data toko atau laporan operasional yang ingin kamu pantau? Silakan tanyakan hal spesifik seperti _"Berapa omset hari ini?"_, _"Berapa jumlah user?"_, atau _"Ada stok kritis?"_.`;
-      return NextResponse.json({ reply, dataSource: 'user-profile' });
+      return NextResponse.json({
+        reply: `${currentUser.name} (${currentUser.role})`,
+        dataSource: 'user-profile',
+      });
     }
 
-    // B. JIKA SAPAAN UMUM: Jawab ramah dengan nama dan role tanpa dump database
+    // B. JIKA SAPAAN UMUM: Jawab singkat
     if (isGreeting && !isStoreDataQuery) {
-      const hour = new Date().getHours();
-      const timeGreeting = hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 18 ? 'Selamat sore' : 'Selamat malam';
-      const reply = `Halo **${currentUser.name}**! 👋 ${timeGreeting}.\n\nKamu sedang login sebagai **${currentUser.role}** Kopi Mahasiswa. Ada yang bisa saya bantu pantau terkait data operasional toko hari ini? Kamu bisa menanyakan data seperti **omset hari ini**, **stok kritis**, **jumlah user**, atau **voucher aktif**.`;
-      return NextResponse.json({ reply, dataSource: 'greeting' });
+      return NextResponse.json({
+        reply: `Halo ${currentUser.name}! Ada yang ingin dicek?`,
+        dataSource: 'greeting',
+      });
     }
 
     // C. HANYA lakukan RAG Context Injection snapshot database jika user secara eksplisit menanyakan data operasional / statistik toko
@@ -409,7 +436,7 @@ export async function POST(req: Request) {
       ragContext = `\n\n[SNAPSHOT OPERASIONAL DATABASE REAL-TIME]:\n${JSON.stringify(dbSnapshot)}`;
     }
 
-    // 1. Coba panggil LLM eksternal sesuai model aktif di Pengaturan AI (Gemini / Grok)
+    // 1. Coba panggil LLM eksternal sesuai model aktif di Pengaturan AI (Gemini / Grok / xKiro)
     let activeModel = 'gemini';
     try {
       const activeSetting = await (prisma as any).setting?.findUnique({
@@ -423,25 +450,18 @@ export async function POST(req: Request) {
       .slice(-6);
 
     const systemPrompt = `Kamu adalah Admin AI Assistant untuk sistem manajemen Kopi Mahasiswa ☕.
-Informasi Akun Pengguna yang Sedang Login:
-- Nama: ${currentUser.name}
-- Role: ${currentUser.role}
-${currentUser.campus ? `- Asal Kampus: ${currentUser.campus}` : ''}
-${currentUser.points ? `- Saldo Poin: ${currentUser.points} Poin` : ''}
+Informasi Akun Pengguna: Nama: ${currentUser.name}, Role: ${currentUser.role}
 
-PANDUAN MENJAWAB & GUARDRAILS:
-1. JIKA PENGGUNA MENANYAKAN PROFIL/IDENTITAS DIRI (misal: "siapa saya", "siapa aku", "profil saya", "role saya", "nama saya"):
-   - Jawab langsung dengan ramah memberitahukan identitasnya berdasarkan data akun di atas:
-     "Kamu adalah ${currentUser.name}, login sebagai ${currentUser.role} Kopi Mahasiswa."
-   - JANGAN PERNAH menyertakan data omset, stok, atau ringkasan tabel database jika user hanya menanyakan profil dirinya!
-
-2. JIKA PENGGUNA MENYAPA (misal: "halo", "hai", "selamat pagi", "apa kabar"):
-   - Sapa dengan ramah, sebutkan nama ${currentUser.name}, dan tanyakan data operasional apa yang ingin dicek.
-   - Jangan langsung membeberkan statistik toko jika tidak diminta.
-
-3. JIKA PENGGUNA MENANYAKAN DATA TOKO / STATISTIK OPERASIONAL (hanya jika diminta eksplisit):
-   - Jika pengguna menanyakan data bisnis (misal: "omset", "stok kritis", "jumlah user", "daftar menu", "meja kosong", "voucher"):
-     Gunakan data snapshot database berikut secara akurat dan spesifik:${ragContext}`;
+🚨 ATURAN UTAMA JAWABAN (ULTRA-CONCISE & TO-THE-POINT):
+1. Jawab HANYA apa yang ditanyakan secara singkat, padat, dan langsung ke intinya tanpa kalimat pembuka, basa-basi, atau penutup.
+2. Jika pengguna menanyakan JUMLAH, ANGKA, atau NOMINAL (misal: "ada berapa jumlah role", "berapa user", "berapa omset", "berapa harga"):
+   - Berikan HANYA angkanya saja atau nominalnya saja (Contoh: "5 role", "7 pengguna", "Rp 384.000").
+   - JANGAN PERNAH membeberkan rincian, daftar nama, atau penjelasan tambahan yang tidak diminta!
+3. Jika pengguna menanyakan NAMA (misal: "siapa owner", "siapa barista"):
+   - Berikan HANYA namanya saja (Contoh: "Pak Owner").
+4. Jika pengguna menanyakan DAFTAR/LIST (misal: "apa saja role", "sebutkan role", "daftar menu"):
+   - Baru berikan daftarnya secara ringkas tanpa kalimat pengantar atau penutup.
+5. Dilarang menambahkan kata-kata seperti "Ada total...", "Berdasarkan data...", "Saat ini terdapat...", dll.`;
 
     // Jalur A: Gemini (jika aktif atau fallback)
     const geminiApiKey = (await getEffectiveApiKey('gemini')) || process.env.GEMINI_API_KEY;
