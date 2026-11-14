@@ -5,10 +5,10 @@ import { GoogleGenAI } from '@google/genai';
 
 export const dynamic = 'force-dynamic';
 
-const VALID_MODELS = ['gemini', 'grok'] as const;
+const VALID_MODELS = ['gemini', 'grok', 'xkiro'] as const;
 type AIModel = (typeof VALID_MODELS)[number];
 
-type ApiKeyProvider = 'gemini' | 'grok';
+type ApiKeyProvider = 'gemini' | 'grok' | 'xkiro';
 
 /** Ambil API key dari DB (override), fallback ke env */
 async function getApiKeyFromDb(provider: ApiKeyProvider): Promise<{ value: string | null; updatedAt: string | null }> {
@@ -144,6 +144,57 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
       throw lastErr || new Error('Gagal menghubungi model xAI Grok.');
     }
 
+    if (model === 'xkiro') {
+      const dbKey = (await getApiKeyFromDb('xkiro')).value;
+      const apiKey = customKey || dbKey || process.env.XKIRO_API_KEY || process.env.NOUS_API_KEY || '';
+      if (!apiKey) throw new Error('API Key xKiro belum diatur.');
+
+      const candidateModels = [
+        process.env.XKIRO_MODEL || process.env.NOUS_MODEL || 'mistralai/mistral-small-24b3',
+        'cohere/command-a-plus',
+        'meta-llama/llama-3.1-8b-instruct',
+      ];
+
+      const apiUrl = process.env.XKIRO_API_URL || process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
+      const keyId = process.env.XKIRO_KEY_ID || process.env.NOUS_KEY_ID;
+
+      let lastErr: any = null;
+      for (const mId of candidateModels) {
+        try {
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout 8s')), 8000)
+          );
+
+          const testCall = (async () => {
+            const res = await fetch(apiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
+                ...(keyId ? { 'X-Key-Id': keyId } : {}),
+              },
+              body: JSON.stringify({
+                model: mId,
+                messages: [{ role: 'user', content: 'ping' }],
+                max_tokens: 5,
+              }),
+            });
+            if (!res.ok) {
+              const err = await res.text();
+              throw new Error(`xKiro HTTP ${res.status}: ${err.slice(0, 100)}`);
+            }
+          })();
+
+          await Promise.race([testCall, timeoutPromise]);
+          return { success: true, latencyMs: Date.now() - start };
+        } catch (err: any) {
+          lastErr = err;
+          console.warn(`[xKiro Test] Model ${mId} failed:`, err?.message);
+        }
+      }
+      throw lastErr || new Error('Gagal menghubungi model xKiro.');
+    }
+
     throw new Error('Model tidak didukung untuk tes.');
   } catch (err: any) {
     return { success: false, latencyMs: Date.now() - start, error: err.message || 'Koneksi gagal.' };
@@ -152,7 +203,7 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
 
 /**
  * GET /api/settings/ai
- * Mengambil model AI aktif, status API key provider (Gemini & Grok), dan hasil tes terkini.
+ * Mengambil model AI aktif, status API key provider (Gemini, Grok, xKiro), dan hasil tes terkini.
  */
 export async function GET(req: Request) {
   try {
@@ -169,18 +220,21 @@ export async function GET(req: Request) {
     }
 
     // Ambil API key dari DB (override) atau env
-    const [dbGemini, dbGrok] = await Promise.all([
+    const [dbGemini, dbGrok, dbXKiro] = await Promise.all([
       getApiKeyFromDb('gemini'),
       getApiKeyFromDb('grok'),
+      getApiKeyFromDb('xkiro'),
     ]);
 
     const geminiKey = dbGemini.value || process.env.GEMINI_API_KEY || '';
     const grokKey = dbGrok.value || process.env.GROK_API_KEY || process.env.XAI_API_KEY || '';
+    const xkiroKey = dbXKiro.value || process.env.XKIRO_API_KEY || process.env.NOUS_API_KEY || '';
 
     // Ambil riwayat tes latency
-    const [testGemini, testGrok] = await Promise.all([
+    const [testGemini, testGrok, testXKiro] = await Promise.all([
       getModelTestResult('gemini'),
       getModelTestResult('grok'),
+      getModelTestResult('xkiro'),
     ]);
 
     return NextResponse.json({
@@ -204,6 +258,15 @@ export async function GET(req: Request) {
           rawKey: grokKey || '',
           source: dbGrok.value ? 'database' : ((process.env.GROK_API_KEY || process.env.XAI_API_KEY) ? 'environment' : 'none'),
           updatedAt: dbGrok.updatedAt || ((process.env.GROK_API_KEY || process.env.XAI_API_KEY) ? 'Environment (.env)' : null),
+        },
+        xkiro: {
+          provider: 'xkiro',
+          label: 'xKiro Gateway',
+          isConfigured: !!xkiroKey,
+          maskedKey: maskApiKey(xkiroKey),
+          rawKey: xkiroKey || '',
+          source: dbXKiro.value ? 'database' : ((process.env.XKIRO_API_KEY || process.env.NOUS_API_KEY) ? 'environment' : 'none'),
+          updatedAt: dbXKiro.updatedAt || ((process.env.XKIRO_API_KEY || process.env.NOUS_API_KEY) ? 'Environment (.env)' : null),
         },
       },
       availableModels: [
@@ -235,6 +298,20 @@ export async function GET(req: Request) {
           latencyMs: testGrok.latencyMs,
           testStatus: testGrok.status,
         },
+        {
+          id: 'xkiro',
+          name: 'xKiro Gateway',
+          subName: 'Mistral Small 4 / Command A+',
+          modelId: process.env.XKIRO_MODEL || process.env.NOUS_MODEL || 'mistralai/mistral-small-24b3',
+          providerKey: 'xkiro',
+          contextWindow: '256.000 token',
+          tag: 'Open Weights Gateway',
+          description: 'Gateway inference cerdas multi-model (Mistral Small, Command A+) dengan komputasi efisien.',
+          isConfigured: !!xkiroKey,
+          lastTested: testXKiro.lastTested,
+          latencyMs: testXKiro.latencyMs,
+          testStatus: testXKiro.status,
+        },
       ],
     });
   } catch (err: any) {
@@ -249,10 +326,10 @@ export async function GET(req: Request) {
 /**
  * POST /api/settings/ai
  * Menangani:
- * 1. Aktivasi Model: { model: 'gemini' | 'grok' }
- * 2. Simpan API Key: { provider: 'gemini' | 'grok', apiKey: '...' }
- * 3. Reset API Key: { provider: 'gemini' | 'grok', reset: true }
- * 4. Uji Model: { action: 'test_model', model: 'gemini' | 'grok' }
+ * 1. Aktivasi Model: { model: 'gemini' | 'grok' | 'xkiro' }
+ * 2. Simpan API Key: { provider: 'gemini' | 'grok' | 'xkiro', apiKey: '...' }
+ * 3. Reset API Key: { provider: 'gemini' | 'grok' | 'xkiro', reset: true }
+ * 4. Uji Model: { action: 'test_model', model: 'gemini' | 'grok' | 'xkiro' }
  */
 export async function POST(req: Request) {
   try {
@@ -272,7 +349,7 @@ export async function POST(req: Request) {
     if (body.action === 'test_model') {
       const { model } = body;
       if (!model || !VALID_MODELS.includes(model as AIModel)) {
-        return NextResponse.json({ success: false, error: 'Model tidak valid untuk diuji. Pilihan: gemini, grok.' }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Model tidak valid untuk diuji. Pilihan: gemini, grok, xkiro.' }, { status: 400 });
       }
 
       const testResult = await testModelConnection(model as AIModel);
@@ -345,9 +422,9 @@ export async function POST(req: Request) {
     // ─── 3. UPDATE / RESET API KEY ────────────────────────────────────────────
     if (body.provider !== undefined) {
       const { provider, apiKey, reset } = body;
-      const validProviders: ApiKeyProvider[] = ['gemini', 'grok'];
+      const validProviders: ApiKeyProvider[] = ['gemini', 'grok', 'xkiro'];
       if (!validProviders.includes(provider)) {
-        return NextResponse.json({ success: false, error: 'Provider tidak valid. Pilihan: gemini, grok.' }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Provider tidak valid. Pilihan: gemini, grok, xkiro.' }, { status: 400 });
       }
 
       if (!settingDelegate) {

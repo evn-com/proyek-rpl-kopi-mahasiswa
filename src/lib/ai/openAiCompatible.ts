@@ -10,7 +10,7 @@ import { fetchRealtimeDatabaseContext, detectMenuCategoryIntent, type RealtimeDa
 import { getEffectiveApiKey } from './aiConfig';
 
 export interface OpenAiCompatibleOptions {
-  modelType: 'grok';
+  modelType: 'grok' | 'xkiro';
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;
   mode?: 'barista' | 'research';
 }
@@ -24,7 +24,15 @@ export async function isGrokConfigured(): Promise<boolean> {
 }
 
 /**
- * Generator streaming yang memanggil endpoint xAI Grok
+ * Memeriksa apakah provider xKiro memiliki API key yang valid di DB atau environment
+ */
+export async function isXKiroConfigured(): Promise<boolean> {
+  const xkiroKey = await getEffectiveApiKey('xkiro');
+  return Boolean(xkiroKey && xkiroKey.length >= 8);
+}
+
+/**
+ * Generator streaming yang memanggil endpoint xAI Grok / xKiro
  * dan mengembalikan teks chunk-by-chunk.
  */
 export async function* generateOpenAiCompatibleStream(
@@ -35,6 +43,7 @@ export async function* generateOpenAiCompatibleStream(
   let apiUrl = '';
   let apiKey = '';
   let modelName = '';
+  const extraHeaders: Record<string, string> = {};
 
   if (modelType === 'grok') {
     const grokKey = await getEffectiveApiKey('grok');
@@ -44,6 +53,18 @@ export async function* generateOpenAiCompatibleStream(
     apiUrl = 'https://api.x.ai/v1/chat/completions';
     apiKey = grokKey;
     modelName = process.env.GROK_MODEL || 'grok-2-latest';
+  } else if (modelType === 'xkiro') {
+    const xkiroKey = await getEffectiveApiKey('xkiro');
+    if (!xkiroKey) {
+      throw new Error('API key xKiro tidak ditemukan di Pengaturan AI maupun .env.');
+    }
+    apiUrl = process.env.XKIRO_API_URL || process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
+    apiKey = xkiroKey;
+    modelName = process.env.XKIRO_MODEL || process.env.NOUS_MODEL || 'mistralai/mistral-small-24b3';
+    const keyId = process.env.XKIRO_KEY_ID || process.env.NOUS_KEY_ID;
+    if (keyId) {
+      extraHeaders['X-Key-Id'] = keyId;
+    }
   } else {
     throw new Error(`Model type ${modelType} tidak didukung.`);
   }
@@ -108,6 +129,7 @@ Pembayaran: QRIS, E-Wallet & Kasir`;
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
+      ...extraHeaders,
     },
     body: JSON.stringify({
       model: modelName,

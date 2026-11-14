@@ -20,6 +20,7 @@ import { generateStream, isGeminiConfigured } from '@/lib/ai/geminiClient';
 import {
   generateOpenAiCompatibleStream,
   isGrokConfigured,
+  isXKiroConfigured,
 } from '@/lib/ai/openAiCompatible';
 import { aiService } from '@/lib/ai/aiService';
 import { detectMenuCategoryIntent } from '@/lib/ai/dbContext';
@@ -163,7 +164,7 @@ export async function POST(req: NextRequest) {
   const categoryIntent = detectMenuCategoryIntent(lastUserMsg);
   const chatMode = (mode === 'research' ? 'research' : 'barista') as 'barista' | 'research';
 
-  // ── 6. Routing Eksekusi Berdasarkan Model Aktif (Gemini / Grok) ──
+  // ── 6. Routing Eksekusi Berdasarkan Model Aktif (Gemini / Grok / xKiro) ──
   // Jalur 1: xAI Grok (jika aktif)
   if (activeModel === 'grok') {
     if (await isGrokConfigured()) {
@@ -180,7 +181,23 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Jalur 2: Google Gemini (default atau fallback)
+  // Jalur 2: xKiro Gateway (jika aktif)
+  if (activeModel === 'xkiro') {
+    if (await isXKiroConfigured()) {
+      try {
+        const stream = generateOpenAiCompatibleStream({
+          modelType: 'xkiro',
+          messages,
+          mode: chatMode,
+        });
+        return createSseResponse(stream, activeModel, 'xkiro-gateway', rateLimitResult.remaining, categoryIntent);
+      } catch (xkiroErr) {
+        console.error('[xKiro Gateway] Error, falling back to Gemini/Heuristic:', xkiroErr);
+      }
+    }
+  }
+
+  // Jalur 3: Google Gemini (default atau fallback)
   if (await isGeminiConfigured()) {
     try {
       const stream = await generateStream(messages, chatMode);

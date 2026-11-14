@@ -523,6 +523,46 @@ PANDUAN MENJAWAB & GUARDRAILS:
       }
     }
 
+    // Jalur C: xKiro Gateway (jika aktif)
+    const xkiroApiKey = (await getEffectiveApiKey('xkiro')) || process.env.XKIRO_API_KEY || process.env.NOUS_API_KEY;
+    if (activeModel === 'xkiro' && xkiroApiKey) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+        const apiUrl = process.env.XKIRO_API_URL || process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
+        const keyId = process.env.XKIRO_KEY_ID || process.env.NOUS_KEY_ID;
+
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${xkiroApiKey}`,
+            'Content-Type': 'application/json',
+            ...(keyId ? { 'X-Key-Id': keyId } : {}),
+          },
+          body: JSON.stringify({
+            model: process.env.XKIRO_MODEL || process.env.NOUS_MODEL || 'mistralai/mistral-small-24b3',
+            messages: [{ role: 'system', content: systemPrompt }, ...cleanHistory],
+            temperature: 0.3,
+            max_tokens: 600,
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          const reply = data?.choices?.[0]?.message?.content;
+          if (reply && reply.trim()) {
+            return NextResponse.json({ reply, dataSource: 'xkiro-live-db' });
+          }
+        }
+      } catch (err) {
+        // Fallback ke semantic answering engine
+      }
+    }
+
     // 2. Semantic Question-Answering Engine yang presisi menjawab pertanyaan spesifik
     const reply = generatePreciseAdminResponse(lastUserMsg, dbSnapshot, currentUser);
     return NextResponse.json({ reply, dataSource: 'live-db-analyzer' });

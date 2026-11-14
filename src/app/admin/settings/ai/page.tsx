@@ -40,11 +40,11 @@ interface ApiKeyDetail {
 }
 
 interface ModelItem {
-  id: 'gemini' | 'grok';
+  id: 'gemini' | 'grok' | 'xkiro';
   name: string;
   subName: string;
   modelId: string;
-  providerKey: 'gemini' | 'grok';
+  providerKey: 'gemini' | 'grok' | 'xkiro';
   contextWindow: string;
   tag: string;
   description: string;
@@ -54,7 +54,7 @@ interface ModelItem {
   testStatus: string | null;
 }
 
-type ProviderKey = 'gemini' | 'grok';
+type ProviderKey = 'gemini' | 'grok' | 'xkiro';
 
 export default function AdminAISettingsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -64,6 +64,7 @@ export default function AdminAISettingsPage() {
   const [apiKeys, setApiKeys] = useState<Record<ProviderKey, ApiKeyDetail>>({
     gemini: { provider: 'gemini', label: 'Google Gemini', isConfigured: false, maskedKey: '', source: 'none', updatedAt: null },
     grok: { provider: 'grok', label: 'xAI Grok', isConfigured: false, maskedKey: '', source: 'none', updatedAt: null },
+    xkiro: { provider: 'xkiro', label: 'xKiro Gateway', isConfigured: false, maskedKey: '', source: 'none', updatedAt: null },
   });
 
   // Selected provider for the API Key editing panel
@@ -288,6 +289,8 @@ export default function AdminAISettingsPage() {
         return <Sparkles className="w-4 h-4 text-amber-400" />;
       case 'grok':
         return <Zap className="w-4 h-4 text-cyan-400" />;
+      case 'xkiro':
+        return <Cpu className="w-4 h-4 text-emerald-400" />;
     }
   };
 
@@ -349,7 +352,9 @@ export default function AdminAISettingsPage() {
                 <p className="text-sm font-extrabold text-white">
                   {activeModel === 'gemini'
                     ? 'Google Gemini Flash'
-                    : 'xAI Grok 2'}
+                    : activeModel === 'grok'
+                    ? 'xAI Grok 2'
+                    : 'xKiro Gateway'}
                 </p>
               </div>
             </div>
@@ -371,7 +376,7 @@ export default function AdminAISettingsPage() {
 
             {/* Provider Tabs */}
             <div className="flex flex-wrap gap-2">
-              {(['gemini', 'grok'] as ProviderKey[]).map((prov) => {
+              {(['gemini', 'grok', 'xkiro'] as ProviderKey[]).map((prov) => {
                 const info = apiKeys[prov];
                 const isSelected = selectedProvider === prov;
                 return (
@@ -692,7 +697,7 @@ export default function AdminAISettingsPage() {
 
               {/* Bottom Note */}
               <p className="text-[11px] text-slate-400 leading-relaxed pt-2">
-                Pergantian model hanya mengubah Model Chatbot (Google Gemini &amp; xAI Grok). System prompt, persona barista, konteks role,
+                Pergantian model hanya mengubah Model Chatbot (Google Gemini, xAI Grok, xKiro Gateway). System prompt, persona barista, konteks role,
                 riwayat percakapan, dan data operasional kafe tetap terjaga konsisten.
               </p>
             </div>

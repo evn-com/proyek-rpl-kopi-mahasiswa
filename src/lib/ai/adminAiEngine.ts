@@ -707,7 +707,7 @@ export function generatePreciseAdminResponse(
 
 Website ini dilengkapi asisten kecerdasan buatan (*AI Barista Assistant*) yang dapat diganti sewaktu-waktu oleh Admin di menu **Pengaturan Model AI** ('/admin/settings/ai').
 
-📌 **2 Pilihan Model AI yang Didukung:**
+📌 **3 Pilihan Model AI yang Didukung:**
 1. ⚡ **Google Gemini Flash (Rekomendasi Utama)**:
    - Kecepatan respon ultra-cepat (<500ms latency), hemat kuota.
    - Terintegrasi native SDK Google GenAI (@google/genai).
@@ -716,6 +716,10 @@ Website ini dilengkapi asisten kecerdasan buatan (*AI Barista Assistant*) yang d
 2. 🚀 **xAI Grok (Grok 2 / Grok Beta)**:
    - Model cerdas dari xAI dengan penalaran cepat dan pemahaman percakapan mutakhir.
    - Gaya interaksi responsif, tajam, dan up-to-date.
+
+3. 🛡️ **xKiro Gateway (Mistral Small / Command A+)**:
+   - Gateway multi-model open-weights dengan penalaran efisien dan hemat komputasi.
+   - Mendukung model Mistral Small 4 dan Cohere Command A+.
 
 🔒 **Hak Akses Pengaturan:** Hanya **Admin** dan **Owner** yang berhak mengganti model AI aktif.`;
   }
@@ -1387,7 +1391,7 @@ Setiap meja terpasang QR Code untuk pemesanan mandiri pelanggan langsung ke dapu
 - 🎟️ **Promosi & Voucher**: Pembuatan kupon diskon dan banner promosi mahasiswa.
 - 👥 **User Management & Approval**: Verifikasi KTM member mahasiswa dan manajemen staf kasir/barista.
 - 💬 **WhatsApp Inbox**: CS chatting pelanggan terhubung bot WhatsApp.
-- 🤖 **Pengaturan Model AI**: Pemilihan engine AI Barista (Google Gemini & xAI Grok).`;
+- 🤖 **Pengaturan Model AI**: Pemilihan engine AI Barista (Google Gemini, xAI Grok, xKiro Gateway).`;
   }
 
   // 15. DEFAULT RESPONS INTELIGEN
