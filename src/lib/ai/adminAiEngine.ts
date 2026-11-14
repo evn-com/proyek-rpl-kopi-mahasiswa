@@ -592,7 +592,11 @@ export function generatePreciseAdminResponse(
     .replace(/\byg\b/g, 'yang')
     .replace(/\bdgn\b/g, 'dengan')
     .replace(/\butk\b/g, 'untuk')
-    .replace(/\bpenguna\b/g, 'pengguna');
+    .replace(/\bpenguna\b/g, 'pengguna')
+    .replace(/\btoping\b/g, 'topping')
+    .replace(/\bkatagori\b/g, 'kategori')
+    .replace(/\bvoucer\b/g, 'voucher')
+    .replace(/\bvocer\b/g, 'voucher');
 
   const q = normalizedQuery;
   const { users, operations, catalog, inventory, orders, marketing, system } = db;
@@ -1388,17 +1392,36 @@ Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
       return `Rp ${specificProduct.basePrice.toLocaleString('id-ID')}`;
     }
 
-    // Cek apakah menanyakan TOPPING spesifik
+    // Cek apakah menanyakan TOPPING (jumlah, daftar, harga spesifik)
     const allToppings = catalog?.toppings || [];
-    const specificTopping = allToppings.find((t: any) => {
-      const tName = t.name.toLowerCase();
-      if (q.includes(tName)) return true;
-      const firstWord = tName.split(' ')[0];
-      return tName.length > 4 && q.includes(firstWord) && (q.includes('harga') || q.includes('berapa'));
-    });
+    if (q.includes('topping') || q.includes('toping')) {
+      if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('jenis')) {
+        return `${allToppings.length} jenis topping`;
+      }
+      if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list') || q.includes('katalog')) {
+        return allToppings.map((t: any) => t.name).join(', ');
+      }
+      const specificTopping = allToppings.find((t: any) => {
+        const tName = t.name.toLowerCase();
+        if (q.includes(tName)) return true;
+        const firstWord = tName.split(' ')[0];
+        return tName.length > 4 && q.includes(firstWord) && (q.includes('harga') || q.includes('berapa'));
+      });
+      if (specificTopping) {
+        return `Rp ${specificTopping.price.toLocaleString('id-ID')}`;
+      }
+      return `${allToppings.length} jenis topping`;
+    }
 
-    if (specificTopping) {
-      return `Rp ${specificTopping.price.toLocaleString('id-ID')}`;
+    // Kategori Menu (jumlah & daftar)
+    const allCategories = catalog?.categories || [];
+    if (q.includes('kategori') || q.includes('category')) {
+      if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) {
+        return `${allCategories.length} kategori`;
+      }
+      if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list')) {
+        return allCategories.map((c: any) => c.name).join(', ');
+      }
     }
 
     // 10A. Jika menanyakan khusus NON-KOPI

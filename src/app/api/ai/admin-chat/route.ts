@@ -86,7 +86,11 @@ export async function POST(req: Request) {
       .replace(/\byg\b/g, 'yang')
       .replace(/\bdgn\b/g, 'dengan')
       .replace(/\butk\b/g, 'untuk')
-      .replace(/\bpenguna\b/g, 'pengguna');
+      .replace(/\bpenguna\b/g, 'pengguna')
+      .replace(/\btoping\b/g, 'topping')
+      .replace(/\bkatagori\b/g, 'kategori')
+      .replace(/\bvoucer\b/g, 'voucher')
+      .replace(/\bvocer\b/g, 'voucher');
 
     // Deteksi pertanyaan lanjutan / follow-up (kata referensial tanpa konteks)
     const isFollowUp = (
@@ -309,18 +313,71 @@ export async function POST(req: Request) {
       });
     }
 
-    // Topping Spesifik
+    // Topping: Jumlah, Daftar, & Harga Spesifik
     const allToppings = dbSnapshot?.catalog?.toppings || [];
-    const specificTopping = allToppings.find((t: any) => {
-      const tName = t.name.toLowerCase();
-      if (q.includes(tName)) return true;
-      const firstWord = tName.split(' ')[0];
-      return tName.length > 4 && q.includes(firstWord) && (q.includes('harga') || q.includes('berapa'));
-    });
-    if (specificTopping) {
+    const isToppingQuery = q.includes('topping') || q.includes('toping');
+    if (isToppingQuery) {
+      if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('jenis')) {
+        return NextResponse.json({
+          reply: `${allToppings.length} jenis topping`,
+          dataSource: 'topping-count',
+        });
+      }
+      if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list') || q.includes('katalog')) {
+        return NextResponse.json({
+          reply: allToppings.map((t: any) => t.name).join(', '),
+          dataSource: 'topping-list',
+        });
+      }
+      const specificTopping = allToppings.find((t: any) => {
+        const tName = t.name.toLowerCase();
+        if (q.includes(tName)) return true;
+        const firstWord = tName.split(' ')[0];
+        return tName.length > 4 && q.includes(firstWord) && (q.includes('harga') || q.includes('berapa'));
+      });
+      if (specificTopping) {
+        return NextResponse.json({
+          reply: `Rp ${specificTopping.price.toLocaleString('id-ID')}`,
+          dataSource: 'topping-price',
+        });
+      }
       return NextResponse.json({
-        reply: `Rp ${specificTopping.price.toLocaleString('id-ID')}`,
-        dataSource: 'topping-price',
+        reply: `${allToppings.length} jenis topping`,
+        dataSource: 'topping-info',
+      });
+    }
+
+    // Kategori Menu: Jumlah & Daftar
+    const allCategories = dbSnapshot?.catalog?.categories || [];
+    const isCategoryQuery = q.includes('kategori') || q.includes('category');
+    if (isCategoryQuery) {
+      if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) {
+        return NextResponse.json({
+          reply: `${allCategories.length} kategori`,
+          dataSource: 'category-count',
+        });
+      }
+      if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list')) {
+        return NextResponse.json({
+          reply: allCategories.map((c: any) => c.name).join(', '),
+          dataSource: 'category-list',
+        });
+      }
+      return NextResponse.json({
+        reply: `${allCategories.length} kategori`,
+        dataSource: 'category-info',
+      });
+    }
+
+    // Total Produk / Menu Keseluruhan
+    const isProductCountQuery =
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) &&
+      (q.includes('menu') || q.includes('produk') || q.includes('makanan') || q.includes('minuman')) &&
+      !q.includes('kopi') && !q.includes('coffee');
+    if (isProductCountQuery) {
+      return NextResponse.json({
+        reply: `${allProducts.length} produk`,
+        dataSource: 'product-count',
       });
     }
 
