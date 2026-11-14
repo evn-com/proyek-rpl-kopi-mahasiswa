@@ -53,6 +53,11 @@ export async function POST(req: Request) {
       .filter((m: any) => m.role === 'user')
       .pop()?.content?.trim() || '';
 
+    // Ambil conversation history (untuk konteks lanjutan)
+    const lastBotReply: string = messages
+      .filter((m: any) => m.role === 'assistant')
+      .pop()?.content?.trim() || '';
+
     // Ambil data database snapshot terbaru (dengan fallback komplit jika db offline)
     const dbSnapshot = await fetchAdminDatabaseSnapshot();
 
@@ -83,6 +88,13 @@ export async function POST(req: Request) {
       .replace(/\butk\b/g, 'untuk')
       .replace(/\bpenguna\b/g, 'pengguna');
 
+    // Deteksi pertanyaan lanjutan / follow-up (kata referensial tanpa konteks)
+    const isFollowUp = (
+      q.startsWith('itu ') || q.startsWith('apa itu') || q === 'itu penjelasan apa' ||
+      q.includes('maksudnya') || q.includes('lebih lanjut') || q.includes('jelaskan lebih') ||
+      q.includes('itu apa') || q.includes('kenapa') || (q.length < 25 && (q.includes('itu') || q.includes('tersebut')))
+    ) && lastBotReply !== '';
+
     // 0. HANDLER KHUSUS PRIORITAS TINGGI (jawab langsung tanpa LLM, hanya jawab inti pertanyaan)
 
     // 0A. Identitas Bot (siapa anda / kamu siapa)
@@ -94,6 +106,79 @@ export async function POST(req: Request) {
         reply: `Admin AI Assistant`,
         dataSource: 'bot-identity',
       });
+    }
+
+    // 0A1. Pertanyaan Lanjutan Pembelian / Transaksi ("itu pembelian apa?", "itu beli apa?", dll)
+    const isFollowUpPurchase =
+      q.includes('pembelian apa') ||
+      q.includes('beli apa') ||
+      q.includes('pesanan apa') ||
+      q.includes('transaksi apa') ||
+      q.includes('order apa') ||
+      (q.includes('itu') && (q.includes('beli') || q.includes('pesan') || q.includes('transaksi') || q.includes('rincian'))) ||
+      ((q.startsWith('itu ') || q === 'itu apa' || q === 'apa itu') && (lastBotReply.includes('Rp') || lastBotReply.includes('omset')));
+
+    if (isFollowUpPurchase) {
+      const todayOrders = (dbSnapshot?.orders?.today as any)?.recentOrders || [];
+      const paidOrders = todayOrders.filter((o: any) => o.paymentStatus === 'PAID');
+      const ordersToShow = paidOrders.length > 0 ? paidOrders : todayOrders;
+
+      if (ordersToShow.length > 0) {
+        const itemsList = ordersToShow.map((o: any) => {
+          const itemNames = (o.items || []).map((i: any) => `${i.quantity}x ${i.productName || 'Produk'}`).join(', ');
+          return `${itemNames || 'Pesanan'} (Rp ${Number(o.amount || o.finalAmount || 0).toLocaleString('id-ID')} - Meja ${o.tableNumber || '-'})`;
+        });
+        return NextResponse.json({
+          reply: itemsList.join('\n'),
+          dataSource: 'followup-orders-today',
+        });
+      }
+      return NextResponse.json({
+        reply: `Belum ada rincian pembelian hari ini.`,
+        dataSource: 'followup-orders-empty',
+      });
+    }
+
+    // 0A2. Kopi / Menu / Produk yang Terjual Hari Ini
+    const isSoldItemsQuery =
+      (q.includes('terjual') || q.includes('laku') || q.includes('dibeli')) &&
+      (q.includes('kopi') || q.includes('menu') || q.includes('produk') || q.includes('hari ini') || q.includes('apa'));
+
+    if (isSoldItemsQuery) {
+      const soldList = (dbSnapshot?.orders?.today as any)?.soldItems || [];
+      if (soldList.length > 0) {
+        return NextResponse.json({
+          reply: soldList.map((s: any) => `${s.name} (${s.qty} cup)`).join('\n'),
+          dataSource: 'sold-items-today',
+        });
+      }
+      const topList = (dbSnapshot?.orders as any)?.topSellingToday || [];
+      if (topList.length > 0) {
+        return NextResponse.json({
+          reply: topList.map((s: any) => `${s.name} (${s.qty} cup)`).join('\n'),
+          dataSource: 'top-selling-today',
+        });
+      }
+      return NextResponse.json({
+        reply: `Belum ada kopi yang terjual hari ini.`,
+        dataSource: 'sold-items-empty',
+      });
+    }
+
+    // 0A3. Total / Jumlah Pesanan & Transaksi Hari Ini
+    const isOrderCountQuery =
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) &&
+      (q.includes('pesanan') || q.includes('order') || q.includes('transaksi'));
+
+    if (isOrderCountQuery) {
+      const todayOrders = dbSnapshot?.orders?.today;
+      if (q.includes('lunas') || q.includes('paid')) {
+        return NextResponse.json({ reply: `${todayOrders?.paidOrders || 0} pesanan lunas`, dataSource: 'orders-paid' });
+      }
+      if (q.includes('belum') || q.includes('unpaid') || q.includes('menunggu')) {
+        return NextResponse.json({ reply: `${todayOrders?.unpaidOrders || 0} pesanan belum bayar`, dataSource: 'orders-unpaid' });
+      }
+      return NextResponse.json({ reply: `${todayOrders?.totalOrders || 0} pesanan`, dataSource: 'orders-total' });
     }
 
     // 0B. Jumlah / Total Role
@@ -415,6 +500,39 @@ export async function POST(req: Request) {
       });
     }
 
+    // 0J. Produk terlaris / kopi terjual hari ini / minggu ini
+    const isSalesQuery =
+      (q.includes('terjual') || q.includes('paling laku') || q.includes('terlaris') ||
+       q.includes('best seller') || q.includes('bestseller') || q.includes('paling banyak') ||
+       q.includes('kopi apa') || q.includes('menu apa') || q.includes('produk apa')) &&
+      (q.includes('hari ini') || q.includes('today') || q.includes('terjual') || q.includes('laku') || q.includes('terlaris'));
+    if (isSalesQuery) {
+      const isWeekly = q.includes('minggu') || q.includes('7 hari') || q.includes('seminggu');
+      const ordersData = dbSnapshot?.orders as any;
+      const topList = isWeekly ? ordersData?.topSellingWeek : ordersData?.topSellingToday;
+      if (topList && topList.length > 0) {
+        const list = topList.map((p: any, i: number) => `${i + 1}. ${p.name} (${p.qty} cup)`).join('\n');
+        return NextResponse.json({ reply: list, dataSource: 'top-selling' });
+      }
+      return NextResponse.json({ reply: 'Belum ada transaksi terjual hari ini.', dataSource: 'top-selling-empty' });
+    }
+
+    // 0K. Pesanan terkini / daftar order hari ini
+    const isRecentOrderQuery =
+      (q.includes('pesanan') || q.includes('order') || q.includes('transaksi')) &&
+      (q.includes('terkini') || q.includes('terbaru') || q.includes('terakhir') || q.includes('hari ini') || q.includes('masuk'));
+    if (isRecentOrderQuery) {
+      const recentOrders = (dbSnapshot?.orders?.today as any)?.recentOrders || [];
+      if (recentOrders.length > 0) {
+        const list = recentOrders.slice(0, 5).map((o: any) => {
+          const items = (o.items || []).map((i: any) => `${i.productName} x${i.quantity}`).join(', ');
+          return `- ${o.customerName || 'Guest'} (Meja ${o.tableNumber}): ${items} — ${o.paymentStatus}`;
+        }).join('\n');
+        return NextResponse.json({ reply: list, dataSource: 'recent-orders' });
+      }
+      return NextResponse.json({ reply: 'Belum ada pesanan masuk hari ini.', dataSource: 'recent-orders-empty' });
+    }
+
     // 1. Deteksi Pertanyaan Profil User / Identitas Diri
     const profileKeywords = [
       'siapa saya', 'siapa aku', 'siapakah saya', 'siapakah aku',
@@ -475,21 +593,19 @@ export async function POST(req: Request) {
 
     const cleanHistory = messages
       .filter((m: any) => m.role === 'user' || m.role === 'assistant')
-      .slice(-6);
+      .slice(-10); // kirim 10 pesan terakhir agar LLM punya konteks percakapan
 
     const systemPrompt = `Kamu adalah Admin AI Assistant untuk sistem manajemen Kopi Mahasiswa ☕.
 Informasi Akun Pengguna: Nama: ${currentUser.name}, Role: ${currentUser.role}
 
 🚨 ATURAN UTAMA JAWABAN (ULTRA-CONCISE & TO-THE-POINT):
 1. Jawab HANYA apa yang ditanyakan secara singkat, padat, dan langsung ke intinya tanpa kalimat pembuka, basa-basi, atau penutup.
-2. Jika pengguna menanyakan JUMLAH, ANGKA, atau NOMINAL (misal: "ada berapa jumlah role", "berapa user", "berapa omset", "berapa harga"):
-   - Berikan HANYA angkanya saja atau nominalnya saja (Contoh: "5 role", "7 pengguna", "Rp 384.000").
-   - JANGAN PERNAH membeberkan rincian, daftar nama, atau penjelasan tambahan yang tidak diminta!
-3. Jika pengguna menanyakan NAMA (misal: "siapa owner", "siapa barista"):
-   - Berikan HANYA namanya saja (Contoh: "Pak Owner").
-4. Jika pengguna menanyakan DAFTAR/LIST (misal: "apa saja role", "sebutkan role", "daftar menu"):
-   - Baru berikan daftarnya secara ringkas tanpa kalimat pengantar atau penutup.
-5. Dilarang menambahkan kata-kata seperti "Ada total...", "Berdasarkan data...", "Saat ini terdapat...", dll.`;
+2. Jika pengguna menanyakan JUMLAH, ANGKA, atau NOMINAL: berikan HANYA angkanya atau nominalnya saja.
+3. Jika pengguna menanyakan NAMA: berikan HANYA namanya saja.
+4. Jika pengguna menanyakan DAFTAR/LIST: baru berikan daftarnya secara ringkas tanpa kalimat pengantar.
+5. Jika pertanyaan adalah LANJUTAN (referensial, menggunakan kata "itu", "tersebut", "kenapa", "maksudnya", "jelaskan"): gunakan konteks percakapan sebelumnya untuk menjawab dengan tepat.
+6. Dilarang menambahkan "Ada total...", "Berdasarkan data...", "Saat ini terdapat...", dll.${ragContext}`;
+
 
     // Jalur A: Gemini (jika aktif atau fallback)
     const geminiApiKey = (await getEffectiveApiKey('gemini')) || process.env.GEMINI_API_KEY;
@@ -515,9 +631,14 @@ Informasi Akun Pengguna: Nama: ${currentUser.name}, Role: ${currentUser.role}
                   maxOutputTokens: 600,
                   temperature: 0.3,
                 },
+                // kirim history percakapan agar AI bisa menjawab pertanyaan lanjutan
+                history: cleanHistory.slice(0, -1).map((m: any) => ({
+                  role: m.role === 'assistant' ? 'model' : 'user',
+                  parts: [{ text: m.content }],
+                })),
               });
               const res = await chat.sendMessage({
-                message: lastUserMsg + (ragContext ? `\n\n${ragContext}` : ''),
+                message: lastUserMsg,
               });
               return res.text?.trim();
             })();
@@ -550,7 +671,10 @@ Informasi Akun Pengguna: Nama: ${currentUser.name}, Role: ${currentUser.role}
           },
           body: JSON.stringify({
             model: process.env.GROK_MODEL || 'grok-2-latest',
-            messages: [{ role: 'system', content: systemPrompt }, ...cleanHistory],
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...cleanHistory,
+            ],
             temperature: 0.3,
             max_tokens: 600,
           }),
@@ -590,7 +714,10 @@ Informasi Akun Pengguna: Nama: ${currentUser.name}, Role: ${currentUser.role}
           },
           body: JSON.stringify({
             model: process.env.XKIRO_MODEL || process.env.NOUS_MODEL || 'mistralai/mistral-small-24b3',
-            messages: [{ role: 'system', content: systemPrompt }, ...cleanHistory],
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...cleanHistory,
+            ],
             temperature: 0.3,
             max_tokens: 600,
           }),
@@ -612,7 +739,7 @@ Informasi Akun Pengguna: Nama: ${currentUser.name}, Role: ${currentUser.role}
     }
 
     // 2. Semantic Question-Answering Engine yang presisi menjawab pertanyaan spesifik
-    const reply = generatePreciseAdminResponse(lastUserMsg, dbSnapshot, currentUser);
+    const reply = generatePreciseAdminResponse(lastUserMsg, dbSnapshot, currentUser, lastBotReply);
     return NextResponse.json({ reply, dataSource: 'live-db-analyzer' });
   } catch (error: any) {
     console.error('[Admin AI Chat] Error:', error);

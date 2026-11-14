@@ -123,8 +123,22 @@ export function getFallbackAdminDatabaseSnapshot() {
         totalOrders: 18,
         paidOrders: 16,
         unpaidOrders: 2,
-        revenueToday: 384000,
+        revenueToday: 27900,
         cancelledOrders: 0,
+        soldItems: [
+          { name: 'Classic Caffe Latte', qty: 1 },
+        ],
+        recentOrders: [
+          {
+            customerName: 'Pelanggan Meja 03',
+            tableNumber: '03',
+            status: 'COMPLETED',
+            paymentStatus: 'PAID',
+            amount: 27900,
+            finalAmount: 27900,
+            items: [{ productName: 'Classic Caffe Latte', quantity: 1 }],
+          },
+        ],
       },
       allTime: {
         byStatus: [
@@ -206,6 +220,9 @@ export async function fetchAdminDatabaseSnapshot() {
       notifications,
       auditLogs,
       reviews,
+      topSellingToday,
+      topSellingWeek,
+      recentOrdersFull,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.groupBy({
@@ -275,6 +292,31 @@ export async function fetchAdminDatabaseSnapshot() {
         _count: { id: true },
         _avg: { rating: true },
       }),
+      // Top selling produk hari ini
+      (prisma as any).orderItem.groupBy({
+        by: ['productId'],
+        where: { order: { createdAt: { gte: today }, paymentStatus: 'PAID' } },
+        _sum: { quantity: true },
+        orderBy: { _sum: { quantity: 'desc' } },
+        take: 5,
+      }).catch(() => []),
+      // Top selling produk 7 hari
+      (prisma as any).orderItem.groupBy({
+        by: ['productId'],
+        where: { order: { createdAt: { gte: sevenDaysAgo }, paymentStatus: 'PAID' } },
+        _sum: { quantity: true },
+        orderBy: { _sum: { quantity: 'desc' } },
+        take: 5,
+      }).catch(() => []),
+      // Pesanan terbaru lengkap (dengan items)
+      (prisma as any).order.findMany({
+        where: { createdAt: { gte: today } },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          items: { include: { product: { select: { name: true } } } },
+        },
+      }).catch(() => []),
     ]);
 
     // Jika database kosong, gunakan fallback
@@ -411,6 +453,31 @@ export async function fetchAdminDatabaseSnapshot() {
           unpaidOrders: ordersToday_unpaid.length,
           revenueToday,
           cancelledOrders: ordersToday.filter((o) => o.status === 'CANCELLED').length,
+          soldItems: (() => {
+            const map = new Map<string, number>();
+            for (const o of (recentOrdersFull || [])) {
+              if (o.paymentStatus === 'PAID') {
+                for (const item of (o.items || [])) {
+                  const name = item.product?.name || item.productName || 'Produk';
+                  map.set(name, (map.get(name) || 0) + (item.quantity || 1));
+                }
+              }
+            }
+            return Array.from(map.entries()).map(([name, qty]) => ({ name, qty }));
+          })(),
+          recentOrders: (recentOrdersFull || []).slice(0, 10).map((o: any) => ({
+            customerName: o.customerName || 'Guest',
+            tableNumber: o.tableNumber,
+            status: o.status,
+            paymentStatus: o.paymentStatus,
+            finalAmount: o.finalAmount,
+            amount: o.finalAmount,
+            items: (o.items || []).map((i: any) => ({
+              productName: i.product?.name || i.productName || 'Produk',
+              quantity: i.quantity,
+            })),
+            createdAt: o.createdAt?.toISOString?.() || '',
+          })),
         },
         allTime: {
           byStatus: ordersTotal.map((s) => ({ status: s.status, count: s._count.id })),
@@ -425,6 +492,24 @@ export async function fetchAdminDatabaseSnapshot() {
           totalRevenue: ordersThirtyDays._sum.finalAmount || 0,
           avgOrderValue: Math.round(ordersThirtyDays._avg.finalAmount || 0),
         },
+        topSellingToday: await (async () => {
+          if (!topSellingToday || topSellingToday.length === 0) return [];
+          const productIds = topSellingToday.map((t: any) => t.productId);
+          const pList = products.filter((p) => productIds.includes(p.id));
+          return topSellingToday.map((t: any) => {
+            const p = pList.find((pr) => pr.id === t.productId);
+            return { name: p?.name || t.productId, qty: t._sum.quantity || 0 };
+          });
+        })(),
+        topSellingWeek: await (async () => {
+          if (!topSellingWeek || topSellingWeek.length === 0) return [];
+          const productIds = topSellingWeek.map((t: any) => t.productId);
+          const pList = products.filter((p) => productIds.includes(p.id));
+          return topSellingWeek.map((t: any) => {
+            const p = pList.find((pr) => pr.id === t.productId);
+            return { name: p?.name || t.productId, qty: t._sum.quantity || 0 };
+          });
+        })(),
       },
       marketing: {
         vouchers: vouchers.map((v) => ({
@@ -476,7 +561,8 @@ export async function fetchAdminDatabaseSnapshot() {
 export function generatePreciseAdminResponse(
   query: string,
   db: any,
-  user: { name: string; role: string; campus?: string; points?: number; email?: string }
+  user: { name: string; role: string; campus?: string; points?: number; email?: string },
+  previousReply?: string
 ): string {
   let normalizedQuery = query.toLowerCase().trim();
   normalizedQuery = normalizedQuery
@@ -520,6 +606,64 @@ export function generatePreciseAdminResponse(
 
   if (isBotIdentityQuery) {
     return `Admin AI Assistant`;
+  }
+
+  // 1A1. PERTANYAAN LANJUTAN PEMBELIAN ("itu pembelian apa?", "itu beli apa?", dll)
+  const isFollowUpPurchase =
+    q.includes('pembelian apa') ||
+    q.includes('beli apa') ||
+    q.includes('pesanan apa') ||
+    q.includes('transaksi apa') ||
+    q.includes('order apa') ||
+    (q.includes('itu') && (q.includes('beli') || q.includes('pesan') || q.includes('transaksi') || q.includes('rincian'))) ||
+    ((q.startsWith('itu ') || q === 'itu apa' || q === 'apa itu') && ((previousReply || '').includes('Rp') || (previousReply || '').includes('omset')));
+
+  if (isFollowUpPurchase) {
+    const todayOrders = orders?.today?.recentOrders || [];
+    const paidOrders = todayOrders.filter((o: any) => o.paymentStatus === 'PAID');
+    const ordersToShow = paidOrders.length > 0 ? paidOrders : todayOrders;
+
+    if (ordersToShow.length > 0) {
+      const itemsList = ordersToShow.map((o: any) => {
+        const itemNames = (o.items || []).map((i: any) => `${i.quantity}x ${i.productName || 'Produk'}`).join(', ');
+        return `${itemNames || 'Pesanan'} (Rp ${Number(o.amount || o.finalAmount || 0).toLocaleString('id-ID')} - Meja ${o.tableNumber || '-'})`;
+      });
+      return itemsList.join('\n');
+    }
+    return `Belum ada rincian pembelian hari ini.`;
+  }
+
+  // 1A2. KOPI / MENU / PRODUK TERJUAL HARI INI
+  const isSoldItemsQuery =
+    (q.includes('terjual') || q.includes('laku') || q.includes('dibeli')) &&
+    (q.includes('kopi') || q.includes('menu') || q.includes('produk') || q.includes('hari ini') || q.includes('apa'));
+
+  if (isSoldItemsQuery) {
+    const soldList = orders?.today?.soldItems || [];
+    if (soldList.length > 0) {
+      return soldList.map((s: any) => `${s.name} (${s.qty} cup)`).join('\n');
+    }
+    const topList = orders?.topSellingToday || [];
+    if (topList.length > 0) {
+      return topList.map((s: any) => `${s.name} (${s.qty} cup)`).join('\n');
+    }
+    return `Belum ada kopi yang terjual hari ini.`;
+  }
+
+  // 1A3. TOTAL / JUMLAH PESANAN & TRANSAKSI HARI INI
+  const isOrderCountQuery =
+    (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) &&
+    (q.includes('pesanan') || q.includes('order') || q.includes('transaksi'));
+
+  if (isOrderCountQuery) {
+    const todayOrders = orders?.today;
+    if (q.includes('lunas') || q.includes('paid')) {
+      return `${todayOrders?.paidOrders || 0} pesanan lunas`;
+    }
+    if (q.includes('belum') || q.includes('unpaid') || q.includes('menunggu')) {
+      return `${todayOrders?.unpaidOrders || 0} pesanan belum bayar`;
+    }
+    return `${todayOrders?.totalOrders || 0} pesanan`;
   }
 
   // 1B. IDENTITAS DIRI & PROFIL AKUN
