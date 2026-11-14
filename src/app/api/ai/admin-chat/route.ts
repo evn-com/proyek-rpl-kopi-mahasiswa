@@ -115,9 +115,22 @@ export async function POST(req: Request) {
       });
     }
 
-    // 0C. Jumlah / Total Pelanggan / Customer
+    // 0C. Nama / Daftar Pelanggan / Customer
+    const isCustomerNameQuery =
+      (q.includes('siapa') || q.includes('nama') || q.includes('daftar') || q.includes('list') || q.includes('sebutkan')) &&
+      (q.includes('pelanggan') || q.includes('customer') || q.includes('member'));
+    if (isCustomerNameQuery) {
+      const customers = dbSnapshot?.users?.customers || [];
+      if (customers.length > 0) {
+        const names = customers.map((c: any) => c.name).join(', ');
+        return NextResponse.json({ reply: names, dataSource: 'customer-names' });
+      }
+      return NextResponse.json({ reply: 'Tidak ada data pelanggan.', dataSource: 'customer-names' });
+    }
+
+    // 0C2. Jumlah / Total Pelanggan / Customer
     const isCustomerCountQuery =
-      (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) &&
       (q.includes('pelanggan') || q.includes('customer') || q.includes('member'));
     if (isCustomerCountQuery) {
       const customers = dbSnapshot?.users?.customers || [];
@@ -131,9 +144,24 @@ export async function POST(req: Request) {
       });
     }
 
-    // 0D. Jumlah / Total Pengguna (Keseluruhan)
+    // 0D. Nama / Daftar User / Pengguna / Staf
+    const isUserNameQuery =
+      (q.includes('siapa') || q.includes('nama') || q.includes('daftar') || q.includes('sebutkan') || q.includes('list')) &&
+      (q.includes('pengguna') || q.includes('user') || q.includes('staf') || q.includes('pegawai') || q.includes('karyawan'));
+    if (isUserNameQuery) {
+      const staffList: Array<{ name: string; role: string }> = dbSnapshot?.users?.staff || [
+        { name: 'Admin Mahasiswa', role: 'Admin' },
+        { name: 'Pak Owner', role: 'Owner' },
+        { name: 'Barista Budi', role: 'Barista' },
+        { name: 'Kasir Siti', role: 'Cashier' },
+      ];
+      const names = staffList.map((s: any) => s.name).join(', ');
+      return NextResponse.json({ reply: names, dataSource: 'user-names' });
+    }
+
+    // 0D2. Jumlah / Total Pengguna (Keseluruhan)
     const isUserCountQuery =
-      (q.includes('berapa') || q.includes('jumlah') || q.includes('total')) &&
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) &&
       (q.includes('pengguna') || q.includes('user') || q.includes('akun') || q.includes('staf') || q.includes('pegawai') || q.includes('orang'));
     if (isUserCountQuery) {
       const totalCount = dbSnapshot?.users?.total || 0;

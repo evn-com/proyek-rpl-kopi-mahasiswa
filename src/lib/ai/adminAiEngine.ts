@@ -595,33 +595,41 @@ export function generatePreciseAdminResponse(
   // 4B. JUMLAH & DATA PELANGGAN / CUSTOMER
   if (
     (q.includes('pelanggan') || q.includes('customer')) &&
-    (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list') || q.includes('siapa') || q.includes('ada'))
+    (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list') || q.includes('siapa') || q.includes('nama') || q.includes('ada'))
   ) {
     const customers = users?.customers || [];
     const customerRole = users?.byRole?.find((r: any) => r.role?.toLowerCase() === 'customer');
     const count = customerRole?.count ?? (customers.length || 5);
-    const isCountOnly = q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa');
 
-    if (isCountOnly && !q.includes('daftar') && !q.includes('list') && !q.includes('siapa')) {
-      return `${count} pelanggan`;
+    // Jika ditanya nama / siapa / daftar -> hanya tampilkan nama saja
+    const isNameQuery = q.includes('siapa') || q.includes('nama') || q.includes('daftar') || q.includes('list') || q.includes('sebutkan');
+    if (isNameQuery) {
+      if (customers.length > 0) {
+        return customers.map((c: any) => c.name).join(', ');
+      }
+      return 'Tidak ada data pelanggan.';
     }
 
-    let customerNames = '';
-    if (customers.length > 0) {
-      const namesList = customers
-        .map((c: any) => `${c.name}${c.campus ? ` (${c.campus})` : ''}`)
-        .join(', ');
-      customerNames = `: ${namesList}`;
-    }
-    return `${count} pelanggan${customerNames}`;
+    // Jika ditanya berapa/jumlah -> hanya angka
+    return `${count} pelanggan`;
   }
 
   // 4C. STATISTIK, JUMLAH & DAFTAR PENGGUNA (USERS)
   if (
-    q.includes('pengguna') || q.includes('user') ||
-    ((q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list')) &&
-      (q.includes('orang') || q.includes('akun') || q.includes('member') || q.includes('staf') || q.includes('pegawai')))
+    (q.includes('pengguna') || q.includes('user') || q.includes('staf') || q.includes('pegawai') || q.includes('karyawan')) &&
+    (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('daftar') || q.includes('list') || q.includes('siapa') || q.includes('nama') || q.includes('orang') || q.includes('ada'))
   ) {
+    // Jika ditanya nama / siapa / daftar -> hanya tampilkan nama saja
+    const isNameQuery = q.includes('siapa') || q.includes('nama') || q.includes('daftar') || q.includes('list') || q.includes('sebutkan');
+    if (isNameQuery) {
+      const staffData: Array<{ name: string; role: string }> = users?.staff || [
+        { name: 'Admin Mahasiswa', role: 'Admin' },
+        { name: 'Pak Owner', role: 'Owner' },
+        { name: 'Barista Budi', role: 'Barista' },
+        { name: 'Kasir Siti', role: 'Cashier' },
+      ];
+      return staffData.map((s: any) => s.name).join(', ');
+    }
     const totalCount = users?.total || 0;
     return `${totalCount} pengguna`;
   }
