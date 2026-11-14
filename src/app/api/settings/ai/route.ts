@@ -5,10 +5,10 @@ import { GoogleGenAI } from '@google/genai';
 
 export const dynamic = 'force-dynamic';
 
-const VALID_MODELS = ['gemini', 'gpt', 'deepseek', 'nous'] as const;
+const VALID_MODELS = ['gemini', 'grok'] as const;
 type AIModel = (typeof VALID_MODELS)[number];
 
-type ApiKeyProvider = 'gemini' | 'openai' | 'deepseek' | 'nous';
+type ApiKeyProvider = 'gemini' | 'grok';
 
 /** Ambil API key dari DB (override), fallback ke env */
 async function getApiKeyFromDb(provider: ApiKeyProvider): Promise<{ value: string | null; updatedAt: string | null }> {
@@ -97,90 +97,51 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
       throw lastErr || new Error('Gagal menghubungi model Gemini.');
     }
 
-    if (model === 'gpt') {
-      const dbKey = (await getApiKeyFromDb('openai')).value;
-      const apiKey = customKey || dbKey || process.env.OPENAI_API_KEY || '';
-      if (apiKey) {
-        const res = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-            messages: [{ role: 'user', content: 'ping' }],
-            max_tokens: 5,
-          }),
-        });
-        if (!res.ok) {
-          const err = await res.text();
-          throw new Error(`OpenAI HTTP ${res.status}: ${err.slice(0, 100)}`);
+    if (model === 'grok') {
+      const dbKey = (await getApiKeyFromDb('grok')).value;
+      const apiKey = customKey || dbKey || process.env.GROK_API_KEY || process.env.XAI_API_KEY || '';
+      if (!apiKey) throw new Error('API Key xAI Grok belum diatur.');
+
+      const candidateModels = [
+        process.env.GROK_MODEL || 'grok-2-latest',
+        'grok-2',
+        'grok-beta',
+      ];
+
+      let lastErr: any = null;
+      for (const mId of candidateModels) {
+        try {
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout 8s')), 8000)
+          );
+
+          const testCall = (async () => {
+            const res = await fetch('https://api.x.ai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
+              },
+              body: JSON.stringify({
+                model: mId,
+                messages: [{ role: 'user', content: 'ping' }],
+                max_tokens: 5,
+              }),
+            });
+            if (!res.ok) {
+              const err = await res.text();
+              throw new Error(`xAI Grok HTTP ${res.status}: ${err.slice(0, 100)}`);
+            }
+          })();
+
+          await Promise.race([testCall, timeoutPromise]);
+          return { success: true, latencyMs: Date.now() - start };
+        } catch (err: any) {
+          lastErr = err;
+          console.warn(`[Grok Test] Model ${mId} failed:`, err?.message);
         }
-        return { success: true, latencyMs: Date.now() - start };
       }
-
-      // Fallback ke Nous jika OpenAI key tidak ada
-      const dbNousKey = (await getApiKeyFromDb('nous')).value;
-      const nousKey = dbNousKey || process.env.NOUS_API_KEY || '';
-      if (nousKey) {
-        const res = await fetch(process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${nousKey}`,
-            ...(process.env.NOUS_KEY_ID ? { 'X-Key-Id': process.env.NOUS_KEY_ID } : {}),
-          },
-          body: JSON.stringify({
-            model: process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct',
-            messages: [{ role: 'user', content: 'ping' }],
-            max_tokens: 5,
-          }),
-        });
-        if (!res.ok) throw new Error(`Nous HTTP ${res.status}`);
-        return { success: true, latencyMs: Date.now() - start };
-      }
-      throw new Error('API Key OpenAI / Nous belum diatur.');
-    }
-
-    if (model === 'deepseek') {
-      const dbKey = (await getApiKeyFromDb('deepseek')).value;
-      const apiKey = customKey || dbKey || process.env.DEEPSEEK_API_KEY || '';
-      if (!apiKey) throw new Error('API Key DeepSeek belum diatur.');
-
-      const res = await fetch('https://api.deepseek.com/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
-          messages: [{ role: 'user', content: 'ping' }],
-          max_tokens: 5,
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`DeepSeek HTTP ${res.status}: ${err.slice(0, 100)}`);
-      }
-      return { success: true, latencyMs: Date.now() - start };
-    }
-
-    if (model === 'nous') {
-      const dbKey = (await getApiKeyFromDb('nous')).value;
-      const apiKey = customKey || dbKey || process.env.NOUS_API_KEY || '';
-      if (!apiKey) throw new Error('API Key Nous Research belum diatur.');
-
-      const res = await fetch(process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-          ...(process.env.NOUS_KEY_ID ? { 'X-Key-Id': process.env.NOUS_KEY_ID } : {}),
-        },
-        body: JSON.stringify({
-          model: process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct',
-          messages: [{ role: 'user', content: 'ping' }],
-          max_tokens: 5,
-        }),
-      });
-      if (!res.ok) throw new Error(`Nous HTTP ${res.status}`);
-      return { success: true, latencyMs: Date.now() - start };
+      throw lastErr || new Error('Gagal menghubungi model xAI Grok.');
     }
 
     throw new Error('Model tidak didukung untuk tes.');
@@ -191,7 +152,7 @@ async function testModelConnection(model: AIModel, customKey?: string): Promise<
 
 /**
  * GET /api/settings/ai
- * Mengambil model AI aktif, status API key setiap provider, dan hasil tes terkini.
+ * Mengambil model AI aktif, status API key provider (Gemini & Grok), dan hasil tes terkini.
  */
 export async function GET(req: Request) {
   try {
@@ -202,30 +163,24 @@ export async function GET(req: Request) {
       const setting = await settingDelegate.findUnique({
         where: { key: 'active_ai_model' },
       });
-      if (setting?.value) {
+      if (setting?.value && VALID_MODELS.includes(setting.value as AIModel)) {
         activeModel = setting.value;
       }
     }
 
     // Ambil API key dari DB (override) atau env
-    const [dbGemini, dbOpenAi, dbDeepSeek, dbNous] = await Promise.all([
+    const [dbGemini, dbGrok] = await Promise.all([
       getApiKeyFromDb('gemini'),
-      getApiKeyFromDb('openai'),
-      getApiKeyFromDb('deepseek'),
-      getApiKeyFromDb('nous'),
+      getApiKeyFromDb('grok'),
     ]);
 
     const geminiKey = dbGemini.value || process.env.GEMINI_API_KEY || '';
-    const openaiKey = dbOpenAi.value || process.env.OPENAI_API_KEY || '';
-    const deepseekKey = dbDeepSeek.value || process.env.DEEPSEEK_API_KEY || '';
-    const nousKey = dbNous.value || process.env.NOUS_API_KEY || '';
+    const grokKey = dbGrok.value || process.env.GROK_API_KEY || process.env.XAI_API_KEY || '';
 
     // Ambil riwayat tes latency
-    const [testGemini, testGpt, testDeepSeek, testNous] = await Promise.all([
+    const [testGemini, testGrok] = await Promise.all([
       getModelTestResult('gemini'),
-      getModelTestResult('gpt'),
-      getModelTestResult('deepseek'),
-      getModelTestResult('nous'),
+      getModelTestResult('grok'),
     ]);
 
     return NextResponse.json({
@@ -241,32 +196,14 @@ export async function GET(req: Request) {
           source: dbGemini.value ? 'database' : (process.env.GEMINI_API_KEY ? 'environment' : 'none'),
           updatedAt: dbGemini.updatedAt || (process.env.GEMINI_API_KEY ? 'Environment (.env)' : null),
         },
-        openai: {
-          provider: 'openai',
-          label: 'OpenAI GPT',
-          isConfigured: !!openaiKey,
-          maskedKey: maskApiKey(openaiKey),
-          rawKey: openaiKey || '',
-          source: dbOpenAi.value ? 'database' : (process.env.OPENAI_API_KEY ? 'environment' : 'none'),
-          updatedAt: dbOpenAi.updatedAt || (process.env.OPENAI_API_KEY ? 'Environment (.env)' : null),
-        },
-        deepseek: {
-          provider: 'deepseek',
-          label: 'DeepSeek',
-          isConfigured: !!deepseekKey,
-          maskedKey: maskApiKey(deepseekKey),
-          rawKey: deepseekKey || '',
-          source: dbDeepSeek.value ? 'database' : (process.env.DEEPSEEK_API_KEY ? 'environment' : 'none'),
-          updatedAt: dbDeepSeek.updatedAt || (process.env.DEEPSEEK_API_KEY ? 'Environment (.env)' : null),
-        },
-        nous: {
-          provider: 'nous',
-          label: 'Nous Research',
-          isConfigured: !!nousKey,
-          maskedKey: maskApiKey(nousKey),
-          rawKey: nousKey || '',
-          source: dbNous.value ? 'database' : (process.env.NOUS_API_KEY ? 'environment' : 'none'),
-          updatedAt: dbNous.updatedAt || (process.env.NOUS_API_KEY ? 'Environment (.env)' : null),
+        grok: {
+          provider: 'grok',
+          label: 'xAI Grok',
+          isConfigured: !!grokKey,
+          maskedKey: maskApiKey(grokKey),
+          rawKey: grokKey || '',
+          source: dbGrok.value ? 'database' : ((process.env.GROK_API_KEY || process.env.XAI_API_KEY) ? 'environment' : 'none'),
+          updatedAt: dbGrok.updatedAt || ((process.env.GROK_API_KEY || process.env.XAI_API_KEY) ? 'Environment (.env)' : null),
         },
       },
       availableModels: [
@@ -285,46 +222,18 @@ export async function GET(req: Request) {
           testStatus: testGemini.status,
         },
         {
-          id: 'gpt',
-          name: 'OpenAI GPT',
-          subName: 'GPT-4o Mini / GPT-3.5',
-          modelId: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-          providerKey: 'openai',
-          contextWindow: '128.000 token',
-          tag: 'High Reasoning',
-          description: 'Model percakapan cerdas dengan analisis mendalam, gaya santai, dan gateway OpenAI API.',
-          isConfigured: !!openaiKey || !!nousKey,
-          lastTested: testGpt.lastTested,
-          latencyMs: testGpt.latencyMs,
-          testStatus: testGpt.status,
-        },
-        {
-          id: 'deepseek',
-          name: 'DeepSeek',
-          subName: 'DeepSeek V3 / R1',
-          modelId: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
-          providerKey: 'deepseek',
-          contextWindow: '64.000 token',
-          tag: 'Cost Efficient',
-          description: 'Arsitektur efisiensi komputasi tinggi untuk volume chat besar dan kalkulasi budget mahasiswa.',
-          isConfigured: !!deepseekKey || !!nousKey,
-          lastTested: testDeepSeek.lastTested,
-          latencyMs: testDeepSeek.latencyMs,
-          testStatus: testDeepSeek.status,
-        },
-        {
-          id: 'nous',
-          name: 'Command / Llama 3.1',
-          subName: 'Meta Llama 3.1 8B Instruct',
-          modelId: process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct',
-          providerKey: 'nous',
-          contextWindow: '128.000 token',
-          tag: 'Open Weights Gateway',
-          description: 'Model asisten alternatif yang diuji melalui Nous Research Inference API sebagai cadangan handal.',
-          isConfigured: !!nousKey,
-          lastTested: testNous.lastTested,
-          latencyMs: testNous.latencyMs,
-          testStatus: testNous.status,
+          id: 'grok',
+          name: 'xAI Grok',
+          subName: 'Grok 2 / Grok Beta',
+          modelId: process.env.GROK_MODEL || 'grok-2-latest',
+          providerKey: 'grok',
+          contextWindow: '131.072 token',
+          tag: 'xAI Real-time',
+          description: 'Model cerdas dari xAI dengan penalaran cepat, gaya responsif, dan pemahaman percakapan mutakhir.',
+          isConfigured: !!grokKey,
+          lastTested: testGrok.lastTested,
+          latencyMs: testGrok.latencyMs,
+          testStatus: testGrok.status,
         },
       ],
     });
@@ -340,10 +249,10 @@ export async function GET(req: Request) {
 /**
  * POST /api/settings/ai
  * Menangani:
- * 1. Aktivasi Model: { model: 'gemini' | 'gpt' | 'deepseek' | 'nous' }
- * 2. Simpan API Key: { provider: 'gemini', apiKey: '...' }
- * 3. Reset API Key: { provider: 'gemini', reset: true }
- * 4. Uji Model: { action: 'test_model', model: 'gemini' }
+ * 1. Aktivasi Model: { model: 'gemini' | 'grok' }
+ * 2. Simpan API Key: { provider: 'gemini' | 'grok', apiKey: '...' }
+ * 3. Reset API Key: { provider: 'gemini' | 'grok', reset: true }
+ * 4. Uji Model: { action: 'test_model', model: 'gemini' | 'grok' }
  */
 export async function POST(req: Request) {
   try {
@@ -363,7 +272,7 @@ export async function POST(req: Request) {
     if (body.action === 'test_model') {
       const { model } = body;
       if (!model || !VALID_MODELS.includes(model as AIModel)) {
-        return NextResponse.json({ success: false, error: 'Model tidak valid untuk diuji.' }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Model tidak valid untuk diuji. Pilihan: gemini, grok.' }, { status: 400 });
       }
 
       const testResult = await testModelConnection(model as AIModel);
@@ -436,9 +345,9 @@ export async function POST(req: Request) {
     // ─── 3. UPDATE / RESET API KEY ────────────────────────────────────────────
     if (body.provider !== undefined) {
       const { provider, apiKey, reset } = body;
-      const validProviders: ApiKeyProvider[] = ['gemini', 'openai', 'deepseek', 'nous'];
+      const validProviders: ApiKeyProvider[] = ['gemini', 'grok'];
       if (!validProviders.includes(provider)) {
-        return NextResponse.json({ success: false, error: 'Provider tidak valid.' }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Provider tidak valid. Pilihan: gemini, grok.' }, { status: 400 });
       }
 
       if (!settingDelegate) {
@@ -474,9 +383,8 @@ export async function POST(req: Request) {
         );
       }
 
-      // Opsional: Langsung coba tes API key baru
       const trimmedKey = apiKey.trim();
-      const modelToTest: AIModel = provider === 'openai' ? 'gpt' : (provider as AIModel);
+      const modelToTest: AIModel = provider as AIModel;
       const testCheck = await testModelConnection(modelToTest, trimmedKey);
 
       await settingDelegate.upsert({
@@ -516,7 +424,7 @@ export async function POST(req: Request) {
         success: true,
         message: testCheck.success
           ? `API key ${provider.toUpperCase()} berhasil disimpan dan teruji aktif (${testCheck.latencyMs} ms)!`
-          : `API key ${provider.toUpperCase()} berhasil disimpan ke database. Catatan: tes koneksi mengembalikan (${testCheck.error}).`,
+          : `API key ${provider.toUpperCase()} berhasil disimpan ke database. Catatan tes: (${testCheck.error}).`,
         testResult: testCheck,
       });
     }

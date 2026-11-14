@@ -40,11 +40,11 @@ interface ApiKeyDetail {
 }
 
 interface ModelItem {
-  id: 'gemini' | 'gpt' | 'deepseek' | 'nous';
+  id: 'gemini' | 'grok';
   name: string;
   subName: string;
   modelId: string;
-  providerKey: 'gemini' | 'openai' | 'deepseek' | 'nous';
+  providerKey: 'gemini' | 'grok';
   contextWindow: string;
   tag: string;
   description: string;
@@ -54,7 +54,7 @@ interface ModelItem {
   testStatus: string | null;
 }
 
-type ProviderKey = 'gemini' | 'openai' | 'deepseek' | 'nous';
+type ProviderKey = 'gemini' | 'grok';
 
 export default function AdminAISettingsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -63,9 +63,7 @@ export default function AdminAISettingsPage() {
   const [availableModels, setAvailableModels] = useState<ModelItem[]>([]);
   const [apiKeys, setApiKeys] = useState<Record<ProviderKey, ApiKeyDetail>>({
     gemini: { provider: 'gemini', label: 'Google Gemini', isConfigured: false, maskedKey: '', source: 'none', updatedAt: null },
-    openai: { provider: 'openai', label: 'OpenAI GPT', isConfigured: false, maskedKey: '', source: 'none', updatedAt: null },
-    deepseek: { provider: 'deepseek', label: 'DeepSeek', isConfigured: false, maskedKey: '', source: 'none', updatedAt: null },
-    nous: { provider: 'nous', label: 'Nous Research', isConfigured: false, maskedKey: '', source: 'none', updatedAt: null },
+    grok: { provider: 'grok', label: 'xAI Grok', isConfigured: false, maskedKey: '', source: 'none', updatedAt: null },
   });
 
   // Selected provider for the API Key editing panel
@@ -288,12 +286,8 @@ export default function AdminAISettingsPage() {
     switch (provider) {
       case 'gemini':
         return <Sparkles className="w-4 h-4 text-amber-400" />;
-      case 'openai':
-        return <Bot className="w-4 h-4 text-indigo-400" />;
-      case 'deepseek':
-        return <Cpu className="w-4 h-4 text-cyan-400" />;
-      case 'nous':
-        return <Server className="w-4 h-4 text-violet-400" />;
+      case 'grok':
+        return <Zap className="w-4 h-4 text-cyan-400" />;
     }
   };
 
@@ -355,11 +349,7 @@ export default function AdminAISettingsPage() {
                 <p className="text-sm font-extrabold text-white">
                   {activeModel === 'gemini'
                     ? 'Google Gemini Flash'
-                    : activeModel === 'gpt'
-                    ? 'OpenAI GPT-4o'
-                    : activeModel === 'deepseek'
-                    ? 'DeepSeek V3'
-                    : 'Nous Llama 3.1'}
+                    : 'xAI Grok 2'}
                 </p>
               </div>
             </div>
@@ -381,7 +371,7 @@ export default function AdminAISettingsPage() {
 
             {/* Provider Tabs */}
             <div className="flex flex-wrap gap-2">
-              {(['gemini', 'openai', 'deepseek', 'nous'] as ProviderKey[]).map((prov) => {
+              {(['gemini', 'grok'] as ProviderKey[]).map((prov) => {
                 const info = apiKeys[prov];
                 const isSelected = selectedProvider === prov;
                 return (
@@ -702,8 +692,8 @@ export default function AdminAISettingsPage() {
 
               {/* Bottom Note */}
               <p className="text-[11px] text-slate-400 leading-relaxed pt-2">
-                Pergantian model hanya mengubah Model Chatbot. System prompt, persona barista, konteks role,
-                riwayat percakapan, endpoint, dan fallback provider (Gemini ➔ DeepSeek ➔ Fallback Heuristik) tidak berubah.
+                Pergantian model hanya mengubah Model Chatbot (Google Gemini &amp; xAI Grok). System prompt, persona barista, konteks role,
+                riwayat percakapan, dan data operasional kafe tetap terjaga konsisten.
               </p>
             </div>
           </div>

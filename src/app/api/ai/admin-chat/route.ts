@@ -409,7 +409,7 @@ export async function POST(req: Request) {
       ragContext = `\n\n[SNAPSHOT OPERASIONAL DATABASE REAL-TIME]:\n${JSON.stringify(dbSnapshot)}`;
     }
 
-    // 1. Coba panggil LLM eksternal sesuai model aktif di Pengaturan AI (Gemini / OpenAI / Nous)
+    // 1. Coba panggil LLM eksternal sesuai model aktif di Pengaturan AI (Gemini / Grok)
     let activeModel = 'gemini';
     try {
       const activeSetting = await (prisma as any).setting?.findUnique({
@@ -487,26 +487,21 @@ PANDUAN MENJAWAB & GUARDRAILS:
       }
     }
 
-    // Jalur B: Nous Research / Llama (jika dikonfigurasi)
-    const nousApiKey = (await getEffectiveApiKey('nous')) || process.env.NOUS_API_KEY;
-    const nousKeyId = process.env.NOUS_KEY_ID;
-    const nousApiUrl = process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
-    const nousModel = process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct';
-
-    if (nousApiKey && !nousApiKey.includes('invalid')) {
+    // Jalur B: xAI Grok (jika aktif)
+    const grokApiKey = (await getEffectiveApiKey('grok')) || process.env.GROK_API_KEY || process.env.XAI_API_KEY;
+    if (activeModel === 'grok' && grokApiKey) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-        const res = await fetch(nousApiUrl, {
+        const res = await fetch('https://api.x.ai/v1/chat/completions', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${nousApiKey}`,
+            Authorization: `Bearer ${grokApiKey}`,
             'Content-Type': 'application/json',
-            ...(nousKeyId ? { 'X-Key-Id': nousKeyId } : {}),
           },
           body: JSON.stringify({
-            model: nousModel,
+            model: process.env.GROK_MODEL || 'grok-2-latest',
             messages: [{ role: 'system', content: systemPrompt }, ...cleanHistory],
             temperature: 0.3,
             max_tokens: 600,
@@ -520,7 +515,7 @@ PANDUAN MENJAWAB & GUARDRAILS:
           const data = await res.json();
           const reply = data?.choices?.[0]?.message?.content;
           if (reply && reply.trim()) {
-            return NextResponse.json({ reply, dataSource: 'llm-live-db' });
+            return NextResponse.json({ reply, dataSource: 'grok-live-db' });
           }
         }
       } catch (err) {

@@ -7,8 +7,8 @@
 
 import { prisma } from '@/lib/prisma';
 
-export type AIProvider = 'gemini' | 'openai' | 'deepseek' | 'nous';
-export type AIModelType = 'gemini' | 'gpt' | 'deepseek' | 'nous';
+export type AIProvider = 'gemini' | 'grok';
+export type AIModelType = 'gemini' | 'grok';
 
 /**
  * Mengambil API Key efektif untuk provider tertentu.
@@ -35,12 +35,8 @@ export async function getEffectiveApiKey(provider: AIProvider): Promise<string> 
   switch (provider) {
     case 'gemini':
       return process.env.GEMINI_API_KEY || '';
-    case 'openai':
-      return process.env.OPENAI_API_KEY || '';
-    case 'deepseek':
-      return process.env.DEEPSEEK_API_KEY || '';
-    case 'nous':
-      return process.env.NOUS_API_KEY || '';
+    case 'grok':
+      return process.env.GROK_API_KEY || process.env.XAI_API_KEY || '';
     default:
       return '';
   }
@@ -58,7 +54,7 @@ export async function getActiveAiModel(): Promise<AIModelType> {
       });
       if (record?.value) {
         const val = record.value.toLowerCase();
-        if (['gemini', 'gpt', 'deepseek', 'nous'].includes(val)) {
+        if (['gemini', 'grok'].includes(val)) {
           return val as AIModelType;
         }
       }

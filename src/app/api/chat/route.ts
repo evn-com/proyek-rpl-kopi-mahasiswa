@@ -19,8 +19,7 @@ import { checkRateLimit, extractIdentifier, RATE_LIMIT_CONFIG } from '@/lib/ai/r
 import { generateStream, isGeminiConfigured } from '@/lib/ai/geminiClient';
 import {
   generateOpenAiCompatibleStream,
-  isOpenAiConfigured,
-  isDeepSeekConfigured,
+  isGrokConfigured,
 } from '@/lib/ai/openAiCompatible';
 import { aiService } from '@/lib/ai/aiService';
 import { detectMenuCategoryIntent } from '@/lib/ai/dbContext';
@@ -164,41 +163,24 @@ export async function POST(req: NextRequest) {
   const categoryIntent = detectMenuCategoryIntent(lastUserMsg);
   const chatMode = (mode === 'research' ? 'research' : 'barista') as 'barista' | 'research';
 
-  // ── 6. Routing Eksekusi Berdasarkan Model Aktif ─────────────
-
-  // Jalur 1: OpenAI GPT (jika aktif)
-  if (activeModel === 'gpt') {
-    if (await isOpenAiConfigured()) {
+  // ── 6. Routing Eksekusi Berdasarkan Model Aktif (Gemini / Grok) ──
+  // Jalur 1: xAI Grok (jika aktif)
+  if (activeModel === 'grok') {
+    if (await isGrokConfigured()) {
       try {
         const stream = generateOpenAiCompatibleStream({
-          modelType: 'gpt',
+          modelType: 'grok',
           messages,
           mode: chatMode,
         });
-        return createSseResponse(stream, activeModel, 'openai-gpt', rateLimitResult.remaining, categoryIntent);
-      } catch (gptErr) {
-        console.error('[OpenAI GPT] Error, falling back to Gemini/Heuristic:', gptErr);
+        return createSseResponse(stream, activeModel, 'xai-grok', rateLimitResult.remaining, categoryIntent);
+      } catch (grokErr) {
+        console.error('[xAI Grok] Error, falling back to Gemini/Heuristic:', grokErr);
       }
     }
   }
 
-  // Jalur 2: DeepSeek (jika aktif)
-  if (activeModel === 'deepseek') {
-    if (await isDeepSeekConfigured()) {
-      try {
-        const stream = generateOpenAiCompatibleStream({
-          modelType: 'deepseek',
-          messages,
-          mode: chatMode,
-        });
-        return createSseResponse(stream, activeModel, 'deepseek', rateLimitResult.remaining, categoryIntent);
-      } catch (deepseekErr) {
-        console.error('[DeepSeek] Error, falling back to Gemini/Heuristic:', deepseekErr);
-      }
-    }
-  }
-
-  // Jalur 3: Google Gemini (default atau fallback)
+  // Jalur 2: Google Gemini (default atau fallback)
   if (await isGeminiConfigured()) {
     try {
       const stream = await generateStream(messages, chatMode);

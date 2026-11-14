@@ -1,8 +1,8 @@
 /**
  * lib/ai/openAiCompatible.ts
  * ──────────────────────────────────────────────────────────────
- * Provider streaming untuk model OpenAI (GPT-4o / GPT-3.5) & DeepSeek (V3 / R1).
- * Mendukung direct OpenAI/DeepSeek API serta Nous Research gateway fallback.
+ * Provider streaming untuk model xAI Grok (Grok 2 / Grok Beta)
+ * yang menggunakan OpenAI-compatible API protocol.
  */
 
 import { BARISTA_SYSTEM_INSTRUCTION, RESEARCH_SYSTEM_INSTRUCTION } from './geminiClient';
@@ -10,28 +10,21 @@ import { fetchRealtimeDatabaseContext, detectMenuCategoryIntent, type RealtimeDa
 import { getEffectiveApiKey } from './aiConfig';
 
 export interface OpenAiCompatibleOptions {
-  modelType: 'gpt' | 'deepseek';
+  modelType: 'grok';
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;
   mode?: 'barista' | 'research';
 }
 
 /**
- * Memeriksa apakah provider memiliki API key yang valid di DB atau environment
+ * Memeriksa apakah provider xAI Grok memiliki API key yang valid di DB atau environment
  */
-export async function isOpenAiConfigured(): Promise<boolean> {
-  const openaiKey = await getEffectiveApiKey('openai');
-  const nousKey = await getEffectiveApiKey('nous');
-  return Boolean(openaiKey || nousKey);
-}
-
-export async function isDeepSeekConfigured(): Promise<boolean> {
-  const deepseekKey = await getEffectiveApiKey('deepseek');
-  const nousKey = await getEffectiveApiKey('nous');
-  return Boolean(deepseekKey || nousKey);
+export async function isGrokConfigured(): Promise<boolean> {
+  const grokKey = await getEffectiveApiKey('grok');
+  return Boolean(grokKey && grokKey.length >= 8);
 }
 
 /**
- * Generator streaming yang memanggil endpoint OpenAI / DeepSeek / Nous
+ * Generator streaming yang memanggil endpoint xAI Grok
  * dan mengembalikan teks chunk-by-chunk.
  */
 export async function* generateOpenAiCompatibleStream(
@@ -42,44 +35,17 @@ export async function* generateOpenAiCompatibleStream(
   let apiUrl = '';
   let apiKey = '';
   let modelName = '';
-  const extraHeaders: Record<string, string> = {};
 
-  if (modelType === 'gpt') {
-    const openaiKey = await getEffectiveApiKey('openai');
-    const nousKey = await getEffectiveApiKey('nous');
-
-    if (openaiKey) {
-      apiUrl = 'https://api.openai.com/v1/chat/completions';
-      apiKey = openaiKey;
-      modelName = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-    } else if (nousKey) {
-      apiUrl = process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
-      apiKey = nousKey;
-      modelName = process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct';
-      if (process.env.NOUS_KEY_ID) {
-        extraHeaders['X-Key-Id'] = process.env.NOUS_KEY_ID;
-      }
-    } else {
-      throw new Error('API key OpenAI tidak ditemukan di Pengaturan AI maupun .env.');
+  if (modelType === 'grok') {
+    const grokKey = await getEffectiveApiKey('grok');
+    if (!grokKey) {
+      throw new Error('API key xAI Grok tidak ditemukan di Pengaturan AI maupun .env.');
     }
-  } else if (modelType === 'deepseek') {
-    const deepseekKey = await getEffectiveApiKey('deepseek');
-    const nousKey = await getEffectiveApiKey('nous');
-
-    if (deepseekKey) {
-      apiUrl = 'https://api.deepseek.com/chat/completions';
-      apiKey = deepseekKey;
-      modelName = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
-    } else if (nousKey) {
-      apiUrl = process.env.NOUS_API_URL || 'https://inference-api.nousresearch.com/v1/chat/completions';
-      apiKey = nousKey;
-      modelName = process.env.NOUS_MODEL || 'meta-llama/llama-3.1-8b-instruct';
-      if (process.env.NOUS_KEY_ID) {
-        extraHeaders['X-Key-Id'] = process.env.NOUS_KEY_ID;
-      }
-    } else {
-      throw new Error('API key DeepSeek tidak ditemukan di Pengaturan AI maupun .env.');
-    }
+    apiUrl = 'https://api.x.ai/v1/chat/completions';
+    apiKey = grokKey;
+    modelName = process.env.GROK_MODEL || 'grok-2-latest';
+  } else {
+    throw new Error(`Model type ${modelType} tidak didukung.`);
   }
 
   // Siapkan prompt sistem & konteks database
@@ -142,7 +108,6 @@ Pembayaran: QRIS, E-Wallet & Kasir`;
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
-      ...extraHeaders,
     },
     body: JSON.stringify({
       model: modelName,

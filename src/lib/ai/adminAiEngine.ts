@@ -707,19 +707,15 @@ export function generatePreciseAdminResponse(
 
 Website ini dilengkapi asisten kecerdasan buatan (*AI Barista Assistant*) yang dapat diganti sewaktu-waktu oleh Admin di menu **Pengaturan Model AI** ('/admin/settings/ai').
 
-📌 **3 Pilihan Model AI yang Didukung:**
-1. ⚡ **Google Gemini 2.5 Flash (Rekomendasi Utama)**:
-   - Kecepatan respon ultra-cepat (<200ms latency).
+📌 **2 Pilihan Model AI yang Didukung:**
+1. ⚡ **Google Gemini Flash (Rekomendasi Utama)**:
+   - Kecepatan respon ultra-cepat (<500ms latency), hemat kuota.
    - Terintegrasi native SDK Google GenAI (@google/genai).
-   - Paling akurat dalam memfilter menu kopi, non-kopi, dan promo.
+   - Sangat akurat dalam memfilter menu kopi, non-kopi, dan promo.
 
-2. 🧠 **OpenAI GPT (GPT-4o / GPT-3.5)**:
-   - Gaya bahasa ramah, santun, dan sangat luwes.
-   - Unggul dalam menangkap nuansa curhat mahasiswa dan rekomendasi kopi personal.
-
-3. 🪙 **DeepSeek (DeepSeek V3 / R1)**:
-   - Arsitektur penalaran komputasi tinggi dengan biaya token paling hemat.
-   - Sangat cerdas dalam menghitung budget mahasiswa (misal: rekomendasi paket hemat di bawah Rp 20.000).
+2. 🚀 **xAI Grok (Grok 2 / Grok Beta)**:
+   - Model cerdas dari xAI dengan penalaran cepat dan pemahaman percakapan mutakhir.
+   - Gaya interaksi responsif, tajam, dan up-to-date.
 
 🔒 **Hak Akses Pengaturan:** Hanya **Admin** dan **Owner** yang berhak mengganti model AI aktif.`;
   }
@@ -1391,7 +1387,7 @@ Setiap meja terpasang QR Code untuk pemesanan mandiri pelanggan langsung ke dapu
 - 🎟️ **Promosi & Voucher**: Pembuatan kupon diskon dan banner promosi mahasiswa.
 - 👥 **User Management & Approval**: Verifikasi KTM member mahasiswa dan manajemen staf kasir/barista.
 - 💬 **WhatsApp Inbox**: CS chatting pelanggan terhubung bot WhatsApp.
-- 🤖 **Pengaturan Model AI**: Pemilihan engine AI Barista (Gemini, GPT, DeepSeek).`;
+- 🤖 **Pengaturan Model AI**: Pemilihan engine AI Barista (Google Gemini & xAI Grok).`;
   }
 
   // 15. DEFAULT RESPONS INTELIGEN
