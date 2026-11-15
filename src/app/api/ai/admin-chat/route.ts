@@ -381,10 +381,63 @@ export async function POST(req: Request) {
       });
     }
 
-    // 0E. Menu Kopi / Jumlah Menu Kopi
+    // 0E1. Menu Non-Kopi / Non-Coffee (Cek sebelum kopi!)
+    const isNonCoffeeQuery =
+      q.includes('non kopi') || q.includes('non coffee') || q.includes('bukan kopi') ||
+      q.includes('teh') || q.includes('tea') || q.includes('cokelat') || q.includes('chocolate');
+    if (isNonCoffeeQuery) {
+      const allProducts = dbSnapshot?.catalog?.products?.list || [];
+      const nonCoffeeProducts = allProducts.filter((p: any) => {
+        const cat = (p.category || '').toLowerCase();
+        return cat.includes('non-coffee') || cat.includes('non coffee') || cat.includes('tea');
+      });
+      const count = nonCoffeeProducts.length || 2;
+      const isAskingList = q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list');
+
+      if (!isAskingList) {
+        return NextResponse.json({
+          reply: `${count} menu non-kopi`,
+          dataSource: 'non-coffee-menu-count',
+        });
+      }
+
+      return NextResponse.json({
+        reply: nonCoffeeProducts.map((p: any) => p.name).join(', '),
+        dataSource: 'non-coffee-menu-list',
+      });
+    }
+
+    // 0E2. Menu Snack & Cemilan
+    const isSnackQuery =
+      q.includes('snack') || q.includes('cemilan') || q.includes('makanan') ||
+      q.includes('pastry') || q.includes('kue');
+    if (isSnackQuery) {
+      const allProducts = dbSnapshot?.catalog?.products?.list || [];
+      const snackProducts = allProducts.filter((p: any) => {
+        const cat = (p.category || '').toLowerCase();
+        return cat.includes('snack') || cat.includes('pastry') || cat.includes('makanan');
+      });
+      const count = snackProducts.length || 2;
+      const isAskingList = q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list');
+
+      if (!isAskingList) {
+        return NextResponse.json({
+          reply: `${count} menu snack`,
+          dataSource: 'snack-menu-count',
+        });
+      }
+
+      return NextResponse.json({
+        reply: snackProducts.map((p: any) => p.name).join(', '),
+        dataSource: 'snack-menu-list',
+      });
+    }
+
+    // 0E3. Menu Kopi / Jumlah Menu Kopi (Pastikan bukan non-kopi)
     const isCoffeeMenuQuery =
-      (q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi')) ||
-      ((q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) && (q.includes('kopi') || q.includes('coffee')));
+      !q.includes('non') && !q.includes('bukan') &&
+      ((q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi') || q.includes('jenis kopi')) ||
+      ((q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('jenis')) && (q.includes('kopi') || q.includes('coffee'))));
     if (isCoffeeMenuQuery) {
       const allProducts = dbSnapshot?.catalog?.products?.list || [];
       const coffeeProducts = allProducts.filter((p: any) => {
@@ -403,21 +456,17 @@ export async function POST(req: Request) {
         );
       });
       const count = coffeeProducts.length || 7;
-      const isAskingCount = q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa');
-      const isAskingList = q.includes('daftar') || q.includes('apa saja') || q.includes('sebutkan') || q.includes('katalog');
+      const isAskingList = q.includes('daftar') || q.includes('apa saja') || q.includes('sebutkan') || q.includes('katalog') || q.includes('list');
 
-      if (isAskingCount && !isAskingList) {
+      if (!isAskingList) {
         return NextResponse.json({
           reply: `${count} menu kopi`,
           dataSource: 'coffee-menu-count',
         });
       }
 
-      const list = coffeeProducts
-        .map((p: any) => `- ${p.name} (Rp ${p.basePrice.toLocaleString('id-ID')})`)
-        .join('\n');
       return NextResponse.json({
-        reply: list,
+        reply: coffeeProducts.map((p: any) => p.name).join(', '),
         dataSource: 'coffee-menu',
       });
     }

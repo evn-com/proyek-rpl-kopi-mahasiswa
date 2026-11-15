@@ -1427,12 +1427,13 @@ Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
     // 10A. Jika menanyakan khusus NON-KOPI
     if (
       q.includes('non kopi') || q.includes('bukan kopi') || q.includes('non coffee') ||
-      q.includes('teh') || q.includes('tea') || q.includes('cokelat')
+      q.includes('teh') || q.includes('tea') || q.includes('cokelat') || q.includes('chocolate')
     ) {
-      const list = nonCoffeeProducts
-        .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
-        .join('\n');
-      return `🍵 **Daftar Menu Non-Coffee & Tea (${nonCoffeeProducts.length} Produk):**\n\n${list}`;
+      const isList = q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list');
+      if (!isList) {
+        return `${nonCoffeeProducts.length} menu non-kopi`;
+      }
+      return nonCoffeeProducts.map((p: any) => p.name).join(', ');
     }
 
     // 10B. Jika menanyakan khusus SNACK / CEMILAN / MAKANAN
@@ -1440,26 +1441,24 @@ Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
       q.includes('snack') || q.includes('cemilan') || q.includes('makanan') ||
       q.includes('pastry') || q.includes('kue')
     ) {
-      const list = snackProducts
-        .map((p: any) => `- **${p.name}** [${p.category}] — **Rp ${p.basePrice.toLocaleString('id-ID')}** (${p.isAvailable ? '✅ Tersedia' : '🔴 Habis'})`)
-        .join('\n');
-      return `🥐 **Daftar Menu Snack & Pastry (${snackProducts.length} Produk):**\n\n${list}`;
+      const isList = q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list');
+      if (!isList) {
+        return `${snackProducts.length} menu snack`;
+      }
+      return snackProducts.map((p: any) => p.name).join(', ');
     }
 
-    // 10C. Jika menanyakan khusus KOPI / COFFEE (misal: "ada brapa menu kopi", "daftar menu kopi", "menu kopi")
+    // 10C. Jika menanyakan khusus KOPI / COFFEE (Pastikan BUKAN non-kopi)
     if (
-      q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi') ||
-      ((q.includes('kopi') || q.includes('coffee')) && (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('daftar') || q.includes('ada')))
+      !q.includes('non') && !q.includes('bukan') &&
+      (q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi') || q.includes('jenis kopi') ||
+      ((q.includes('kopi') || q.includes('coffee')) && (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('daftar') || q.includes('ada') || q.includes('jenis'))))
     ) {
-      const isCount = q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa');
       const isList = q.includes('daftar') || q.includes('apa saja') || q.includes('sebutkan');
-      if (isCount && !isList) {
+      if (!isList) {
         return `${coffeeProducts.length} menu kopi`;
       }
-      const list = coffeeProducts
-        .map((p: any) => `- ${p.name} (Rp ${p.basePrice.toLocaleString('id-ID')})`)
-        .join('\n');
-      return list;
+      return coffeeProducts.map((p: any) => p.name).join(', ');
     }
 
     // 10D. Jika menanyakan SEMUA menu / katalog secara umum
