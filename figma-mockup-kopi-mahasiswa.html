@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kopi Mahasiswa — Figma Design System & Mockup Artboards</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+          },
+          colors: {
+            espresso: {
+              DEFAULT: '#3E2723',
+              dark: '#271714',
+              deep: '#1D100D',
+              light: '#5D4037',
+              muted: '#8D6E63',
+            },
+            cream: {
+              DEFAULT: '#FDF8F5',
+              soft: '#F8EFE9',
+              dark: '#EFE2D9',
+              light: '#FFFFFF',
+            },
+            latte: {
+              DEFAULT: '#D7CCC8',
+              accent: '#BCAAA4',
+            },
+            caramel: {
+              DEFAULT: '#C67D38',
+              light: '#D97706',
+              dark: '#9A5B22',
+            }
+          },
+          boxShadow: {
+            'artboard': '0 25px 60px -15px rgba(39, 23, 20, 0.25)',
+            'glass': '0 8px 32px 0 rgba(62, 39, 35, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Figma Artboard Presentation Styles */
+    body {
+      background-color: #1E1E24;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #271714;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      height: 12px;
+      width: 12px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #141418;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #3E2723;
+      border-radius: 6px;
+      border: 2px solid #141418;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #C67D38;
+    }
+  </style>
+</head>
+<body class="p-8 lg:p-14 custom-scroll min-h-screen">
+
+  <!-- ================= FIGMA CANVAS HEADER ================= -->
+  <header class="mb-12 max-w-[4000px]">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/10">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-caramel text-white font-bold text-lg shadow-lg">☕</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">Figma Ready UI Kit • Tahap 2 SDD</span>
+          <span class="text-xs text-white/50">• Theme: Warm Espresso (#3E2723) & Cream (#FDF8F5)</span>
+        </div>
+        <h1 class="text-3xl lg:text-4xl font-extrabold text-white tracking-tight font-serif">Kopi Mahasiswa — 5 Layar Utama (Artboards)</h1>
+        <p class="text-sm text-white/60 mt-1">Didesain presisi untuk langsung di-copy atau diimpor ke Figma via plugin <i>HTML to Design</i> atau <i>Figma HTML Importer</i>.</p>
+      </div>
+
+      <div class="flex items-center gap-4 bg-white/5 p-3 rounded-2xl border border-white/10 backdrop-blur-md">
+        <div class="text-right">
+          <div class="text-xs text-white/50 uppercase tracking-wider">Penyusun</div>
+          <div class="text-sm font-bold text-white">M. Revandya Wibowo (41257114)</div>
+          <div class="text-xs text-amber-400/90 font-medium">TI - 1B - 2025 • Rekayasa Perangkat Lunak</div>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-espresso-light flex items-center justify-center text-white font-bold text-sm border border-white/20">
+          MR
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HORIZONTAL ARTBOARDS CONTAINER (GAP 80px) ================= -->
+  <main class="flex flex-row gap-[80px] items-start w-max pb-16">
+
+    <!-- ============================================================== -->
+    <!-- ARTBOARD 1: KATALOG & PILIH MEJA (CUSTOMER)                   -->
+    <!-- ============================================================== -->
+    <section class="flex flex-col gap-4">
+      <div class="flex items-center justify-between px-2 text-white/80">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-[#3E2723] text-cream border border-caramel/40">ARTBOARD 01</span>
+          <h2 class="font-bold text-white text-lg">Katalog & Pilih Meja (Customer Web)</h2>
+        </div>
+        <span class="text-xs font-mono text-white/40">1280 × 920 px</span>
+      </div>
+
+      <!-- Canvas Frame 1280px -->
+      <div class="w-[1280px] min-h-[920px] bg-cream rounded-3xl shadow-artboard border border-espresso/10 overflow-hidden flex flex-col relative text-espresso">
+        
+        <!-- Header Navbar Pelanggan -->
+        <nav class="h-20 bg-espresso text-cream px-8 flex items-center justify-between border-b border-caramel/30 sticky top-0 z-30 shadow-md">
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-caramel to-espresso-light flex items-center justify-center text-xl shadow-md border border-caramel/40">
+              ☕
+            </div>
+            <div>
+              <div class="font-serif font-bold text-xl tracking-wide flex items-center gap-2">
+                Kopi Mahasiswa
+                <span class="text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-caramel/30 text-amber-300 border border-caramel/40">KAMPUS 1</span>
+              </div>
+              <p class="text-xs text-cream/70">Warm Espresso & High Speed WiFi • Buka 08:00 - 23:00</p>
+            </div>
+          </div>
+
+          <!-- Meja Aktif Selector Pill -->
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 bg-cream/10 px-4 py-2 rounded-xl border border-cream/20">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs text-cream/80">Lokasi Pesan:</span>
+              <span class="text-xs font-bold text-amber-300">Meja 03 (Indoor AC)</span>
+              <button class="text-[10px] text-cream/70 hover:text-white underline ml-1">Ubah</button>
+            </div>
+
+            <!-- Keranjang Button -->
+            <button class="flex items-center gap-2.5 bg-caramel hover:bg-caramel-dark text-white font-semibold text-xs px-5 py-2.5 rounded-xl shadow-md transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              <span>Keranjang</span>
+              <span class="bg-espresso text-cream text-[10px] font-bold px-2 py-0.5 rounded-full">2</span>
+            </button>
+          </div>
+        </nav>
+
+        <!-- Subheader: Banner Mahasiswa & Pilihan Meja -->
+        <div class="p-8 pb-4 flex flex-col gap-6">
+          
+          <!-- Banner Diskon Mahasiswa -->
+          <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-espresso via-espresso-light to-caramel text-white p-6 shadow-lg flex items-center justify-between">
+            <div class="relative z-10 max-w-xl">
+              <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400 text-espresso uppercase tracking-wider mb-2">Promo Nugas Semester Baru</span>
+              <h3 class="font-serif text-2xl font-bold leading-tight">Diskon 15% Untuk Semua Varian Kopi Susu</h3>
+              <p class="text-xs text-cream/80 mt-1">Cukup tunjukkan KTM aktif atau pesan langsung via QR Meja. Gratis WiFi 100 Mbps & colokan di setiap meja!</p>
+            </div>
+            <div class="flex items-center gap-3 relative z-10">
+              <div class="text-right">
+                <span class="text-[11px] text-amber-200">Kode Promo:</span>
+                <div class="font-mono font-extrabold text-base tracking-widest bg-black/30 px-3 py-1.5 rounded-lg border border-amber-400/40">BEGADANGNUGAS</div>
+              </div>
+            </div>
+            <div class="absolute -right-8 -bottom-10 w-44 h-44 rounded-full bg-white/5 pointer-events-none"></div>
+          </div>
+
+          <!-- Section: Status Pilihan Meja 01 - 08 -->
+          <div class="bg-cream-soft p-5 rounded-2xl border border-espresso/10">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-espresso">🪑 Status Ketersediaan Meja Kafe:</span>
+                <span class="text-xs text-espresso-muted">(Pilih meja Anda untuk memesan langsung)</span>
+              </div>
+              <div class="flex items-center gap-4 text-xs font-medium">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Tersedia</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Terisi</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-caramel ring-2 ring-caramel/40"></span> Meja Anda</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-8 gap-3">
+              <!-- Meja 01 (Terisi) -->
+              <div class="bg-white/80 p-3 rounded-xl border border-rose-200 flex flex-col items-center justify-center text-center opacity-70 cursor-not-allowed">
+                <span class="text-xs font-bold text-espresso">Meja 01</span>
+                <span class="text-[10px] font-semibold text-rose-600 mt-0.5">Terisi</span>
+                <span class="text-[9px] text-espresso-muted">2 Orang</span>
+              </div>
+              <!-- Meja 02 (Tersedia) -->
+              <div class="bg-white p-3 rounded-xl border border-emerald-300 hover:border-emerald-500 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm hover:shadow">
+                <span class="text-xs font-bold text-espresso">Meja 02</span>
+                <span class="text-[10px] font-semibold text-emerald-600 mt-0.5">Tersedia</span>
+                <span class="text-[9px] text-espresso-muted">Colokan ⚡</span>
+              </div>
+              <!-- Meja 03 (Terpilih / Active) -->
+              <div class="bg-caramel text-white p-3 rounded-xl border-2 border-caramel flex flex-col items-center justify-center text-center cursor-pointer shadow-md ring-2 ring-caramel/30">
+                <span class="text-xs font-extrabold">Meja 03</span>
+                <span class="text-[10px] font-bold bg-white text-espresso px-2 py-0.2 rounded-full mt-0.5">Pilihan Anda</span>
+                <span class="text-[9px] text-cream/90 mt-0.5">Indoor AC ⚡</span>
+              </div>
+              <!-- Meja 04 (Tersedia) -->
+              <div class="bg-white p-3 rounded-xl border border-emerald-300 hover:border-emerald-500 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm hover:shadow">
+                <span class="text-xs font-bold text-espresso">Meja 04</span>
+                <span class="text-[10px] font-semibold text-emerald-600 mt-0.5">Tersedia</span>
+                <span class="text-[9px] text-espresso-muted">4 Orang</span>
+              </div>
+              <!-- Meja 05 (Terisi) -->
+              <div class="bg-white/80 p-3 rounded-xl border border-rose-200 flex flex-col items-center justify-center text-center opacity-70 cursor-not-allowed">
+                <span class="text-xs font-bold text-espresso">Meja 05</span>
+                <span class="text-[10px] font-semibold text-rose-600 mt-0.5">Terisi</span>
+                <span class="text-[9px] text-espresso-muted">Grup Tugas</span>
+              </div>
+              <!-- Meja 06 (Tersedia) -->
+              <div class="bg-white p-3 rounded-xl border border-emerald-300 hover:border-emerald-500 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm hover:shadow">
+                <span class="text-xs font-bold text-espresso">Meja 06</span>
+                <span class="text-[10px] font-semibold text-emerald-600 mt-0.5">Tersedia</span>
+                <span class="text-[9px] text-espresso-muted">Outdoor</span>
+              </div>
+              <!-- Meja 07 (Tersedia) -->
+              <div class="bg-white p-3 rounded-xl border border-emerald-300 hover:border-emerald-500 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm hover:shadow">
+                <span class="text-xs font-bold text-espresso">Meja 07</span>
+                <span class="text-[10px] font-semibold text-emerald-600 mt-0.5">Tersedia</span>
+                <span class="text-[9px] text-espresso-muted">Colokan ⚡</span>
+              </div>
+              <!-- Meja 08 (Terisi) -->
+              <div class="bg-white/80 p-3 rounded-xl border border-rose-200 flex flex-col items-center justify-center text-center opacity-70 cursor-not-allowed">
+                <span class="text-xs font-bold text-espresso">Meja 08</span>
+                <span class="text-[10px] font-semibold text-rose-600 mt-0.5">Terisi</span>
+                <span class="text-[9px] text-espresso-muted">Outdoor</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Filter Kategori & Search Bar -->
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <button class="px-5 py-2.5 rounded-xl font-bold text-xs bg-espresso text-cream shadow-sm flex items-center gap-2">
+                <span>☕ Kopi Espresso</span>
+                <span class="bg-caramel text-white text-[10px] px-1.5 py-0.2 rounded-full font-sans">7</span>
+              </button>
+              <button class="px-5 py-2.5 rounded-xl font-semibold text-xs bg-white text-espresso-muted hover:text-espresso border border-espresso/15 transition flex items-center gap-2">
+                <span>🍵 Non-Kopi & Teh</span>
+                <span class="bg-espresso/10 text-espresso text-[10px] px-1.5 py-0.2 rounded-full font-sans">2</span>
+              </button>
+              <button class="px-5 py-2.5 rounded-xl font-semibold text-xs bg-white text-espresso-muted hover:text-espresso border border-espresso/15 transition flex items-center gap-2">
+                <span>🥐 Snack & Pastry</span>
+                <span class="bg-espresso/10 text-espresso text-[10px] px-1.5 py-0.2 rounded-full font-sans">2</span>
+              </button>
+              <button class="px-5 py-2.5 rounded-xl font-semibold text-xs bg-white text-espresso-muted hover:text-espresso border border-espresso/15 transition flex items-center gap-2">
+                <span>⭐ Best Seller</span>
+              </button>
+            </div>
+
+            <!-- Search input -->
+            <div class="relative w-72">
+              <input type="text" placeholder="Cari varian kopi favorit..." class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-espresso/15 text-xs focus:outline-none focus:ring-2 focus:ring-caramel text-espresso placeholder-espresso-muted/60">
+              <svg class="w-4 h-4 text-espresso-muted absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+          </div>
+
+          <!-- Grid 4 Kartu Menu Kopi -->
+          <div class="grid grid-cols-4 gap-6 pt-2">
+            
+            <!-- Card 1: Kopi Susu Mahasiswa (KSM) -->
+            <div class="bg-white rounded-2xl p-5 border border-espresso/10 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+              <div>
+                <div class="h-44 rounded-xl bg-gradient-to-br from-[#4A2C21] to-[#2B1810] relative overflow-hidden flex items-center justify-center p-4">
+                  <div class="text-6xl group-hover:scale-110 transition duration-300">🧋</div>
+                  <span class="absolute top-3 left-3 bg-caramel text-white font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider shadow">Best Seller #1</span>
+                  <div class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                    ★ 4.9 <span class="text-white/60 font-normal">(1.2k)</span>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <div class="flex items-center gap-1 text-[11px] text-caramel font-semibold">
+                    <span>Espresso Blend</span> • <span>Gula Aren Organik</span>
+                  </div>
+                  <h4 class="font-serif font-bold text-base text-espresso mt-0.5 leading-snug">Kopi Susu Mahasiswa (KSM)</h4>
+                  <p class="text-xs text-espresso-muted line-clamp-2 mt-1">Signature kopi susu kekinian dengan gula aren asli dan double shot espresso creamy yang ramah kantong mahasiswa.</p>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-espresso/10 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] text-espresso-muted">Harga mulai</span>
+                  <div class="text-base font-extrabold text-espresso font-sans">Rp 18.000</div>
+                </div>
+                <button class="bg-espresso hover:bg-caramel text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                  <span>+ Keranjang</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 2: Classic Caffe Latte -->
+            <div class="bg-white rounded-2xl p-5 border border-espresso/10 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+              <div>
+                <div class="h-44 rounded-xl bg-gradient-to-br from-[#5D4037] to-[#3E2723] relative overflow-hidden flex items-center justify-center p-4">
+                  <div class="text-6xl group-hover:scale-110 transition duration-300">☕</div>
+                  <span class="absolute top-3 left-3 bg-espresso-light text-cream font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">Arabika 100%</span>
+                  <div class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                    ★ 4.8 <span class="text-white/60 font-normal">(840)</span>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <div class="flex items-center gap-1 text-[11px] text-caramel font-semibold">
+                    <span>Espresso</span> • <span>Steamed Milk</span>
+                  </div>
+                  <h4 class="font-serif font-bold text-base text-espresso mt-0.5 leading-snug">Classic Caffe Latte</h4>
+                  <p class="text-xs text-espresso-muted line-clamp-2 mt-1">Perpaduan seimbang espresso single origin dengan steamed milk lembut dan microfoam tipis beraroma nutty.</p>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-espresso/10 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] text-espresso-muted">Harga mulai</span>
+                  <div class="text-base font-extrabold text-espresso font-sans">Rp 19.000</div>
+                </div>
+                <button class="bg-espresso hover:bg-caramel text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                  <span>+ Keranjang</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 3: Caramel Macchiato -->
+            <div class="bg-white rounded-2xl p-5 border border-espresso/10 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+              <div>
+                <div class="h-44 rounded-xl bg-gradient-to-br from-[#795548] to-[#4E342E] relative overflow-hidden flex items-center justify-center p-4">
+                  <div class="text-6xl group-hover:scale-110 transition duration-300">🍮</div>
+                  <span class="absolute top-3 left-3 bg-amber-600 text-white font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">Favorit Nugas</span>
+                  <div class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                    ★ 4.9 <span class="text-white/60 font-normal">(950)</span>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <div class="flex items-center gap-1 text-[11px] text-caramel font-semibold">
+                    <span>Vanilla Syrup</span> • <span>Caramel Drizzle</span>
+                  </div>
+                  <h4 class="font-serif font-bold text-base text-espresso mt-0.5 leading-snug">Caramel Macchiato</h4>
+                  <p class="text-xs text-espresso-muted line-clamp-2 mt-1">Layered espresso di atas susu vanilla segar dengan topping siraman karamel lumer khas kafe Italia.</p>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-espresso/10 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] text-espresso-muted">Harga mulai</span>
+                  <div class="text-base font-extrabold text-espresso font-sans">Rp 22.000</div>
+                </div>
+                <button class="bg-espresso hover:bg-caramel text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                  <span>+ Keranjang</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 4: Americano Double Shot -->
+            <div class="bg-white rounded-2xl p-5 border border-espresso/10 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+              <div>
+                <div class="h-44 rounded-xl bg-gradient-to-br from-[#3E2723] to-[#1D100D] relative overflow-hidden flex items-center justify-center p-4">
+                  <div class="text-6xl group-hover:scale-110 transition duration-300">🧊</div>
+                  <span class="absolute top-3 left-3 bg-slate-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">Zero Sugar</span>
+                  <div class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                    ★ 4.7 <span class="text-white/60 font-normal">(620)</span>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <div class="flex items-center gap-1 text-[11px] text-caramel font-semibold">
+                    <span>Double Shot</span> • <span>Low Calorie</span>
+                  </div>
+                  <h4 class="font-serif font-bold text-base text-espresso mt-0.5 leading-snug">Americano Double Shot</h4>
+                  <p class="text-xs text-espresso-muted line-clamp-2 mt-1">Ekstrak ganda biji kopi Arabika pilihan disajikan dingin atau panas untuk dorongan fokus nugas maksimal.</p>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-espresso/10 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] text-espresso-muted">Harga mulai</span>
+                  <div class="text-base font-extrabold text-espresso font-sans">Rp 16.000</div>
+                </div>
+                <button class="bg-espresso hover:bg-caramel text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                  <span>+ Keranjang</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Footer Bar: Status Meja & Quick Help -->
+        <div class="mt-auto bg-cream-dark px-8 py-4 border-t border-espresso/10 flex items-center justify-between text-xs text-espresso-muted">
+          <div class="flex items-center gap-4">
+            <span>Butuh bantuan rekomendasi rasa? Klik tombol <b>Barista AI</b> di pojok kanan bawah!</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="font-semibold text-espresso">Lokasi: Kopi Mahasiswa Kampus 1, Gedung C Lt. 1</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ============================================================== -->
+    <!-- ARTBOARD 2: MODAL KUSTOMISASI & CHECKOUT                      -->
+    <!-- ============================================================== -->
+    <section class="flex flex-col gap-4">
+      <div class="flex items-center justify-between px-2 text-white/80">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-[#3E2723] text-cream border border-caramel/40">ARTBOARD 02</span>
+          <h2 class="font-bold text-white text-lg">Modal Kustomisasi & Checkout</h2>
+        </div>
+        <span class="text-xs font-mono text-white/40">1280 × 920 px</span>
+      </div>
+
+      <!-- Canvas Frame 1280px with Modal Dialog Overlay -->
+      <div class="w-[1280px] min-h-[920px] bg-espresso-deep/90 backdrop-blur-md rounded-3xl shadow-artboard border border-white/10 overflow-hidden flex items-center justify-center p-8 relative">
+        
+        <!-- Background dim representation -->
+        <div class="absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none" style="background-image: radial-gradient(#C67D38 1px, transparent 1px); background-size: 24px 24px;"></div>
+
+        <!-- Centered Modal Box (Wide Layout) -->
+        <div class="w-[980px] bg-cream rounded-3xl shadow-2xl border border-caramel/30 overflow-hidden flex flex-col relative z-10 text-espresso">
+          
+          <!-- Modal Header -->
+          <div class="bg-espresso text-cream px-8 py-5 flex items-center justify-between border-b border-caramel/30">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-xl bg-caramel flex items-center justify-center text-lg">⚙️</span>
+              <div>
+                <h3 class="font-serif font-bold text-lg text-white">Kustomisasi Minuman: Kopi Susu Mahasiswa (KSM)</h3>
+                <p class="text-xs text-cream/70">Sesuaikan suhu, takaran manis, dan topping pelengkap selera Anda</p>
+              </div>
+            </div>
+            <button class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm transition">✕</button>
+          </div>
+
+          <!-- Modal Body: 2 Columns (Customization Options & Order Summary) -->
+          <div class="p-8 grid grid-cols-12 gap-8">
+            
+            <!-- Column 1: Options Form (7 Cols) -->
+            <div class="col-span-7 flex flex-col gap-6 pr-4 border-r border-espresso/10">
+              
+              <!-- 1. Pilihan Suhu / Varian Temperature -->
+              <div>
+                <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-2.5">1. Pilihan Suhu (Temperature)</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex items-center justify-between p-3.5 rounded-xl border-2 border-caramel bg-cream-soft cursor-pointer shadow-sm">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">🧊</span>
+                      <div>
+                        <div class="text-xs font-extrabold text-espresso">Iced (Dingin Segar)</div>
+                        <div class="text-[10px] text-espresso-muted">Cup dingin 16oz + es batu higienis</div>
+                      </div>
+                    </div>
+                    <span class="w-4 h-4 rounded-full border-4 border-caramel bg-white"></span>
+                  </label>
+
+                  <label class="flex items-center justify-between p-3.5 rounded-xl border border-espresso/15 bg-white hover:bg-cream-soft cursor-pointer transition">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl">☕</span>
+                      <div>
+                        <div class="text-xs font-bold text-espresso">Hot (Hangat Panas)</div>
+                        <div class="text-[10px] text-espresso-muted">Paper cup 12oz tahan panas</div>
+                      </div>
+                    </div>
+                    <span class="w-4 h-4 rounded-full border border-espresso/30 bg-white"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 2. Pilihan Ukuran (Size) -->
+              <div>
+                <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-2.5">2. Ukuran Cup (Size)</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex items-center justify-between p-3 rounded-xl border border-espresso/15 bg-white cursor-pointer hover:bg-cream-soft">
+                    <div>
+                      <div class="text-xs font-bold text-espresso">Regular (250 ml)</div>
+                      <div class="text-[10px] text-espresso-muted">Standar single shot</div>
+                    </div>
+                    <span class="text-xs font-bold text-espresso-muted">+Rp 0</span>
+                  </label>
+
+                  <label class="flex items-center justify-between p-3 rounded-xl border-2 border-caramel bg-cream-soft cursor-pointer shadow-sm">
+                    <div>
+                      <div class="text-xs font-extrabold text-espresso">Large (350 ml)</div>
+                      <div class="text-[10px] text-espresso-muted">Extra shot espresso boost</div>
+                    </div>
+                    <span class="text-xs font-extrabold text-caramel">+Rp 3.000</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 3. Tingkat Manis & Es -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-2">Tingkat Manis (Sweetness)</label>
+                  <select class="w-full bg-white border border-espresso/20 rounded-xl px-3 py-2 text-xs font-semibold text-espresso focus:ring-2 focus:ring-caramel focus:outline-none">
+                    <option>Normal Sweet (100%)</option>
+                    <option selected>Less Sweet (75%) — Rekomendasi</option>
+                    <option>Low Sweet (50%)</option>
+                    <option>No Sugar (0%)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-2">Takaran Es (Ice Level)</label>
+                  <select class="w-full bg-white border border-espresso/20 rounded-xl px-3 py-2 text-xs font-semibold text-espresso focus:ring-2 focus:ring-caramel focus:outline-none">
+                    <option selected>Normal Ice</option>
+                    <option>Less Ice (Lebih pekat)</option>
+                    <option>No Ice</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 4. Pilihan Topping Tambahan (Checkbox) -->
+              <div>
+                <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-2.5">3. Tambahan Topping & Shot</label>
+                <div class="grid grid-cols-2 gap-2.5">
+                  <label class="flex items-center justify-between p-2.5 rounded-xl border-2 border-caramel bg-cream-soft cursor-pointer">
+                    <div class="flex items-center gap-2">
+                      <span class="w-4 h-4 rounded bg-caramel text-white flex items-center justify-center text-[10px]">✓</span>
+                      <span class="text-xs font-bold text-espresso">Extra Shot Espresso</span>
+                    </div>
+                    <span class="text-xs font-bold text-caramel">+Rp 4.000</span>
+                  </label>
+
+                  <label class="flex items-center justify-between p-2.5 rounded-xl border border-espresso/15 bg-white cursor-pointer hover:bg-cream-soft">
+                    <div class="flex items-center gap-2">
+                      <span class="w-4 h-4 rounded border border-espresso/30 bg-white"></span>
+                      <span class="text-xs font-medium text-espresso">Oat Milk Barista</span>
+                    </div>
+                    <span class="text-xs font-medium text-espresso-muted">+Rp 5.000</span>
+                  </label>
+
+                  <label class="flex items-center justify-between p-2.5 rounded-xl border border-espresso/15 bg-white cursor-pointer hover:bg-cream-soft">
+                    <div class="flex items-center gap-2">
+                      <span class="w-4 h-4 rounded border border-espresso/30 bg-white"></span>
+                      <span class="text-xs font-medium text-espresso">Caramel Drizzle</span>
+                    </div>
+                    <span class="text-xs font-medium text-espresso-muted">+Rp 3.000</span>
+                  </label>
+
+                  <label class="flex items-center justify-between p-2.5 rounded-xl border border-espresso/15 bg-white cursor-pointer hover:bg-cream-soft">
+                    <div class="flex items-center gap-2">
+                      <span class="w-4 h-4 rounded border border-espresso/30 bg-white"></span>
+                      <span class="text-xs font-medium text-espresso">Boba Brown Sugar</span>
+                    </div>
+                    <span class="text-xs font-medium text-espresso-muted">+Rp 3.000</span>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Column 2: Order Checkout Summary (5 Cols) -->
+            <div class="col-span-5 flex flex-col justify-between">
+              <div>
+                <h4 class="font-serif font-bold text-base text-espresso mb-3 flex items-center justify-between">
+                  <span>Ringkasan Checkout</span>
+                  <span class="text-xs font-sans font-semibold px-2 py-0.5 rounded-md bg-espresso text-cream">Meja 03</span>
+                </h4>
+
+                <!-- Item breakdown card -->
+                <div class="bg-white rounded-2xl p-4 border border-espresso/10 flex flex-col gap-3 shadow-sm">
+                  <div class="flex items-start justify-between pb-3 border-b border-espresso/10">
+                    <div>
+                      <div class="text-xs font-bold text-espresso">1x Kopi Susu Mahasiswa (KSM)</div>
+                      <div class="text-[10px] text-espresso-muted mt-0.5">• Iced, Large Cup (+3k)</div>
+                      <div class="text-[10px] text-espresso-muted">• Less Sweet 75%, Normal Ice</div>
+                      <div class="text-[10px] text-caramel font-semibold">• Topping: Extra Shot Espresso (+4k)</div>
+                    </div>
+                    <span class="text-xs font-bold text-espresso">Rp 25.000</span>
+                  </div>
+
+                  <div class="flex items-start justify-between pb-3 border-b border-espresso/10">
+                    <div>
+                      <div class="text-xs font-bold text-espresso">1x Butter Croissant Crispy</div>
+                      <div class="text-[10px] text-espresso-muted mt-0.5">• Hangat (Reheated)</div>
+                    </div>
+                    <span class="text-xs font-bold text-espresso">Rp 16.000</span>
+                  </div>
+
+                  <!-- Kalkulasi Biaya -->
+                  <div class="flex flex-col gap-1.5 pt-1 text-xs">
+                    <div class="flex justify-between text-espresso-muted">
+                      <span>Subtotal Produk</span>
+                      <span class="font-semibold text-espresso">Rp 41.000</span>
+                    </div>
+                    <div class="flex justify-between text-emerald-600 font-semibold">
+                      <span>Diskon KTM Mahasiswa (15%)</span>
+                      <span>- Rp 6.150</span>
+                    </div>
+                    <div class="flex justify-between text-espresso-muted">
+                      <span>Pajak Restoran PB1 (0% Kampus)</span>
+                      <span>Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-base font-extrabold text-espresso pt-2 border-t border-espresso/15">
+                      <span>Total Pembayaran</span>
+                      <span class="text-caramel font-sans">Rp 34.850</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Metode Pembayaran Selector -->
+                <div class="mt-4">
+                  <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-2">Metode Pembayaran</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div class="p-2.5 rounded-xl border-2 border-caramel bg-cream-soft flex items-center gap-2 cursor-pointer shadow-sm">
+                      <span class="text-base">📱</span>
+                      <div>
+                        <div class="text-[11px] font-bold text-espresso">QRIS Instan</div>
+                        <div class="text-[9px] text-espresso-muted">GoPay, Shopee, BCA</div>
+                      </div>
+                    </div>
+                    <div class="p-2.5 rounded-xl border border-espresso/15 bg-white flex items-center gap-2 cursor-pointer hover:bg-cream-soft">
+                      <span class="text-base">💵</span>
+                      <div>
+                        <div class="text-[11px] font-bold text-espresso">Kasir POS</div>
+                        <div class="text-[9px] text-espresso-muted">Bayar tunai di bar</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- CTA Button -->
+              <div class="mt-6 pt-4 border-t border-espresso/10 flex flex-col gap-2">
+                <button class="w-full bg-caramel hover:bg-caramel-dark text-white font-extrabold text-sm py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
+                  <span>Konfirmasi & Kirim Pesanan</span>
+                  <span class="text-xs bg-espresso/40 px-2 py-0.5 rounded-md font-sans">Rp 34.850</span>
+                </button>
+                <p class="text-[10px] text-center text-espresso-muted">Pesanan langsung masuk ke antrean KDS Barista & layar status publik.</p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ============================================================== -->
+    <!-- ARTBOARD 3: WIDGET CHAT BARISTA AI                            -->
+    <!-- ============================================================== -->
+    <section class="flex flex-col gap-4">
+      <div class="flex items-center justify-between px-2 text-white/80">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-[#3E2723] text-cream border border-caramel/40">ARTBOARD 03</span>
+          <h2 class="font-bold text-white text-lg">Widget Chat Barista AI (Live Recommendations)</h2>
+        </div>
+        <span class="text-xs font-mono text-white/40">1280 × 920 px</span>
+      </div>
+
+      <!-- Canvas Frame 1280px with Floating Chat Window Layout -->
+      <div class="w-[1280px] min-h-[920px] bg-cream rounded-3xl shadow-artboard border border-espresso/10 overflow-hidden flex relative text-espresso p-8 justify-end items-end" style="background-image: radial-gradient(#3E2723 0.75px, transparent 0.75px); background-size: 20px 20px;">
+        
+        <!-- Background Mock Content (Dimmed Page Behind) -->
+        <div class="absolute inset-8 opacity-25 pointer-events-none flex flex-col gap-6">
+          <div class="h-14 bg-espresso rounded-2xl"></div>
+          <div class="grid grid-cols-4 gap-4 h-48">
+            <div class="bg-espresso-muted rounded-2xl"></div>
+            <div class="bg-espresso-muted rounded-2xl"></div>
+            <div class="bg-espresso-muted rounded-2xl"></div>
+            <div class="bg-espresso-muted rounded-2xl"></div>
+          </div>
+          <div class="h-64 bg-espresso-muted/40 rounded-2xl"></div>
+        </div>
+
+        <!-- Floating Chatbot Window (Focus Element) -->
+        <div class="w-[480px] h-[820px] bg-white rounded-3xl shadow-2xl border border-espresso/15 flex flex-col relative z-20 overflow-hidden">
+          
+          <!-- Chat Window Header -->
+          <div class="bg-espresso text-cream p-5 flex items-center justify-between border-b border-caramel/30">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-caramel to-espresso-light flex items-center justify-center text-xl shadow-md border border-caramel/40">
+                  🤖
+                </div>
+                <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-espresso absolute -bottom-0.5 -right-0.5"></span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-serif font-bold text-base text-white">Barista AI Assistant</h3>
+                  <span class="text-[9px] font-sans font-bold px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">Gemini 2.5</span>
+                </div>
+                <p class="text-[11px] text-cream/70 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Live Database & Table Status Connected
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1 text-cream/70">
+              <button class="p-1.5 hover:text-white rounded-lg">↺</button>
+              <button class="p-1.5 hover:text-white rounded-lg">✕</button>
+            </div>
+          </div>
+
+          <!-- Quick Suggestion Chips -->
+          <div class="bg-cream-soft px-4 py-2.5 border-b border-espresso/10 flex items-center gap-2 overflow-x-auto no-scrollbar text-[11px]">
+            <button class="px-3 py-1 rounded-full bg-white hover:bg-caramel hover:text-white text-espresso font-semibold border border-espresso/15 whitespace-nowrap transition shadow-xs">
+              ☕ Kopi hemat &lt; 20k
+            </button>
+            <button class="px-3 py-1 rounded-full bg-white hover:bg-caramel hover:text-white text-espresso font-semibold border border-espresso/15 whitespace-nowrap transition shadow-xs">
+              🪑 Meja ada colokan
+            </button>
+            <button class="px-3 py-1 rounded-full bg-white hover:bg-caramel hover:text-white text-espresso font-semibold border border-espresso/15 whitespace-nowrap transition shadow-xs">
+              🥐 Rekomendasi nugas
+            </button>
+          </div>
+
+          <!-- Chat Conversation Stream -->
+          <div class="flex-1 p-5 overflow-y-auto flex flex-col gap-4 text-xs">
+            
+            <!-- Bot Bubble 1 -->
+            <div class="flex items-start gap-2.5 max-w-[85%]">
+              <div class="w-7 h-7 rounded-lg bg-espresso text-cream flex items-center justify-center text-xs shrink-0 mt-0.5">🤖</div>
+              <div class="bg-cream-soft p-3.5 rounded-2xl rounded-tl-sm border border-espresso/10 text-espresso leading-relaxed">
+                Halo Kak! 👋 Aku <b>Barista AI Kopi Mahasiswa</b>. Lagi cari menu kopi sesuai budget atau butuh info meja nugas yang nyaman hari ini?
+              </div>
+            </div>
+
+            <!-- User Bubble 1 -->
+            <div class="flex items-end gap-2 max-w-[85%] self-end">
+              <div class="bg-caramel text-white p-3.5 rounded-2xl rounded-tr-sm shadow-sm leading-relaxed">
+                Halo, rekomendasi kopi yang creamy dan manis buat nugas budget 20 ribuan dong! Sekalian meja yang dekat colokan masih ada gak?
+              </div>
+              <div class="w-6 h-6 rounded-full bg-espresso text-cream flex items-center justify-center text-[10px] shrink-0">U</div>
+            </div>
+
+            <!-- Bot Bubble 2 (RAG Live Answer) -->
+            <div class="flex items-start gap-2.5 max-w-[92%]">
+              <div class="w-7 h-7 rounded-lg bg-espresso text-cream flex items-center justify-center text-xs shrink-0 mt-0.5">🤖</div>
+              <div class="bg-cream-soft p-3.5 rounded-2xl rounded-tl-sm border border-espresso/10 text-espresso leading-relaxed flex flex-col gap-2.5">
+                <p>Pas banget Kak! Untuk budget di bawah 20 ribuan yang creamy dan ramah lambung mahasiswa:</p>
+                
+                <!-- Recommendation Card -->
+                <div class="bg-white p-3 rounded-xl border border-espresso/15 flex items-center gap-3 shadow-xs">
+                  <div class="w-12 h-12 rounded-lg bg-espresso text-2xl flex items-center justify-center">🧋</div>
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-xs text-espresso">Kopi Susu Mahasiswa (KSM)</span>
+                      <span class="font-extrabold text-caramel text-xs">Rp 18.000</span>
+                    </div>
+                    <p class="text-[10px] text-espresso-muted">Espresso blend + susu kental manis + gula aren asli</p>
+                  </div>
+                </div>
+
+                <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 text-emerald-900 text-[11px]">
+                  <b>🪑 Status Meja Live Saat Ini:</b>
+                  <ul class="list-disc list-inside mt-1 text-[10px] space-y-0.5">
+                    <li><b>Meja 03 (Indoor AC)</b>: <span class="text-emerald-700 font-semibold">Tersedia</span> • Ada 2 colokan listrik & WiFi kencang 100 Mbps.</li>
+                    <li><b>Meja 07 (Indoor Corner)</b>: <span class="text-emerald-700 font-semibold">Tersedia</span> • Tenang buat nugas fokus.</li>
+                  </ul>
+                </div>
+
+                <p class="text-[11px] text-espresso-muted">Mau langsung saya pesankan <b>1x KSM</b> ke <b>Meja 03</b> sekarang?</p>
+              </div>
+            </div>
+
+            <!-- User Bubble 2 -->
+            <div class="flex items-end gap-2 max-w-[85%] self-end">
+              <div class="bg-caramel text-white p-3.5 rounded-2xl rounded-tr-sm shadow-sm leading-relaxed">
+                Boleh, pesankan 1x KSM dingin ke Meja 03 ya!
+              </div>
+              <div class="w-6 h-6 rounded-full bg-espresso text-cream flex items-center justify-center text-[10px] shrink-0">U</div>
+            </div>
+
+            <!-- Bot Bubble 3 (Action Result) -->
+            <div class="flex items-start gap-2.5 max-w-[90%]">
+              <div class="w-7 h-7 rounded-lg bg-espresso text-cream flex items-center justify-center text-xs shrink-0 mt-0.5">🤖</div>
+              <div class="bg-cream-soft p-3.5 rounded-2xl rounded-tl-sm border border-emerald-300 bg-emerald-50/50 text-espresso leading-relaxed">
+                <div class="flex items-center gap-1.5 text-emerald-700 font-bold mb-1">
+                  <span>✓</span> Pesanan Berhasil Disiapkan!
+                </div>
+                <p>1x <b>Kopi Susu Mahasiswa (Iced)</b> sudah masuk ke keranjang Meja 03. Total tagihan: <b>Rp 18.000</b>.</p>
+                <button class="mt-2.5 w-full bg-espresso hover:bg-caramel text-white font-bold py-2 rounded-xl text-xs transition">
+                  Buka Keranjang & Bayar
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Chat Input Bar -->
+          <div class="p-3.5 bg-white border-t border-espresso/10">
+            <div class="flex items-center gap-2 bg-cream-soft p-1.5 rounded-2xl border border-espresso/15 focus-within:border-caramel focus-within:ring-2 focus-within:ring-caramel/20 transition">
+              <input type="text" placeholder="Tanya menu kopi, info meja, atau promo..." class="flex-1 bg-transparent px-3 py-1.5 text-xs text-espresso placeholder-espresso-muted/60 focus:outline-none">
+              <button class="w-9 h-9 rounded-xl bg-caramel hover:bg-caramel-dark text-white flex items-center justify-center transition shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              </button>
+            </div>
+            <div class="flex items-center justify-between px-2 pt-2 text-[10px] text-espresso-muted">
+              <span>Didukung Multi-Model AI Engine</span>
+              <span>Kopi Mahasiswa v2.0</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ============================================================== -->
+    <!-- ARTBOARD 4: DASHBOARD ADMIN & STOK INVENTARIS                 -->
+    <!-- ============================================================== -->
+    <section class="flex flex-col gap-4">
+      <div class="flex items-center justify-between px-2 text-white/80">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-[#3E2723] text-cream border border-caramel/40">ARTBOARD 04</span>
+          <h2 class="font-bold text-white text-lg">Dashboard Admin & Manajemen Stok (BOM)</h2>
+        </div>
+        <span class="text-xs font-mono text-white/40">1280 × 920 px</span>
+      </div>
+
+      <!-- Canvas Frame 1280px with Admin Dashboard Layout -->
+      <div class="w-[1280px] min-h-[920px] bg-cream rounded-3xl shadow-artboard border border-espresso/10 overflow-hidden flex flex-col text-espresso">
+        
+        <!-- Admin Top Navigation -->
+        <header class="h-18 bg-espresso text-cream px-8 py-4 flex items-center justify-between border-b border-caramel/30 sticky top-0 z-30">
+          <div class="flex items-center gap-4">
+            <span class="font-serif font-bold text-xl text-white">Kopi Mahasiswa <span class="font-sans font-medium text-xs text-amber-300">ADMIN CONSOLE</span></span>
+            <span class="text-xs px-2.5 py-1 rounded-md bg-white/10 text-cream/80">Cabang: Kampus Utama</span>
+          </div>
+
+          <div class="flex items-center gap-5">
+            <!-- Search -->
+            <div class="relative w-64">
+              <input type="text" placeholder="Cari pesanan, bahan, user..." class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-1.5 pl-8 text-xs text-white placeholder-white/50 focus:outline-none focus:ring-1 focus:ring-caramel">
+              <span class="absolute left-2.5 top-2 text-xs text-white/50">🔍</span>
+            </div>
+
+            <!-- Notification Bell -->
+            <button class="relative p-2 rounded-xl bg-white/10 hover:bg-white/20 text-cream">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              <span class="w-2 h-2 rounded-full bg-rose-500 absolute top-1.5 right-1.5"></span>
+            </button>
+
+            <!-- User Info -->
+            <div class="flex items-center gap-3 pl-4 border-l border-white/15">
+              <div class="text-right">
+                <div class="text-xs font-bold text-white">Admin Mahasiswa</div>
+                <div class="text-[10px] text-amber-300">Super Admin (All Privileges)</div>
+              </div>
+              <div class="w-9 h-9 rounded-xl bg-caramel flex items-center justify-center font-bold text-xs text-white shadow">
+                AD
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Main Body: Sidebar + Dashboard Content -->
+        <div class="flex-1 flex">
+          
+          <!-- Mini Sidebar Navigation -->
+          <aside class="w-56 bg-cream-dark border-r border-espresso/10 p-4 flex flex-col gap-1.5 text-xs font-semibold text-espresso">
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-espresso text-cream shadow-xs">
+              <span>📊</span> Dashboard Ringkasan
+            </a>
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-cream-soft transition text-espresso-muted hover:text-espresso">
+              <span>📦</span> Produk & Menu (11)
+            </a>
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-cream-soft transition text-espresso-muted hover:text-espresso">
+              <span>🧂</span> Topping & Varian (6)
+            </a>
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-caramel/15 text-caramel-dark font-bold border border-caramel/30">
+              <span>🌾</span> Bahan Baku (Stock)
+            </a>
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-cream-soft transition text-espresso-muted hover:text-espresso">
+              <span>📜</span> Resep Minuman (BOM)
+            </a>
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-cream-soft transition text-espresso-muted hover:text-espresso">
+              <span>👥</span> Manajemen User (5)
+            </a>
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-cream-soft transition text-espresso-muted hover:text-espresso">
+              <span>🎟️</span> Promo & Voucher
+            </a>
+            <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-cream-soft transition text-espresso-muted hover:text-espresso">
+              <span>⚙️</span> Pengaturan AI Engine
+            </a>
+          </aside>
+
+          <!-- Main Content Area -->
+          <div class="flex-1 p-8 flex flex-col gap-6 overflow-y-auto">
+            
+            <!-- Metrics 4 KPI Cards -->
+            <div class="grid grid-cols-4 gap-5">
+              
+              <div class="bg-white p-5 rounded-2xl border border-espresso/10 shadow-sm">
+                <div class="flex items-center justify-between text-espresso-muted mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider">Omset Hari Ini</span>
+                  <span class="p-2 rounded-xl bg-emerald-50 text-emerald-600 text-sm">💰</span>
+                </div>
+                <div class="font-serif font-extrabold text-2xl text-espresso font-sans">Rp 1.485.000</div>
+                <div class="flex items-center gap-1.5 mt-2 text-[11px] text-emerald-600 font-semibold">
+                  <span>▲ +18.4%</span>
+                  <span class="text-espresso-muted font-normal">vs kemarin (Rp 1.250k)</span>
+                </div>
+              </div>
+
+              <div class="bg-white p-5 rounded-2xl border border-espresso/10 shadow-sm">
+                <div class="flex items-center justify-between text-espresso-muted mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider">Total Transaksi</span>
+                  <span class="p-2 rounded-xl bg-amber-50 text-amber-600 text-sm">🧾</span>
+                </div>
+                <div class="font-serif font-extrabold text-2xl text-espresso font-sans">68 Pesanan</div>
+                <div class="flex items-center gap-1.5 mt-2 text-[11px] text-espresso-muted">
+                  <span class="font-bold text-emerald-600">62 Lunas</span> • <span class="font-bold text-amber-600">6 Antre</span>
+                </div>
+              </div>
+
+              <div class="bg-white p-5 rounded-2xl border border-espresso/10 shadow-sm">
+                <div class="flex items-center justify-between text-espresso-muted mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider">Pelanggan Aktif</span>
+                  <span class="p-2 rounded-xl bg-blue-50 text-blue-600 text-sm">👥</span>
+                </div>
+                <div class="font-serif font-extrabold text-2xl text-espresso font-sans">45 Mahasiswa</div>
+                <div class="flex items-center gap-1.5 mt-2 text-[11px] text-blue-600 font-semibold">
+                  <span>82% Member Terdaftar</span>
+                </div>
+              </div>
+
+              <div class="bg-white p-5 rounded-2xl border border-rose-200 bg-rose-50/20 shadow-sm">
+                <div class="flex items-center justify-between text-espresso-muted mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider text-rose-700">Stok Kritis (Low)</span>
+                  <span class="p-2 rounded-xl bg-rose-100 text-rose-600 text-sm">⚠️</span>
+                </div>
+                <div class="font-serif font-extrabold text-2xl text-rose-600 font-sans">2 Bahan Baku</div>
+                <div class="flex items-center gap-1.5 mt-2 text-[11px] text-rose-600 font-semibold">
+                  <span>Segera buat PO Supplier</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Mini Sales Hours Chart & Table Container -->
+            <div class="grid grid-cols-12 gap-6">
+              
+              <!-- Left: Hourly Sales Volume Bar Chart (4 Cols) -->
+              <div class="col-span-4 bg-white p-5 rounded-2xl border border-espresso/10 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-serif font-bold text-sm text-espresso">Grafik Jam Ramai (Peak Hours)</h3>
+                    <span class="text-[10px] text-espresso-muted">Hari Ini</span>
+                  </div>
+                  <div class="h-44 flex items-end justify-between gap-2 pt-6 px-2">
+                    <!-- 09:00 -->
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-caramel/30 rounded-t h-[30%]"></div>
+                      <span class="text-[9px] text-espresso-muted">09</span>
+                    </div>
+                    <!-- 11:00 -->
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-caramel/50 rounded-t h-[55%]"></div>
+                      <span class="text-[9px] text-espresso-muted">11</span>
+                    </div>
+                    <!-- 13:00 (Peak Lunch) -->
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-caramel rounded-t h-[85%] relative">
+                        <span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] font-bold text-caramel">18</span>
+                      </div>
+                      <span class="text-[9px] text-espresso font-bold">13</span>
+                    </div>
+                    <!-- 15:00 -->
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-caramel/60 rounded-t h-[60%]"></div>
+                      <span class="text-[9px] text-espresso-muted">15</span>
+                    </div>
+                    <!-- 17:00 -->
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-caramel/70 rounded-t h-[75%]"></div>
+                      <span class="text-[9px] text-espresso-muted">17</span>
+                    </div>
+                    <!-- 19:00 (Nugas Begadang Peak) -->
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-espresso rounded-t h-[100%] relative">
+                        <span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] font-bold text-espresso">24</span>
+                      </div>
+                      <span class="text-[9px] text-espresso font-bold">19</span>
+                    </div>
+                    <!-- 21:00 -->
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                      <div class="w-full bg-caramel/50 rounded-t h-[45%]"></div>
+                      <span class="text-[9px] text-espresso-muted">21</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-3 border-t border-espresso/10 text-[11px] text-espresso-muted flex justify-between">
+                  <span>Puncak nugas mahasiswa: <b>19.00 - 21.30 WIB</b></span>
+                </div>
+              </div>
+
+              <!-- Right: Tabel Status Stok Bahan Baku (8 Cols) -->
+              <div class="col-span-8 bg-white p-5 rounded-2xl border border-espresso/10 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 class="font-serif font-bold text-sm text-espresso">Inventaris Stok Bahan Baku (Bill of Materials)</h3>
+                      <p class="text-[11px] text-espresso-muted">Stok berkurang otomatis setiap pesanan disajikan oleh Barista</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button class="bg-espresso hover:bg-caramel text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition shadow-xs">
+                        + Tambah Mutasi
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Table -->
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                      <thead>
+                        <tr class="border-b border-espresso/10 text-[10px] uppercase font-bold text-espresso-muted">
+                          <th class="pb-2.5">Nama Bahan Baku</th>
+                          <th class="pb-2.5">Stok Saat Ini</th>
+                          <th class="pb-2.5">Stok Minimum</th>
+                          <th class="pb-2.5">Satuan</th>
+                          <th class="pb-2.5">Status Persediaan</th>
+                          <th class="pb-2.5 text-right">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-espresso/5 font-medium">
+                        
+                        <!-- Row 1: Biji Kopi Arabika -->
+                        <tr>
+                          <td class="py-2.5 font-bold text-espresso flex items-center gap-2">
+                            <span>☕</span> Biji Kopi Arabika House Blend
+                          </td>
+                          <td class="py-2.5 font-extrabold text-espresso">4.200</td>
+                          <td class="py-2.5 text-espresso-muted">2.000</td>
+                          <td class="py-2.5 text-espresso-muted">gram</td>
+                          <td class="py-2.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Aman
+                            </span>
+                          </td>
+                          <td class="py-2.5 text-right">
+                            <button class="text-xs text-caramel hover:underline font-bold">Restock</button>
+                          </td>
+                        </tr>
+
+                        <!-- Row 2: Susu Fresh Milk (Kritis) -->
+                        <tr class="bg-rose-50/40">
+                          <td class="py-2.5 font-bold text-rose-900 flex items-center gap-2">
+                            <span>🥛</span> Susu Fresh Milk Pasteurisasi
+                          </td>
+                          <td class="py-2.5 font-extrabold text-rose-700">1.800</td>
+                          <td class="py-2.5 text-rose-600 font-bold">5.000</td>
+                          <td class="py-2.5 text-espresso-muted">ml</td>
+                          <td class="py-2.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 animate-pulse">
+                              <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> Kritis (&lt; Min)
+                            </span>
+                          </td>
+                          <td class="py-2.5 text-right">
+                            <button class="text-xs bg-rose-600 text-white px-2 py-0.5 rounded-md font-bold hover:bg-rose-700">Pesan PO</button>
+                          </td>
+                        </tr>
+
+                        <!-- Row 3: Gula Aren Cair (Menipis) -->
+                        <tr class="bg-amber-50/30">
+                          <td class="py-2.5 font-bold text-espresso flex items-center gap-2">
+                            <span>🍯</span> Gula Aren Organik Cair
+                          </td>
+                          <td class="py-2.5 font-extrabold text-amber-700">650</td>
+                          <td class="py-2.5 text-espresso-muted">1.000</td>
+                          <td class="py-2.5 text-espresso-muted">ml</td>
+                          <td class="py-2.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                              <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Menipis
+                            </span>
+                          </td>
+                          <td class="py-2.5 text-right">
+                            <button class="text-xs text-caramel hover:underline font-bold">Restock</button>
+                          </td>
+                        </tr>
+
+                        <!-- Row 4: Sirup Karamel -->
+                        <tr>
+                          <td class="py-2.5 font-bold text-espresso flex items-center gap-2">
+                            <span>🍮</span> Sirup Karamel Monin
+                          </td>
+                          <td class="py-2.5 font-extrabold text-espresso">2.500</td>
+                          <td class="py-2.5 text-espresso-muted">1.000</td>
+                          <td class="py-2.5 text-espresso-muted">ml</td>
+                          <td class="py-2.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Aman
+                            </span>
+                          </td>
+                          <td class="py-2.5 text-right">
+                            <button class="text-xs text-caramel hover:underline font-bold">Restock</button>
+                          </td>
+                        </tr>
+
+                        <!-- Row 5: Paper Cup -->
+                        <tr>
+                          <td class="py-2.5 font-bold text-espresso flex items-center gap-2">
+                            <span>🥤</span> Cup 16oz Kopi Mahasiswa
+                          </td>
+                          <td class="py-2.5 font-extrabold text-espresso">340</td>
+                          <td class="py-2.5 text-espresso-muted">100</td>
+                          <td class="py-2.5 text-espresso-muted">pcs</td>
+                          <td class="py-2.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Aman
+                            </span>
+                          </td>
+                          <td class="py-2.5 text-right">
+                            <button class="text-xs text-caramel hover:underline font-bold">Restock</button>
+                          </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-espresso/10 flex items-center justify-between text-xs text-espresso-muted">
+                  <span>Menampilkan 5 dari 14 bahan baku aktif</span>
+                  <a href="#" class="text-caramel font-bold hover:underline">Lihat Semua Data Bahan Baku →</a>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ============================================================== -->
+    <!-- ARTBOARD 5: AI ENGINE SWITCHER (/admin/settings/ai)           -->
+    <!-- ============================================================== -->
+    <section class="flex flex-col gap-4">
+      <div class="flex items-center justify-between px-2 text-white/80">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-[#3E2723] text-cream border border-caramel/40">ARTBOARD 05</span>
+          <h2 class="font-bold text-white text-lg">AI Engine Switcher (/admin/settings/ai)</h2>
+        </div>
+        <span class="text-xs font-mono text-white/40">1280 × 920 px</span>
+      </div>
+
+      <!-- Canvas Frame 1280px with Multi-Model Settings Layout -->
+      <div class="w-[1280px] min-h-[920px] bg-cream rounded-3xl shadow-artboard border border-espresso/10 overflow-hidden flex flex-col text-espresso">
+        
+        <!-- Header -->
+        <header class="h-18 bg-espresso text-cream px-8 py-4 flex items-center justify-between border-b border-caramel/30 sticky top-0 z-30">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🤖</span>
+            <div>
+              <h3 class="font-serif font-bold text-lg text-white">Multi-Model AI Engine Switcher</h3>
+              <p class="text-xs text-cream/70">Pengaturan model AI dinamis Barista Chatbot & Admin Intelligence</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Mesin Aktif: Google Gemini 2.5 Flash
+            </span>
+          </div>
+        </header>
+
+        <!-- Main Content Settings Body -->
+        <div class="p-8 flex flex-col gap-8 overflow-y-auto">
+          
+          <!-- Banner Penjelasan Fitur -->
+          <div class="bg-espresso text-cream p-6 rounded-2xl border border-caramel/30 flex items-start justify-between relative overflow-hidden shadow-md">
+            <div class="max-w-2xl relative z-10">
+              <span class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Multi-Provider AI Fallback Architecture</span>
+              <h4 class="font-serif font-bold text-xl text-white mt-1">Pilih Model AI Aktif & Konfigurasi API Key Secara Real-Time</h4>
+              <p class="text-xs text-cream/80 mt-1 leading-relaxed">
+                Sistem mendukung pergantian model kecerdasan buatan tanpa perlu me-restart server. Jika provider utama kehabisan kuota atau mengalami timeout, sistem secara cerdas akan mengalihkan ke model cadangan atau Semantic Answering Engine lokal.
+              </p>
+            </div>
+            <div class="flex items-center gap-2 relative z-10">
+              <div class="text-right">
+                <span class="text-[10px] text-cream/60">Hak Akses:</span>
+                <div class="text-xs font-bold text-amber-300">Admin & Owner Only</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Kartu Pilihan Model AI (Grid) -->
+          <div>
+            <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-3">1. Pilih Provider Model AI:</label>
+            <div class="grid grid-cols-4 gap-5">
+              
+              <!-- Card 1: Google Gemini (Active) -->
+              <div class="bg-white p-5 rounded-2xl border-2 border-caramel shadow-md flex flex-col justify-between relative cursor-pointer ring-2 ring-caramel/20">
+                <div class="absolute -top-3 right-4 bg-caramel text-white text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow">
+                  Aktif (Current)
+                </div>
+                <div>
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
+                      ⚡
+                    </div>
+                    <div>
+                      <h5 class="font-bold text-sm text-espresso">Google Gemini</h5>
+                      <span class="text-[10px] text-espresso-muted">gemini-2.5-flash / gemini-3.5-lite</span>
+                    </div>
+                  </div>
+                  <p class="text-xs text-espresso-muted mt-2 leading-relaxed">Latency ultra-cepat (&lt;350ms), hemat kuota, dan terintegrasi native dengan SDK @google/genai.</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-espresso/10 flex items-center justify-between text-xs">
+                  <span class="text-emerald-600 font-bold">● Status: Terhubung</span>
+                  <span class="text-[10px] text-espresso-muted">Latency ~320ms</span>
+                </div>
+              </div>
+
+              <!-- Card 2: OpenAI GPT -->
+              <div class="bg-white p-5 rounded-2xl border border-espresso/15 hover:border-caramel/60 shadow-xs hover:shadow-md transition flex flex-col justify-between relative cursor-pointer opacity-90 hover:opacity-100">
+                <div>
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                      🧠
+                    </div>
+                    <div>
+                      <h5 class="font-bold text-sm text-espresso">OpenAI GPT</h5>
+                      <span class="text-[10px] text-espresso-muted">gpt-4o-mini / gpt-4o</span>
+                    </div>
+                  </div>
+                  <p class="text-xs text-espresso-muted mt-2 leading-relaxed">Penalaran tingkat tinggi untuk analisis bisnis kafe dan rekomendasi menu kompleks.</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-espresso/10 flex items-center justify-between text-xs">
+                  <span class="text-espresso-muted font-medium">○ Status: Siap Pakai</span>
+                  <span class="text-[10px] text-espresso-muted">Latency ~650ms</span>
+                </div>
+              </div>
+
+              <!-- Card 3: DeepSeek -->
+              <div class="bg-white p-5 rounded-2xl border border-espresso/15 hover:border-caramel/60 shadow-xs hover:shadow-md transition flex flex-col justify-between relative cursor-pointer opacity-90 hover:opacity-100">
+                <div>
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+                      🚀
+                    </div>
+                    <div>
+                      <h5 class="font-bold text-sm text-espresso">DeepSeek</h5>
+                      <span class="text-[10px] text-espresso-muted">deepseek-chat (V3 / R1)</span>
+                    </div>
+                  </div>
+                  <p class="text-xs text-espresso-muted mt-2 leading-relaxed">Model penalaran efisien dengan biaya komputasi rendah dan kompatibilitas API OpenAI.</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-espresso/10 flex items-center justify-between text-xs">
+                  <span class="text-espresso-muted font-medium">○ Status: Siap Pakai</span>
+                  <span class="text-[10px] text-espresso-muted">Latency ~480ms</span>
+                </div>
+              </div>
+
+              <!-- Card 4: Xkiro AI (Mistral / Nous Gateway) -->
+              <div class="bg-white p-5 rounded-2xl border border-espresso/15 hover:border-caramel/60 shadow-xs hover:shadow-md transition flex flex-col justify-between relative cursor-pointer opacity-90 hover:opacity-100">
+                <div>
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl font-bold">
+                      🛡️
+                    </div>
+                    <div>
+                      <h5 class="font-bold text-sm text-espresso">Xkiro AI Gateway</h5>
+                      <span class="text-[10px] text-espresso-muted">mistral-small-24b / cohere</span>
+                    </div>
+                  </div>
+                  <p class="text-xs text-espresso-muted mt-2 leading-relaxed">Multi-model open-weights gateway independen dengan dukungan API Key dinamis.</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-espresso/10 flex items-center justify-between text-xs">
+                  <span class="text-espresso-muted font-medium">○ Status: Siap Pakai</span>
+                  <span class="text-[10px] text-espresso-muted">Latency ~510ms</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Form Konfigurasi API Key & Parameter Model -->
+          <div class="bg-white p-6 rounded-2xl border border-espresso/10 shadow-sm flex flex-col gap-6">
+            <h4 class="font-serif font-bold text-base text-espresso flex items-center gap-2">
+              <span>🔧</span> Konfigurasi Model Terpilih: <span class="text-caramel font-sans">Google Gemini (Active)</span>
+            </h4>
+
+            <div class="grid grid-cols-12 gap-6">
+              
+              <!-- Input API Key (8 Cols) -->
+              <div class="col-span-8 flex flex-col gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-2">
+                    Gemini API Key (Tersimpan Terenkripsi di Database)
+                  </label>
+                  <div class="relative">
+                    <input type="password" value="AIzaSyD-sample-encrypted-key-coffee-99214488" class="w-full bg-cream-soft border border-espresso/20 rounded-xl px-4 py-3 text-xs font-mono text-espresso focus:ring-2 focus:ring-caramel focus:outline-none">
+                    <button class="absolute right-3 top-3 text-xs text-espresso-muted hover:text-espresso font-semibold">Tampilkan</button>
+                  </div>
+                  <p class="text-[10px] text-espresso-muted mt-1.5">Kunci API dapat dibuat gratis melalui Google AI Studio (aistudio.google.com).</p>
+                </div>
+
+                <!-- System Instruction Preview -->
+                <div>
+                  <label class="block text-xs font-bold text-espresso uppercase tracking-wider mb-2">
+                    System Instruction Prompt (Aturan Kepribadian Barista AI)
+                  </label>
+                  <textarea rows="3" class="w-full bg-cream-soft border border-espresso/20 rounded-xl p-3 text-xs text-espresso font-mono focus:ring-2 focus:ring-caramel focus:outline-none resize-none leading-relaxed">Kamu adalah Barista AI Kopi Mahasiswa yang ramah, santun, dan sangat paham katalog menu kopi/non-kopi, resep BOM, serta ketersediaan meja. Berikan rekomendasi ramah budget mahasiswa!</textarea>
+                </div>
+              </div>
+
+              <!-- Parameter Tuning (4 Cols) -->
+              <div class="col-span-4 flex flex-col gap-4 pl-4 border-l border-espresso/10">
+                <div>
+                  <div class="flex items-center justify-between text-xs font-bold text-espresso mb-1.5">
+                    <span>Temperature</span>
+                    <span class="text-caramel">0.3 (Konsisten & Presisi)</span>
+                  </div>
+                  <input type="range" min="0" max="1" step="0.1" value="0.3" class="w-full accent-caramel cursor-pointer">
+                  <div class="flex justify-between text-[9px] text-espresso-muted mt-1">
+                    <span>0.0 (Presisi Database)</span>
+                    <span>1.0 (Kreatif)</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex items-center justify-between text-xs font-bold text-espresso mb-1.5">
+                    <span>Max Output Tokens</span>
+                    <span class="text-caramel">800 Tokens</span>
+                  </div>
+                  <input type="range" min="200" max="2000" step="100" value="800" class="w-full accent-caramel cursor-pointer">
+                </div>
+
+                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
+                  💡 <b>Rekomendasi Suhu:</b> Nilai 0.3 sangat disarankan agar AI tidak berhalusinasi terhadap harga menu dan stok bahan baku.
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="pt-4 border-t border-espresso/10 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <button class="px-4 py-2.5 rounded-xl border border-espresso/20 text-espresso text-xs font-bold hover:bg-cream-soft transition">
+                  🔌 Test Koneksi API
+                </button>
+                <button class="px-4 py-2.5 rounded-xl border border-espresso/20 text-espresso text-xs font-bold hover:bg-cream-soft transition">
+                  ↺ Reset ke Default
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <button class="bg-espresso hover:bg-caramel text-white text-xs font-extrabold px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                  <span>💾 Simpan & Aktifkan Mesin AI</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FIGMA IMPORT INSTRUCTIONS FOOTER ================= -->
+  <footer class="mt-8 p-6 rounded-2xl bg-white/5 border border-white/10 text-white/70 text-xs flex flex-col md:flex-row items-center justify-between gap-4 max-w-[4000px]">
+    <div class="flex items-center gap-3">
+      <span class="text-xl">🎨</span>
+      <div>
+        <span class="font-bold text-white">Cara Impor ke Figma:</span>
+        <span class="ml-1 text-white/60">Gunakan plugin Figma seperti <b>html.to.design</b> atau <b>HTML to Figma</b>, lalu salin URL file ini atau paste kode HTML secara langsung ke canvas Figma. Kelima layar akan otomatis terpecah menjadi 5 Artboard/Frame independen.</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 font-mono text-[11px] text-white/40">
+      <span>Layout: 5 × 1280px Horizontal</span>
+      <span>•</span>
+      <span>Gap: 80px</span>
+    </div>
+  </footer>
+
+</body>
+</html>
