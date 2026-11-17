@@ -119,8 +119,11 @@ export async function POST(req: Request) {
       q.includes('pesanan apa') ||
       q.includes('transaksi apa') ||
       q.includes('order apa') ||
-      (q.includes('itu') && (q.includes('beli') || q.includes('pesan') || q.includes('transaksi') || q.includes('rincian'))) ||
-      ((q.startsWith('itu ') || q === 'itu apa' || q === 'apa itu') && (lastBotReply.includes('Rp') || lastBotReply.includes('omset')));
+      q.includes('yang dibeli') ||
+      q.includes('yang dipesan') ||
+      (q.includes('rincian') && (q.includes('beli') || q.includes('omset') || q.includes('transaksi') || q.includes('pesan') || q.includes('itu'))) ||
+      (q.includes('itu') && (q.includes('beli') || q.includes('pesan') || q.includes('transaksi') || q.includes('rincian') || q.includes('item'))) ||
+      ((q.startsWith('itu ') || q === 'itu apa' || q === 'apa itu') && (lastBotReply.includes('Rp') || lastBotReply.includes('omset') || lastBotReply.includes('transaksi')));
 
     if (isFollowUpPurchase) {
       const todayOrders = (dbSnapshot?.orders?.today as any)?.recentOrders || [];
@@ -161,6 +164,20 @@ export async function POST(req: Request) {
         return NextResponse.json({
           reply: topList.map((s: any) => `${s.name} (${s.qty} cup)`).join('\n'),
           dataSource: 'top-selling-today',
+        });
+      }
+      const recentOrders = (dbSnapshot?.orders?.today as any)?.recentOrders || [];
+      const itemMap = new Map<string, number>();
+      for (const ro of recentOrders) {
+        for (const item of (ro.items || [])) {
+          const pName = item.productName || item.product?.name || 'Produk';
+          itemMap.set(pName, (itemMap.get(pName) || 0) + (item.quantity || 1));
+        }
+      }
+      if (itemMap.size > 0) {
+        return NextResponse.json({
+          reply: Array.from(itemMap.entries()).map(([name, qty]) => `${name} (${qty} cup)`).join('\n'),
+          dataSource: 'sold-items-recent',
         });
       }
       return NextResponse.json({

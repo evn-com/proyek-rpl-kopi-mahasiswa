@@ -619,8 +619,11 @@ export function generatePreciseAdminResponse(
     q.includes('pesanan apa') ||
     q.includes('transaksi apa') ||
     q.includes('order apa') ||
-    (q.includes('itu') && (q.includes('beli') || q.includes('pesan') || q.includes('transaksi') || q.includes('rincian'))) ||
-    ((q.startsWith('itu ') || q === 'itu apa' || q === 'apa itu') && ((previousReply || '').includes('Rp') || (previousReply || '').includes('omset')));
+    q.includes('yang dibeli') ||
+    q.includes('yang dipesan') ||
+    (q.includes('rincian') && (q.includes('beli') || q.includes('omset') || q.includes('transaksi') || q.includes('pesan') || q.includes('itu'))) ||
+    (q.includes('itu') && (q.includes('beli') || q.includes('pesan') || q.includes('transaksi') || q.includes('rincian') || q.includes('item'))) ||
+    ((q.startsWith('itu ') || q === 'itu apa' || q === 'apa itu') && ((previousReply || '').includes('Rp') || (previousReply || '').includes('omset') || (previousReply || '').includes('transaksi')));
 
   if (isFollowUpPurchase) {
     const todayOrders = orders?.today?.recentOrders || [];
@@ -650,6 +653,17 @@ export function generatePreciseAdminResponse(
     const topList = orders?.topSellingToday || [];
     if (topList.length > 0) {
       return topList.map((s: any) => `${s.name} (${s.qty} cup)`).join('\n');
+    }
+    const recentOrders = orders?.today?.recentOrders || [];
+    const itemMap = new Map<string, number>();
+    for (const ro of recentOrders) {
+      for (const item of (ro.items || [])) {
+        const pName = item.productName || item.product?.name || 'Produk';
+        itemMap.set(pName, (itemMap.get(pName) || 0) + (item.quantity || 1));
+      }
+    }
+    if (itemMap.size > 0) {
+      return Array.from(itemMap.entries()).map(([name, qty]) => `${name} (${qty} cup)`).join('\n');
     }
     return `Belum ada kopi yang terjual hari ini.`;
   }
@@ -1306,11 +1320,46 @@ Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
     return `Rp ${revToday.toLocaleString('id-ID')}`;
   }
 
+  // 9B. TOPPING (JUMLAH, DAFTAR, & HARGA SPESIFIK)
+  if (q.includes('topping') || q.includes('toping')) {
+    const allToppings = catalog?.toppings || [];
+    if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('jenis')) {
+      return `${allToppings.length} jenis topping`;
+    }
+    if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list') || q.includes('katalog')) {
+      return allToppings.map((t: any) => t.name).join(', ');
+    }
+    const specificTopping = allToppings.find((t: any) => {
+      const tName = t.name.toLowerCase();
+      if (q.includes(tName)) return true;
+      const firstWord = tName.split(' ')[0];
+      return tName.length > 4 && q.includes(firstWord) && (q.includes('harga') || q.includes('berapa'));
+    });
+    if (specificTopping) {
+      return `Rp ${specificTopping.price.toLocaleString('id-ID')}`;
+    }
+    return `${allToppings.length} jenis topping`;
+  }
+
+  // 9C. KATEGORI MENU (JUMLAH & DAFTAR)
+  if (q.includes('kategori') || q.includes('category')) {
+    const allCategories = catalog?.categories || [];
+    if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('jenis')) {
+      return `${allCategories.length} kategori`;
+    }
+    if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list')) {
+      return allCategories.map((c: any) => c.name).join(', ');
+    }
+    return `${allCategories.length} kategori`;
+  }
+
   // 10. DAFTAR MENU, PRODUK & HARGA
   if (
     q.includes('produk') || q.includes('menu') || q.includes('makanan') ||
     q.includes('minuman') || q.includes('harga') || q.includes('katalog') ||
-    q.includes('kopi') || q.includes('coffee') || q.includes('snack') || q.includes('cemilan')
+    q.includes('kopi') || q.includes('coffee') || q.includes('snack') || q.includes('cemilan') ||
+    q.includes('teh') || q.includes('tea') || q.includes('non kopi') || q.includes('non coffee') ||
+    q.includes('bukan kopi') || q.includes('croissant') || q.includes('kentang') || q.includes('latte')
   ) {
     const allProducts = catalog?.products?.list || [];
 
@@ -1345,7 +1394,53 @@ Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
     const nonCoffeeProducts = allProducts.filter(isNonCoffeeProduct);
     const snackProducts = allProducts.filter(isSnackProduct);
 
-    // 10-SPECIFIC. Cek apakah menanyakan 1 PRODUK spesifik (misal: "brapa harga classic coffe latte", "harga croissant")
+    // 10A. Jika menanyakan khusus NON-KOPI (Evaluasi sebelum produk spesifik)
+    if (
+      q.includes('non kopi') || q.includes('bukan kopi') || q.includes('non coffee') ||
+      q.includes('teh') || q.includes('tea') || q.includes('cokelat') || q.includes('chocolate')
+    ) {
+      const isList = q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list');
+      if (!isList) {
+        return `${nonCoffeeProducts.length} menu non-kopi`;
+      }
+      return nonCoffeeProducts.map((p: any) => p.name).join(', ');
+    }
+
+    // 10B. Jika menanyakan khusus SNACK / CEMILAN / MAKANAN
+    if (
+      q.includes('snack') || q.includes('cemilan') || q.includes('makanan') ||
+      q.includes('pastry') || q.includes('kue')
+    ) {
+      const isList = q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list');
+      if (!isList) {
+        return `${snackProducts.length} menu snack`;
+      }
+      return snackProducts.map((p: any) => p.name).join(', ');
+    }
+
+    // 10C. Jika menanyakan khusus KOPI / COFFEE (Pastikan BUKAN non-kopi)
+    if (
+      !q.includes('non') && !q.includes('bukan') &&
+      (q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi') || q.includes('jenis kopi') ||
+      ((q.includes('kopi') || q.includes('coffee')) && (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('daftar') || q.includes('ada') || q.includes('jenis'))))
+    ) {
+      const isList = q.includes('daftar') || q.includes('apa saja') || q.includes('sebutkan');
+      if (!isList) {
+        return `${coffeeProducts.length} menu kopi`;
+      }
+      return coffeeProducts.map((p: any) => p.name).join(', ');
+    }
+
+    // 10D. Total Produk / Menu Keseluruhan
+    const isAllProductCount =
+      (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) &&
+      (q.includes('menu') || q.includes('produk') || q.includes('makanan dan minuman')) &&
+      !q.includes('kopi') && !q.includes('coffee');
+    if (isAllProductCount) {
+      return `${allProducts.length} produk`;
+    }
+
+    // 10E. Cek apakah menanyakan 1 PRODUK spesifik (misal: "brapa harga classic coffe latte", "harga croissant")
     const productKeyMap: Array<{ keys: string[]; nameMatch: string }> = [
       { keys: ['classic', 'caffe latte', 'coffe latte', 'coffee latte'], nameMatch: 'Classic Caffe Latte' },
       { keys: ['pandan', 'aren'], nameMatch: 'Pandan Aren Latte' },
@@ -1392,74 +1487,7 @@ Dokumentasi lengkap tersimpan di file: 'docs/DOKUMENTASI_AI_CHATBOT.md'.`;
       return `Rp ${specificProduct.basePrice.toLocaleString('id-ID')}`;
     }
 
-    // Cek apakah menanyakan TOPPING (jumlah, daftar, harga spesifik)
-    const allToppings = catalog?.toppings || [];
-    if (q.includes('topping') || q.includes('toping')) {
-      if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('jenis')) {
-        return `${allToppings.length} jenis topping`;
-      }
-      if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list') || q.includes('katalog')) {
-        return allToppings.map((t: any) => t.name).join(', ');
-      }
-      const specificTopping = allToppings.find((t: any) => {
-        const tName = t.name.toLowerCase();
-        if (q.includes(tName)) return true;
-        const firstWord = tName.split(' ')[0];
-        return tName.length > 4 && q.includes(firstWord) && (q.includes('harga') || q.includes('berapa'));
-      });
-      if (specificTopping) {
-        return `Rp ${specificTopping.price.toLocaleString('id-ID')}`;
-      }
-      return `${allToppings.length} jenis topping`;
-    }
 
-    // Kategori Menu (jumlah & daftar)
-    const allCategories = catalog?.categories || [];
-    if (q.includes('kategori') || q.includes('category')) {
-      if (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa')) {
-        return `${allCategories.length} kategori`;
-      }
-      if (q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list')) {
-        return allCategories.map((c: any) => c.name).join(', ');
-      }
-    }
-
-    // 10A. Jika menanyakan khusus NON-KOPI
-    if (
-      q.includes('non kopi') || q.includes('bukan kopi') || q.includes('non coffee') ||
-      q.includes('teh') || q.includes('tea') || q.includes('cokelat') || q.includes('chocolate')
-    ) {
-      const isList = q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list');
-      if (!isList) {
-        return `${nonCoffeeProducts.length} menu non-kopi`;
-      }
-      return nonCoffeeProducts.map((p: any) => p.name).join(', ');
-    }
-
-    // 10B. Jika menanyakan khusus SNACK / CEMILAN / MAKANAN
-    if (
-      q.includes('snack') || q.includes('cemilan') || q.includes('makanan') ||
-      q.includes('pastry') || q.includes('kue')
-    ) {
-      const isList = q.includes('apa saja') || q.includes('sebutkan') || q.includes('daftar') || q.includes('list');
-      if (!isList) {
-        return `${snackProducts.length} menu snack`;
-      }
-      return snackProducts.map((p: any) => p.name).join(', ');
-    }
-
-    // 10C. Jika menanyakan khusus KOPI / COFFEE (Pastikan BUKAN non-kopi)
-    if (
-      !q.includes('non') && !q.includes('bukan') &&
-      (q.includes('menu kopi') || q.includes('varian kopi') || q.includes('daftar kopi') || q.includes('katalog kopi') || q.includes('jenis kopi') ||
-      ((q.includes('kopi') || q.includes('coffee')) && (q.includes('berapa') || q.includes('jumlah') || q.includes('total') || q.includes('ada berapa') || q.includes('daftar') || q.includes('ada') || q.includes('jenis'))))
-    ) {
-      const isList = q.includes('daftar') || q.includes('apa saja') || q.includes('sebutkan');
-      if (!isList) {
-        return `${coffeeProducts.length} menu kopi`;
-      }
-      return coffeeProducts.map((p: any) => p.name).join(', ');
-    }
 
     // 10D. Jika menanyakan SEMUA menu / katalog secara umum
     const coffeeList = coffeeProducts
