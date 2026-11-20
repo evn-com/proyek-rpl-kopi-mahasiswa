@@ -23,7 +23,7 @@ Berikut adalah video dokumentasi tahapan progres dan demonstrasi penuh aplikasi:
 
 | No | Tahap Dokumentasi | Tautan Video | Status |
 | :---: | :--- | :--- | :---: |
-| 1 | **Video Progres 1** (Perancangan & UI Dasar) | [Link Video Progres 1]([https://youtube.com/...](https://youtu.be/Xx5l1y7BlyY)) | 🟢 Selesai |
+| 1 | **Full Video Web Kopi Mahasiswa** | [https://youtu.be/Xx5l1y7BlyY]| 🟢 Selesai |
 ---
 
 ## 📖 Deskripsi Aplikasi
