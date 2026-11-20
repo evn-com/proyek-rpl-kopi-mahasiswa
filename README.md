@@ -23,10 +23,7 @@ Berikut adalah video dokumentasi tahapan progres dan demonstrasi penuh aplikasi:
 
 | No | Tahap Dokumentasi | Tautan Video | Status |
 | :---: | :--- | :--- | :---: |
-| 1 | **Video Progres 1** (Perancangan & UI Dasar) | [Link Video Progres 1](https://youtube.com/...) | 🟢 Selesai |
-| 2 | **Video Progres 2** (Fitur Operasional & POS) | [Link Video Progres 2](https://youtube.com/...) | 🟢 Selesai |
-| 3 | **Video Final Demo** (Integrasi AI & Pengujian Penuh) | [Link Video Final Demo](https://youtube.com/...) | 🟢 Selesai |
-
+| 1 | **Video Progres 1** (Perancangan & UI Dasar) | [Link Video Progres 1]([https://youtube.com/...](https://youtu.be/Xx5l1y7BlyY)) | 🟢 Selesai |
 ---
 
 ## 📖 Deskripsi Aplikasi
